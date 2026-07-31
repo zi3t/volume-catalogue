@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- Re-fly the incident. One recorded tape, replayed, then re-run with a
+       changed controller: the same trace three times, diverging only after the
+       checkpoint where the change was made. Portrait — the cover's long axis is
+       its height. No background: the scene paints the volume's cloth and threads
+       underneath, and a filled rect here would cover them. -->
+  <g fill="none" stroke="#292a74" stroke-linecap="round">
+    <g opacity=".24" stroke-width="1.4">
+      <path d="M96 402H704M96 502H704M96 602H704M96 702H704"/>
+      <path d="M200 372V732M320 372V732M440 372V732M560 372V732"/>
+    </g>
+    <!-- the recorded tape -->
+    <path d="M96 606C158 606 158 470 220 470S282 640 344 640 406 486 468 486 530 596 592 596 654 512 704 512" stroke-width="6" opacity=".95"/>
+    <!-- the bit-exact replay, riding the same path -->
+    <path d="M96 606C158 606 158 470 220 470S282 640 344 640 406 486 468 486 530 596 592 596 654 512 704 512" stroke-width="2" opacity=".5" stroke-dasharray="9 11"/>
+    <!-- the counterfactual: identical until the checkpoint, then it separates -->
+    <path d="M344 640C406 640 406 528 468 528S530 656 592 656 654 574 704 574" stroke-width="2.6" opacity=".6" stroke-dasharray="3 9"/>
+    <!-- checkpoints -->
+    <g stroke-width="3" opacity=".72">
+      <path d="M220 388V716M344 388V716M468 388V716"/>
+    </g>
+    <g stroke-width="2.4" opacity=".9" fill="#b8ad58">
+      <circle cx="220" cy="470" r="9"/>
+      <circle cx="344" cy="640" r="9"/>
+      <circle cx="468" cy="486" r="9"/>
+      <circle cx="592" cy="596" r="9"/>
+    </g>
+    <!-- where the counterfactual leaves the record -->
+    <g stroke-width="2" opacity=".55">
+      <path d="M468 486V524M462 518l6 8 6-8"/>
+    </g>
+    <path d="M96 786H704" opacity=".34" stroke-width="1.4"/>
+  </g>
+  <g fill="#292a74" opacity=".52" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
+    <text x="96" y="352">TAPE / 20 S</text>
+    <text x="704" y="352" text-anchor="end">1 KHZ FIXED STEP</text>
+    <text x="96" y="768">RECORD</text>
+    <text x="292" y="768">REPLAY</text>
+    <text x="488" y="768">COUNTERFACTUAL</text>
+  </g>
+</svg>

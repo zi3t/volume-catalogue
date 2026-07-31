@@ -1,0 +1,411 @@
+/* Volume sections — phase 1 of the continuous-scroll rebuild.
+
+   Each of the five volumes is a full section of the one shell document: a hero
+   that holds the volume open for a viewport, the volume's genuine page content
+   below it, and a run-out of quiet space before the next volume's ground
+   begins. The background belongs to the section, so crossing a boundary changes
+   the page colour the way the reference does — by scrolling into it, not by
+   animating anything.
+
+   The 3D volume is not here yet: `.press-volume-figure` reserves the column the
+   scene will pose it into in phase 2. */
+
+/* The canvas has to draw *into* a section: the book belongs to the section's
+   hero, above its ground and below its words. The canvas cannot be lifted out
+   to do that — `.press-catalog` sets `perspective`, so it is the containing
+   block for any fixed descendant, and a body-level canvas would also rise above
+   the scrim, the hold caption, the help, the rail and the route layer, all of
+   which are deliberately above it today.
+
+   So the section layer is split around the pinned hero instead. `.home-hero` is
+   `position: sticky`, which makes it a stacking context at `z-index: auto` —
+   painted in the positioned-z-auto pass, above negative z and below anything
+   later in tree order. Each section's ground goes to a `::before` at `z-index:
+   -1`, under the hero and therefore under the canvas; each section's content is
+   positioned, so tree order puts it above the hero and therefore above the
+   canvas. Nothing between them may create a stacking context or its children
+   are trapped on one side.
+
+   This only applies to the assembled document: this sheet is served by the
+   worker, so `/index.html` on its own keeps its opaque hero. */
+/* The catalogue and the volumes are two states of one document. Measured on the
+   reference: `/` is ~7 viewports whose address never changes however far it is
+   scrolled, and a picked book is a ~66-viewport document of every volume, built
+   from the same wrapper with the catalogue's own scroll contribution gone. So
+   the sections are not in the catalogue's scroll at all — the scene opens them
+   on a pick, a deep link or a popstate, never on a scroll.
+
+   `display: none` rather than a class on `.press-volumes` alone: no-JS gets the
+   plain assembled document, since only the scene ever sets `press-volumes-open`
+   and only the scene can pose a volume into a section. */
+.press-volumes {
+  display: none;
+  position: relative;
+  z-index: auto;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.press-volumes-open .press-volumes {
+  display: block;
+}
+
+/* The hero is one viewport of in-flow height the volumes document has no use
+   for — it only stays in the DOM, pinned, because it holds the canvas that
+   draws the volumes. Taking its height away starts volume one at offset 0, the
+   way the reference's book document opens on the book you picked rather than on
+   a viewport of catalogue. Everything in the hero other than `.press-catalog`
+   is already `display: none` under the press layout, so letting it overflow
+   lets exactly the canvas through and nothing else. */
+.press-volumes-open .home-hero {
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+.press-volumes-open .press-catalog {
+  position: fixed;
+  inset: 0;
+  height: 100svh;
+  /* `perspective` establishes a containing block for fixed descendants. The
+     catalogue's parent intentionally collapses to zero in a volume route, so
+     keeping it would make the canvas and left controls travel with the page.
+     The route scene is viewport-bound instead. */
+  perspective: none;
+}
+
+/* The rail and Back control are relocated by the scene to the end of `main`.
+   This layer paints above volume content while the scene canvas remains below
+   it, so fixed controls are both visible and genuinely clickable. */
+.press-route-controls {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  pointer-events: none;
+}
+
+.press-route-controls :is(.press-rail, .press-back) {
+  pointer-events: auto;
+}
+
+/* The terminal journey belongs to the catalogue: its panels are revealed by
+   scroll progress through a range the volumes document does not have, so
+   leaving them in would only park them at rest — invisible, inert, and in the
+   case of the footer a fixed element in the closing panel's ink floating over
+   every volume. The way out of a volume is the fixed masthead, which is the
+   reference's arrangement too: a persistent header, no page furniture. */
+.press-volumes-open .home-section,
+.press-volumes-open .home-closing,
+.press-volumes-open .home-footer {
+  display: none;
+}
+
+/* Both carry the same opaque stage colour, and both would paint over a
+   negative-z ground: `.home-page`'s in-flow background sits above the
+   negative-z pass, the hero's above that again. The colour is kept on `body`,
+   whose background propagates to the canvas underneath everything. */
+.home-page,
+.home-hero {
+  background: transparent;
+}
+
+.press-volume-section {
+  --press-volume-bg: var(--press-stage);
+  --press-volume-ink: var(--press-white);
+  position: relative;
+  z-index: auto;
+  padding-bottom: 46svh;
+  background: transparent;
+  color: var(--press-volume-ink);
+}
+
+.press-volume-section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--press-volume-bg);
+}
+
+/* Positioned, so the words paint above the pinned hero and the canvas in it. */
+.press-volume-stage,
+.press-volume-content {
+  position: relative;
+}
+
+/* The hero stays pinned under every section, so its catalogue would keep
+   claiming the pointer over a section's figure column and margins. The rail and
+   the help marker are exceptions: the reference keeps both on screen inside a
+   book — its index and its "?" sit in the same left margin there as on the
+   catalogue — so they stay reachable rather than becoming catalogue-only. The
+   shelf's own book links do not: they are covered by the section, and the scene
+   marks them inert so they leave the tab order with the pointer. */
+.press-in-volumes .press-catalog {
+  pointer-events: none;
+}
+
+.press-in-volumes .press-rail,
+.press-in-volumes .press-help,
+.press-in-volumes .press-back {
+  pointer-events: auto;
+}
+
+/* The way out of a volume, sitting directly above the index the way the
+   reference's does. It exists only in the volumes document — on the catalogue
+   there is nothing to go back to — and `display: none` keeps it out of the tab
+   order there rather than leaving an invisible stop. */
+.press-back {
+  position: absolute;
+  z-index: 61;
+  top: calc(37svh - 35px);
+  left: 31px;
+  display: none;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  /* The button sits in the pinned hero, below the sections, so it cannot inherit
+     the section's ink — the scene publishes the active volume's ink here. */
+  color: var(--press-active-ink, var(--press-white));
+  cursor: pointer;
+}
+
+.press-volumes-open .press-back {
+  display: block;
+  position: fixed;
+  z-index: 71;
+}
+
+/* The index is route navigation, not catalogue furniture. Keep it in the
+   viewport at every route width (including the narrow portrait frame), above
+   the pinned canvas and independently hit-testable from its inert catalogue
+   parent. The desktop measurements remain the reference calibration. */
+.press-volumes-open .press-rail {
+  position: fixed;
+  z-index: 70;
+  display: block;
+  pointer-events: auto;
+}
+
+/* The catalogue lockup owns the landing page. A book route keeps the name and
+   mark as its quiet masthead, but drops the landing-only progress tagline. */
+.press-volumes-open .home-masthead .brand-name::after {
+  content: none;
+  display: none;
+}
+
+.press-back svg {
+  display: block;
+  width: 21px;
+  height: 13px;
+  opacity: 0.72;
+  transition: opacity 180ms var(--press-ease-shift, ease), transform 180ms var(--press-ease-shift, ease);
+}
+
+.press-back:hover svg,
+.press-back:focus-visible svg {
+  opacity: 1;
+  transform: translateX(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-back svg {
+    transition: none;
+  }
+
+  .press-back:hover svg,
+  .press-back:focus-visible svg {
+    transform: none;
+  }
+}
+
+.press-volume-section--refly {
+  --press-volume-bg: var(--press-refly);
+  --press-volume-ink: var(--press-refly-ink);
+}
+
+.press-volume-section--arm {
+  --press-volume-bg: var(--press-arm);
+  --press-volume-ink: var(--press-arm-ink);
+}
+
+.press-volume-section--telemetry {
+  --press-volume-bg: var(--press-telemetry);
+  --press-volume-ink: var(--press-telemetry-ink);
+}
+
+.press-volume-section--practice {
+  --press-volume-bg: var(--press-practice);
+  --press-volume-ink: var(--press-practice-ink);
+}
+
+.press-volume-section--field-notes {
+  --press-volume-bg: var(--press-notes);
+  --press-volume-ink: var(--press-notes-ink);
+}
+
+/* The hero holds the volume for a viewport: figure on the left, the volume's
+   own words on the right, matching the catalogue's split. */
+.press-volume-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 100svh;
+  padding-inline: clamp(24px, 4vw, 64px);
+  gap: clamp(24px, 4vw, 64px);
+}
+
+/* The figure is the volume's hit area: the book itself is drawn by the canvas
+   behind the section, so this column is what a reader actually grabs. `pan-y`
+   keeps a touch drag scrolling the page — the cover only answers a mouse. */
+.press-volume-figure {
+  min-height: 60svh;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.press-cover-dragging,
+.press-cover-dragging .press-volume-figure {
+  cursor: grabbing;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce), (max-width: 900px) {
+  .press-volume-figure {
+    cursor: default;
+  }
+}
+
+.press-volume-title {
+  margin: 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 600;
+  letter-spacing: -0.032em;
+  line-height: 1.06;
+}
+
+.press-volume-summary {
+  max-width: 44ch;
+  margin: 0.9em 0 0;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.62;
+  opacity: 0.82;
+}
+
+/* The genuine page's own content, given the section's colours. */
+.press-volume-content {
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: clamp(24px, 4vw, 64px);
+}
+
+/* The static summary a demo page carries for the assembled document — the
+   live demo does not run here, so the brief says what it does and links out
+   to it. It is the section's reading copy, set in the same measure and ink as
+   the rest of the volume rather than dressed as page chrome. */
+.press-brief {
+  max-width: 56ch;
+  margin: 0 0 clamp(3rem, 6vh, 5rem);
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.62;
+}
+
+.press-brief .section-label {
+  margin: 0 0 0.5em;
+  font-size: 0.78em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.press-brief h2 {
+  margin: 0 0 0.7em;
+  font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+}
+
+.press-brief p {
+  margin: 0 0 1em;
+}
+
+.press-brief p:last-child {
+  margin-bottom: 0;
+}
+
+/* A volume section is one ground and one ink, the way the reference's book
+   pages are. The five genuine pages were written for their own themes, so their
+   colours arrive wrong here — measured against the section grounds at ratios as
+   low as 1.11:1, which is body copy you cannot read. Patching five stylesheets
+   would leave the next page to be added broken again, so the section republishes
+   the palette and the content inherits it in tiers.
+
+   `!important` deliberately: these override five foreign stylesheets whose own
+   selectors are frequently more specific than anything scoped here can be, and
+   the scope is narrow — `.press-volume-content` exists only in the assembled
+   document. `.project-visual` is exempt throughout: those are authored diagrams
+   with their own palettes, not page chrome.
+   Hierarchy is carried by size, weight and letter-spacing — never by fading the
+   ink. That is not a style preference: a muted tier is the ink blended toward
+   its own ground, so its contrast is bounded well under the palette's, and no
+   volume ground here has the headroom for it. Pure black at 72% over the notes
+   tan measures 4.25:1, still short of 4.5. Full ink everywhere means each
+   section only has to clear the bar once, in its palette. */
+.press-volume-content,
+.press-volume-content *:not(.project-visual):not(.project-visual *) {
+  color: var(--press-volume-ink) !important;
+}
+
+/* The reference's book pages carry no panels: one ground, thin rules, ink type.
+   The genuine pages bring dark cards that punch holes in the volume's colour. */
+.press-volume-content *:not(.project-visual):not(.project-visual *) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.press-volume-content *:not(.project-visual):not(.project-visual *) {
+  border-color: color-mix(in srgb, var(--press-volume-ink) 24%, transparent) !important;
+}
+
+/* Links and actions read as the reference's do: ink, ruled, no fill. */
+.press-volume-content a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, var(--press-volume-ink) 45%, transparent);
+  text-underline-offset: 0.22em;
+}
+
+.press-volume-content :where(button, .button, .cta, [role="button"]) {
+  border: 1px solid color-mix(in srgb, var(--press-volume-ink) 34%, transparent) !important;
+  border-radius: 0 !important;
+}
+
+/* No volume is posed into the figure under reduced motion — the canvas cannot
+   follow the scroll there — so the column would only be a held-open gap. */
+@media (prefers-reduced-motion: reduce) {
+  .press-volume-figure {
+    display: none;
+  }
+
+  .press-volume-stage {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: 12svh 6svh;
+  }
+}
+
+@media (max-width: 900px) {
+  .press-volume-stage {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: 18svh 6svh;
+  }
+
+  .press-volume-figure {
+    min-height: 42svh;
+  }
+
+  .press-volume-section {
+    padding-bottom: 24svh;
+  }
+}

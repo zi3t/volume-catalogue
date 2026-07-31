@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- GLUON kinematics. A six-axis chain drawn as what it is: a sequence of
+       transforms from a fixed base to a tool centre point, each joint labelled,
+       the frame at the end drawn out. Portrait; no background rect, so the
+       volume's own cloth shows through the line work. -->
+  <g fill="none" stroke="#29435c" stroke-linecap="round" stroke-linejoin="round">
+    <g opacity=".22" stroke-width="1.4">
+      <path d="M96 380H704M96 470H704M96 560H704M96 650H704M96 740H704"/>
+      <path d="M216 350V770M336 350V770M456 350V770M576 350V770"/>
+    </g>
+    <!-- base -->
+    <g stroke-width="2.6" opacity=".7">
+      <path d="M150 782H310M170 782l-14 26M290 782l14 26"/>
+    </g>
+    <!-- the kinematic chain -->
+    <path d="M230 782V690L318 604 300 494 404 452 512 500 596 430" stroke-width="9" opacity=".92"/>
+    <g stroke-width="6" fill="#d6cda9" opacity=".95">
+      <circle cx="230" cy="690" r="19"/>
+      <circle cx="318" cy="604" r="19"/>
+      <circle cx="300" cy="494" r="19"/>
+      <circle cx="404" cy="452" r="19"/>
+      <circle cx="512" cy="500" r="19"/>
+    </g>
+    <!-- joint axes -->
+    <g stroke-width="2" opacity=".45" stroke-dasharray="7 8">
+      <path d="M230 646V734M274 604H362M300 450V538M404 408V496M468 500H556"/>
+    </g>
+    <!-- the tool frame at the end of the chain -->
+    <g stroke-width="3.4" opacity=".85">
+      <path d="M596 430L664 396M596 430L622 494"/>
+      <path d="M652 386l16 8-6 17"/>
+      <path d="M613 486l9 14 15-6"/>
+    </g>
+    <circle cx="596" cy="430" r="7" stroke-width="3" opacity=".9"/>
+    <g stroke-width="1.6" opacity=".4">
+      <circle cx="596" cy="430" r="34"/>
+      <circle cx="596" cy="430" r="58"/>
+    </g>
+    <path d="M96 826H704" opacity=".32" stroke-width="1.4"/>
+  </g>
+  <g fill="#29435c" opacity=".55" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
+    <text x="96" y="330">FK(q) / 6 AXIS</text>
+    <text x="704" y="330" text-anchor="end">RUST / WASM</text>
+    <text x="96" y="808">BASE</text>
+    <text x="704" y="808" text-anchor="end">TCP / VERIFIED</text>
+  </g>
+  <g fill="#29435c" opacity=".42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" letter-spacing="1.6">
+    <text x="196" y="676">q1</text>
+    <text x="284" y="590">q2</text>
+    <text x="266" y="480">q3</text>
+    <text x="370" y="438">q4</text>
+    <text x="478" y="486">q5</text>
+    <text x="614" y="404">q6</text>
+  </g>
+</svg>

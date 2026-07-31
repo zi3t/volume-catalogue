@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- Evidence over adjectives. A claim is only worth the boundary it was tested
+       at: concentric rings for the boundary, a crosshair on the contract at its
+       centre, and the evidence stacked as ruled lines beneath. Portrait; no
+       background rect. -->
+  <g fill="none" stroke="#d5b66b" stroke-linecap="round">
+    <g stroke-width="2" opacity=".72">
+      <circle cx="400" cy="470" r="168"/>
+      <circle cx="400" cy="470" r="112"/>
+      <circle cx="400" cy="470" r="56"/>
+      <circle cx="400" cy="470" r="9"/>
+    </g>
+    <g stroke-width="1.6" opacity=".5">
+      <path d="M172 470H628M400 242V698"/>
+      <path d="M239 309L561 631M239 631L561 309"/>
+    </g>
+    <!-- the boundary the claim was tested at -->
+    <g stroke-width="3.2" opacity=".9" stroke-dasharray="14 10">
+      <circle cx="400" cy="470" r="140"/>
+    </g>
+    <!-- ticks on the boundary -->
+    <g stroke-width="2.4" opacity=".8">
+      <path d="M400 302V330M400 610V638M232 470H260M540 470H568"/>
+    </g>
+    <!-- the evidence, ruled -->
+    <g stroke-width="2" opacity=".62">
+      <path d="M150 690H650M150 724H562M150 758H628M150 792H486M150 826H596"/>
+    </g>
+    <g stroke-width="2.4" opacity=".85">
+      <path d="M124 690h12M124 724h12M124 758h12M124 792h12M124 826h12"/>
+    </g>
+  </g>
+  <g fill="#f0dfb4" opacity=".62" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
+    <text x="124" y="222">BOUNDARY</text>
+    <text x="676" y="222" text-anchor="end">CONTRACT</text>
+    <text x="124" y="650">EVIDENCE</text>
+  </g>
+</svg>

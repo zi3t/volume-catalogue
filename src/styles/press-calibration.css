@@ -1,0 +1,898 @@
+/* Pixel-calibrated shell for the Press catalogue.
+   This layer is intentionally last: the DOM remains the accessible fallback,
+   while the progressive Three.js scene supplies physical book materials. */
+
+.home-page {
+  --press-stack-top: calc(15svh + 6.94vw + 73px);
+  --press-stack-width: min(calc(42.2vw + 67px), calc(832px - 11.5svh), 780px);
+  --press-stack-shift: 0px;
+  --press-volume-height: clamp(88px, 8.25vw, 132px);
+  --press-row-height: clamp(110px, calc(11.92vw + 3.55px), 220px);
+  --press-spring-snappy: linear(
+    0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%,
+    0.938 16.7%, 1.017 19.4%, 1.067 22.5%, 1.089 26%,
+    1.079 30.3%, 1.049 36%, 1.024 42.6%, 1.011 50.3%,
+    1.004 59.2%, 1.001 69.3%, 1
+  );
+  --press-spring-smooth: linear(
+    0, 0.004, 0.016 2.3%, 0.063 4.7%, 0.141 7.2%,
+    0.25 9.9%, 0.601 16.5%, 0.815 21%, 0.929 25.2%,
+    0.987 29%, 1.025 33.5%, 1.042 38%, 1.04 43.5%,
+    1.027 50%, 1.013 57.5%, 1.005 67%, 1.001 79%, 1
+  );
+  --press-ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --press-ease-shift: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.home-page main {
+  height: 428svh;
+}
+
+.home-masthead {
+  padding:
+    clamp(20px, 1.6vw, 25px)
+    clamp(20px, 1.6vw, 24px)
+    23px;
+}
+
+.home-brand {
+  gap: clamp(17px, 1.34vw, 21px);
+}
+
+.home-masthead .brand-name {
+  letter-spacing: 0.018em;
+  line-height: 1.04;
+}
+
+.home-masthead .brand-name::after {
+  line-height: 1.3;
+}
+
+.press-catalog {
+  cursor: default;
+}
+
+.press-volume {
+  cursor: pointer;
+}
+
+.press-catalog.is-book-held,
+.press-catalog.is-book-held .press-volume {
+  cursor: pointer;
+  user-select: none;
+}
+
+.press-hold-caption {
+  position: absolute;
+  z-index: 30;
+  top: 20.1svh;
+  left: calc(50% + 70px);
+  width: min(400px, calc(50vw - 108px));
+  margin: 0;
+  padding: 14px 24px 13px;
+  background: var(--press-held-ink, #18185e);
+  color: var(--press-held-background, #c1b676);
+  font: italic 600 16px/1.45 var(--home-serif);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 80ms var(--press-ease-shift),
+    transform 420ms var(--press-spring-smooth);
+}
+
+.press-catalog.is-book-dragging .press-hold-caption {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-duration: 220ms, 420ms;
+}
+
+/* Reference behavior: the caption takes the vertical half the held volume
+   does not occupy (high book → low caption and vice versa). */
+.press-hold-caption.is-low {
+  top: auto;
+  bottom: 13svh;
+}
+
+.home-masthead .brand-name {
+  transition: opacity 180ms var(--press-ease-shift);
+}
+
+.home-page.press-book-dragging .home-masthead .brand-name {
+  opacity: 0;
+}
+
+.home-page.press-book-dragging .home-masthead .brand-mark::before {
+  box-shadow:
+    inset 3px 0 0 var(--press-held-background),
+    inset -3px 0 0 var(--press-held-background),
+    3px 0 0 -2px currentColor,
+    -3px 0 0 -2px currentColor;
+}
+
+.press-volume-list {
+  z-index: 10;
+  top: var(--press-stack-top);
+  left: 50%;
+  width: var(--press-stack-width);
+  height: calc(var(--press-volume-height) * 7);
+  transform: translate3d(
+    calc(-50% + var(--press-shift-x)),
+    calc(var(--press-shift-y) + var(--press-stack-shift) + var(--press-scroll-y)),
+    0
+  );
+  transition: opacity 260ms var(--press-ease-shift);
+}
+
+.press-volume-item {
+  height: var(--press-volume-height);
+  transform: none !important;
+  transition: opacity 260ms var(--press-ease-shift) !important;
+  will-change: auto;
+}
+
+.press-volume-book {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.press-volume:hover,
+.press-volume:focus-visible {
+  transform: none !important;
+}
+
+.press-volume::before,
+.press-volume::after {
+  content: none;
+}
+
+.press-volume-book::before {
+  position: absolute;
+  z-index: 0;
+  right: 1.8%;
+  bottom: -3%;
+  left: 1.8%;
+  height: 18%;
+  border-radius: 50%;
+  background: var(--press-book-shadow);
+  content: "";
+  filter: blur(11px);
+  opacity: 0.56;
+  transform: translate3d(0, 2px, -10px) scaleX(0.985);
+  pointer-events: none;
+}
+
+.press-volume-book::after {
+  position: absolute;
+  z-index: 1;
+  right: 0.7%;
+  bottom: 0;
+  left: 0.7%;
+  height: 5px;
+  border-radius: 0 0 3px 3px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.26)),
+    color-mix(in srgb, var(--press-cover) 76%, #090607);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.28);
+  content: "";
+  opacity: 0.9;
+  pointer-events: none;
+  transform: translateZ(1px);
+}
+
+html:not(.press-scene-ready) .press-volume:hover .press-volume-book,
+html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
+  transform: translate3d(0, -8px, 24px) scale(1.012);
+}
+
+.press-scene-ready .press-volume-book::before,
+.press-scene-ready .press-volume-book::after {
+  content: none;
+}
+
+.press-volume:focus-visible {
+  outline: none !important;
+}
+
+.press-volume:focus-visible .press-volume-book {
+  border-radius: 2px;
+  outline: 2px solid var(--press-white);
+  outline-offset: 5px;
+}
+
+@media (min-width: 900px) {
+  .press-volume-item {
+    left: 50%;
+    width: 100vw;
+    height: var(--press-row-height);
+    transform: translate3d(-50%, 0, 0) !important;
+  }
+
+  .press-volume {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .press-volume-book {
+    position: absolute;
+    left: 50%;
+    width: var(--press-stack-width);
+    height: var(--press-volume-height);
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  html:not(.press-scene-ready) .press-volume:hover .press-volume-book,
+  html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
+    transform: translate3d(-50%, -8px, 24px) scale(1.012);
+  }
+}
+
+.press-volume-item--refly {
+  top: 6px !important;
+  height: calc(var(--press-volume-height) + 5px);
+}
+
+.press-volume-item--arm {
+  top: calc(var(--press-volume-height) * 1.416) !important;
+  height: calc(var(--press-volume-height) * 1.06);
+}
+
+.press-volume-item--telemetry {
+  top: calc(var(--press-volume-height) * 2.735) !important;
+  height: calc(var(--press-volume-height) * 1.31);
+}
+
+.press-volume-item--practice {
+  top: calc(var(--press-volume-height) * 4.236) !important;
+  height: calc(var(--press-volume-height) * 1.12);
+}
+
+.press-volume-item--notes {
+  top: calc(var(--press-volume-height) * 5.655) !important;
+  height: calc(var(--press-volume-height) * 1.14);
+}
+
+@media (min-width: 900px) {
+  .press-volume-item--refly,
+  .press-volume-item--arm,
+  .press-volume-item--telemetry,
+  .press-volume-item--practice,
+  .press-volume-item--notes {
+    height: var(--press-row-height);
+  }
+
+  .press-volume-item--refly {
+    top: 0 !important;
+  }
+
+  .press-volume-item--arm {
+    top: var(--press-row-height) !important;
+  }
+
+  .press-volume-item--telemetry {
+    top: calc(var(--press-row-height) * 2) !important;
+  }
+
+  .press-volume-item--practice {
+    top: calc(var(--press-row-height) * 3) !important;
+  }
+
+  .press-volume-item--notes {
+    top: calc(var(--press-row-height) * 4) !important;
+  }
+
+  .press-volume-item--refly .press-volume-book {
+    top: clamp(19px, calc(27.72px - 0.55vw), 22px);
+    height: calc(var(--press-volume-height) + 5px);
+  }
+
+  .press-volume-item--arm .press-volume-book {
+    top: clamp(6px, calc(42.33px - 2.33vw), 17px);
+    height: calc(var(--press-volume-height) * 1.06);
+  }
+
+  .press-volume-item--telemetry .press-volume-book {
+    top: clamp(-14px, calc(48.94px - 4.02vw), 5px);
+    height: calc(var(--press-volume-height) * 1.31);
+  }
+
+  .press-volume-item--practice .press-volume-book {
+    top: clamp(-10px, calc(66.54px - 4.9vw), 12px);
+    height: calc(var(--press-volume-height) * 1.12);
+  }
+
+  .press-volume-item--notes .press-volume-book {
+    top: clamp(-17px, calc(75.48px - 5.91vw), 10px);
+    height: calc(var(--press-volume-height) * 1.14);
+  }
+}
+
+.press-volume-spine {
+  grid-template-columns: minmax(7.25rem, 1fr) minmax(0, 2.35fr) minmax(2.5rem, 1fr);
+  padding-inline: clamp(2rem, 2.35vw, 2.35rem);
+}
+
+.press-volume-spine strong {
+  position: absolute;
+  left: 50%;
+  width: max-content;
+  max-width: 54%;
+  transform: translateX(-50%);
+}
+
+.press-volume-spine b {
+  justify-self: end;
+}
+
+.press-rail {
+  top: calc(38.3svh - 5px + clamp(0px, calc(32.2px - 2.05vw), 10px));
+  left: 31px;
+  width: 304px;
+  height: 258px;
+}
+
+.press-rail-item,
+.press-rail-ghosts > .press-rail-fill {
+  width: 16px;
+  height: 11px;
+  padding-block: 4px;
+}
+
+.press-rail-fill {
+  width: 16px;
+  opacity: 0.3;
+}
+
+.press-rail-ghosts > .press-rail-fill {
+  opacity: 0.3;
+}
+
+.press-rail-label {
+  left: 90px;
+}
+
+.press-rail-film {
+  top: 209px;
+  width: 16px;
+}
+
+.press-rail-signal {
+  top: 229px;
+  left: 3px;
+}
+
+.press-index-scrim {
+  background: rgba(10, 7, 8, 0.9);
+  transition: opacity 220ms var(--press-ease-shift);
+}
+
+.press-help {
+  z-index: 61;
+  left: 15px;
+}
+
+.press-scene-canvas {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 520ms var(--press-ease-shift);
+}
+
+.press-scene-ready .press-scene-canvas {
+  opacity: 1;
+}
+
+.press-scene-ready .press-volume {
+  background: transparent;
+  transform: none !important;
+}
+
+.press-scene-ready .press-volume::before,
+.press-scene-ready .press-volume::after {
+  content: none;
+}
+
+.press-scene-ready .press-volume-top,
+.press-scene-ready .press-volume-spine {
+  visibility: hidden;
+}
+
+.press-scene-ready .press-volume:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--press-white);
+  outline-offset: 5px;
+}
+
+.press-catalog.is-index-preview .press-scene-canvas {
+  opacity: 0.28;
+}
+
+/* The no-WebGL fallback (`home-press.js`) still departs to a real page, and
+   clears the shelf's controls on the way out. The scene itself no longer has a
+   transition to run: a volume is a position in this document. */
+.press-catalog.is-transitioning .press-rail,
+.press-catalog.is-transitioning .press-help,
+.press-catalog.is-transitioning .press-volume-list {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--press-ease-shift);
+}
+
+@keyframes press-lockup-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes press-control-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -7px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.home-brand {
+  animation: press-lockup-enter 580ms var(--press-spring-snappy) both;
+}
+
+.press-rail {
+  opacity: 0;
+  animation: none;
+}
+
+.press-help {
+  opacity: 0;
+  animation: none;
+}
+
+/* The shelf and the index are one sequence, not two overlapping ones: the rail
+   only starts once every volume has settled (press-entry-complete), and its
+   ticks then arrive one after another with the volumes' own easing and stagger
+   rather than the whole column fading in as a block. */
+.press-entry-complete .press-rail {
+  opacity: 1;
+  animation: none;
+}
+
+.press-entry-complete .press-rail-list > li > .press-rail-item,
+.press-entry-complete .press-rail-ghosts > .press-rail-fill {
+  animation: press-control-enter 300ms var(--press-spring-smooth) both;
+}
+
+.press-entry-complete .press-rail-list > li:nth-child(1) > .press-rail-item { animation-delay: 0ms; }
+.press-entry-complete .press-rail-list > li:nth-child(2) > .press-rail-item { animation-delay: 46ms; }
+.press-entry-complete .press-rail-list > li:nth-child(3) > .press-rail-item { animation-delay: 92ms; }
+.press-entry-complete .press-rail-list > li:nth-child(4) > .press-rail-item { animation-delay: 138ms; }
+.press-entry-complete .press-rail-list > li:nth-child(5) > .press-rail-item { animation-delay: 184ms; }
+
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(1) { animation-delay: 230ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(2) { animation-delay: 256ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(3) { animation-delay: 282ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(4) { animation-delay: 308ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(5) { animation-delay: 334ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(6) { animation-delay: 360ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(7) { animation-delay: 386ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(8) { animation-delay: 412ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(9) { animation-delay: 438ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(10) { animation-delay: 464ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(11) { animation-delay: 490ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(12) { animation-delay: 516ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(13) { animation-delay: 542ms; }
+.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(14) { animation-delay: 568ms; }
+
+.press-entry-complete .press-rail-film,
+.press-entry-complete .press-rail-signal {
+  animation: press-control-enter 300ms 600ms var(--press-spring-smooth) both;
+}
+
+/* Last in the sequence, after the rail column has finished arriving. */
+.press-entry-complete .press-help {
+  animation: press-control-enter 300ms 640ms var(--press-spring-smooth) both;
+}
+
+.press-terminal-active .press-rail,
+.press-terminal-active .press-help {
+  opacity: var(--press-terminal-controls-opacity, 1);
+  animation: none;
+  transition:
+    color 260ms var(--press-ease-shift),
+    opacity 180ms linear;
+}
+
+/* The five genuine volumes retain the reference shelf rhythm. Past the last
+   volume, the same sticky canvas hands off to ZI3T's existing signature and
+   closing content instead of fabricating more books. */
+.signature-section {
+  --press-terminal-opacity: 0;
+  --press-terminal-scale: 0.965;
+  position: fixed;
+  z-index: 18;
+  inset: 0;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  place-items: center;
+  overflow: hidden;
+  border: 0;
+  background:
+    radial-gradient(circle at 9% 18%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1.3px),
+    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 34% 73%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.3px),
+    radial-gradient(circle at 52% 42%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.4px),
+    #111617;
+  background-size: 181px 173px, 229px 211px, 263px 251px, 307px 283px, 347px 331px, auto;
+  color: #f5f1e7;
+  opacity: var(--press-terminal-opacity);
+  pointer-events: none;
+  transform: scale(var(--press-terminal-scale));
+  transform-origin: center;
+  transition: none;
+  will-change: opacity, transform;
+}
+
+.signature-section::before,
+.signature-section::after {
+  position: absolute;
+  border: 1px solid rgba(245, 241, 231, 0.12);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.signature-section::before {
+  width: min(76vw, 760px);
+  aspect-ratio: 1;
+  box-shadow:
+    0 0 0 78px rgba(245, 241, 231, 0.025),
+    0 0 0 79px rgba(245, 241, 231, 0.09),
+    0 0 0 156px rgba(245, 241, 231, 0.018),
+    0 0 0 157px rgba(245, 241, 231, 0.07);
+}
+
+.signature-section::after {
+  width: min(38vw, 370px);
+  aspect-ratio: 1;
+  background: rgba(109, 41, 73, 0.5);
+  box-shadow: 0 0 80px rgba(109, 41, 73, 0.3);
+}
+
+.signature-section .signature-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(88vw, 980px);
+  height: min(78vh, 700px);
+  margin: 0;
+  place-items: center;
+}
+
+.signature-section .signature-canvas {
+  z-index: 2;
+  grid-area: 1 / 1;
+  width: min(27vw, 250px);
+  border-color: rgba(245, 241, 231, 0.44);
+  background:
+    linear-gradient(90deg, transparent calc(100% - 1px), rgba(245, 241, 231, 0.13) 100%) 0 0 / 22px 100%,
+    linear-gradient(0deg, transparent calc(100% - 1px), rgba(245, 241, 231, 0.13) 100%) 0 0 / 100% 22px,
+    #c1b676;
+  box-shadow: 0 26px 90px rgba(0, 0, 0, 0.35);
+}
+
+.signature-section .signature-copy {
+  grid-area: 1 / 1;
+  align-self: stretch;
+  justify-self: stretch;
+  text-align: center;
+}
+
+.signature-section .signature-copy .section-label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  color: #c1b676;
+}
+
+.signature-section .signature-copy h2 {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: 0;
+  left: 0;
+  margin: 0;
+  color: #f5f1e7;
+  font-size: clamp(38px, 5.5vw, 78px);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  transform: translateY(-50%);
+}
+
+.signature-section .signature-copy > p:not(.section-label):not(.signature-meta) {
+  position: absolute;
+  right: 0;
+  bottom: 26px;
+  left: 0;
+  max-width: none;
+  margin: 0;
+  color: rgba(245, 241, 231, 0.72);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.signature-section .signature-copy .signature-meta {
+  bottom: 0;
+  color: #c1b676;
+}
+
+.home-closing {
+  --press-terminal-opacity: 0;
+  --press-terminal-shift: 22px;
+  position: fixed;
+  z-index: 25;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(120px, 0.2fr) minmax(0, 1fr);
+  align-content: start;
+  gap: 34px clamp(42px, 8vw, 120px);
+  margin: 0;
+  padding: clamp(92px, 10vh, 126px) clamp(64px, 14vw, 220px) 150px;
+  border: 0;
+  background: #f5f3ed;
+  color: #171415;
+  opacity: var(--press-terminal-opacity);
+  pointer-events: none;
+  transform: translate3d(0, var(--press-terminal-shift), 0);
+  transition: none;
+  will-change: opacity, transform;
+}
+
+.home-closing .section-label {
+  color: #6d2949;
+}
+
+.home-closing h2 {
+  max-width: 13ch;
+  margin: 0;
+  color: #171415;
+  font-size: clamp(54px, 7.2vw, 108px);
+  letter-spacing: -0.052em;
+  line-height: 0.9;
+}
+
+.home-closing > p:not(.section-label) {
+  max-width: 48rem;
+  margin: 0;
+  color: #343031;
+  font-family: var(--home-serif);
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1.34;
+}
+
+.home-closing .closing-links {
+  gap: 12px 34px;
+  margin-top: 8px;
+}
+
+.home-closing .closing-links a {
+  color: #171415;
+  text-decoration-color: rgba(23, 20, 21, 0.35);
+}
+
+.home-footer {
+  --press-terminal-opacity: 0;
+  position: fixed;
+  z-index: 26;
+  right: clamp(64px, 14vw, 220px);
+  bottom: 42px;
+  left: clamp(64px, 14vw, 220px);
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(23, 20, 21, 0.22);
+  background: transparent;
+  color: #171415;
+  opacity: var(--press-terminal-opacity);
+  pointer-events: none;
+  transition: none;
+}
+
+.home-footer a {
+  color: #171415;
+}
+
+.press-terminal-closing .home-closing,
+.press-terminal-closing .home-footer {
+  pointer-events: auto;
+}
+
+.press-terminal-closing .home-masthead,
+.press-terminal-closing .home-brand,
+.press-terminal-closing .home-masthead .brand-name,
+.press-terminal-closing .home-masthead .brand-name::after,
+.press-terminal-closing .home-masthead .brand-mark {
+  color: #171415;
+}
+
+.press-terminal-closing .home-masthead .brand-mark::before {
+  box-shadow:
+    inset 3px 0 0 #f5f3ed,
+    inset -3px 0 0 #f5f3ed,
+    3px 0 0 -2px currentColor,
+    -3px 0 0 -2px currentColor;
+}
+
+/* The legacy finite-reveal layer also targets these existing nodes. The
+   terminal scroll owns their opacity and transform while Press mode is live. */
+.home-motion .signature-section[data-reveal],
+.home-motion .signature-section[data-reveal].is-visible {
+  opacity: var(--press-terminal-opacity);
+  transform: scale(var(--press-terminal-scale));
+  transition: none;
+}
+
+.home-motion .home-closing[data-reveal],
+.home-motion .home-closing[data-reveal].is-visible {
+  opacity: var(--press-terminal-opacity);
+  transform: translate3d(0, var(--press-terminal-shift), 0);
+  transition: none;
+}
+
+.home-motion .home-footer[data-reveal],
+.home-motion .home-footer[data-reveal].is-visible {
+  opacity: var(--press-terminal-opacity);
+  transform: none;
+  transition: none;
+}
+
+@media (max-width: 899px) {
+  .home-page {
+    --press-stack-top: 32.8svh;
+    --press-stack-width: 108vw;
+    --press-volume-height: clamp(152px, 22.5svh, 190px);
+  }
+
+  .home-hero {
+    height: 100svh;
+    min-height: 640px;
+  }
+
+  .home-masthead {
+    padding: 15px;
+  }
+
+  .home-brand {
+    gap: 12px;
+  }
+
+  .press-volume-list {
+    top: var(--press-stack-top);
+    width: var(--press-stack-width);
+  }
+
+  .press-volume-item,
+  .press-volume-item--arm,
+  .press-volume-item--telemetry,
+  .press-volume-item--practice,
+  .press-volume-item--notes {
+    height: var(--press-volume-height);
+  }
+
+  .press-volume-item--arm {
+    top: calc(var(--press-volume-height) * 1.05) !important;
+  }
+
+  .press-volume-item--telemetry {
+    top: calc(var(--press-volume-height) * 2.1) !important;
+  }
+
+  .press-volume-item--practice {
+    top: calc(var(--press-volume-height) * 3.17) !important;
+  }
+
+  .press-volume-item--notes {
+    top: calc(var(--press-volume-height) * 4.24) !important;
+  }
+
+  .press-rail {
+    display: none;
+  }
+
+  .press-hold-caption {
+    display: none;
+  }
+
+  .signature-section,
+  .home-closing,
+  .home-footer {
+    display: none;
+  }
+
+}
+
+@media (max-width: 899px) and (max-height: 780px) {
+  .home-page {
+    --press-stack-top: 30svh;
+    --press-volume-height: clamp(142px, 23svh, 168px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page {
+    --press-stack-top: 25svh;
+    --press-volume-height: 90px;
+  }
+
+  .home-page main {
+    height: 100svh;
+  }
+
+  .press-volume-item,
+  .press-volume-item--arm,
+  .press-volume-item--telemetry,
+  .press-volume-item--practice,
+  .press-volume-item--notes {
+    height: var(--press-volume-height);
+  }
+
+  .press-volume-item--arm {
+    top: calc(var(--press-volume-height) * 0.82) !important;
+  }
+
+  .press-volume-item--telemetry {
+    top: calc(var(--press-volume-height) * 1.7) !important;
+  }
+
+  .press-volume-item--practice {
+    top: calc(var(--press-volume-height) * 2.62) !important;
+  }
+
+  .press-volume-item--notes {
+    top: calc(var(--press-volume-height) * 3.5) !important;
+  }
+
+  .signature-section,
+  .home-closing,
+  .home-footer {
+    display: none;
+  }
+
+  .home-brand,
+  .press-rail,
+  .press-help {
+    animation: press-control-enter 180ms var(--press-ease-shift) both;
+  }
+
+  .press-scene-canvas {
+    transition: opacity 160ms var(--press-ease-shift);
+  }
+}
+
+@media print {
+  .press-scene-canvas {
+    display: none !important;
+  }
+}

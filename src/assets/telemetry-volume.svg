@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- Telemetry replay. Distributed evidence put back in order: one event path
+       across a time grid, with the two gates that bound the replayed window and
+       the events that land inside it. Portrait; no background rect. -->
+  <g fill="none" stroke="#e5e6df" stroke-linecap="round">
+    <g opacity=".22" stroke-width="1.4">
+      <path d="M96 400H704M96 480H704M96 560H704M96 640H704M96 720H704"/>
+      <path d="M200 372V748M304 372V748M408 372V748M512 372V748M616 372V748"/>
+    </g>
+    <!-- the ordered event path -->
+    <path d="M96 690C148 690 148 452 200 452S252 664 304 664 356 486 408 486 460 620 512 620 564 430 616 430 668 596 704 596" stroke-width="5.4" opacity=".95"/>
+    <!-- what arrived out of order, before it was replayed -->
+    <path d="M96 668C150 640 168 520 208 512S262 630 312 618 366 512 414 520 470 604 520 598 578 470 626 470 682 560 704 566" stroke-width="1.8" opacity=".34" stroke-dasharray="4 10"/>
+    <g stroke-width="3.4" fill="#304255" opacity=".95">
+      <circle cx="200" cy="452" r="12"/>
+      <circle cx="304" cy="664" r="12"/>
+      <circle cx="408" cy="486" r="12"/>
+      <circle cx="512" cy="620" r="12"/>
+      <circle cx="616" cy="430" r="12"/>
+    </g>
+    <path d="M96 800H704" opacity=".3" stroke-width="1.4"/>
+  </g>
+  <!-- the replayed window -->
+  <g fill="#d6b86b" opacity=".82">
+    <rect x="266" y="372" width="7" height="376"/>
+    <rect x="552" y="372" width="7" height="376"/>
+  </g>
+  <g fill="none" stroke="#d6b86b" opacity=".5" stroke-width="1.6">
+    <path d="M273 386H552M273 734H552"/>
+  </g>
+  <g fill="#e5e6df" opacity=".55" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
+    <text x="96" y="348">RUN-04 / EVENT PATH</text>
+    <text x="704" y="348" text-anchor="end">C# / RABBITMQ</text>
+    <text x="96" y="782">OUT OF ORDER</text>
+    <text x="704" y="782" text-anchor="end">SQL / EVIDENCE</text>
+  </g>
+</svg>

@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "types": [
+      "vite/client"
+    ],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/index.ts",
+    "src/site-entry.ts",
+    "src/content/**/*.ts",
+    "src/runtime/**/*.ts"
+  ],
+  "exclude": [
+    "src/adapters/**/*.ts"
+  ]
+}
