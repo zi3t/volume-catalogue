@@ -38,7 +38,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "build": "vite build && node scripts/copy-volume-styles.mjs",
     "build:site": "npm run build && node scripts/sync-site.mjs",
-    "check": "npm run typecheck && npm run build"
+    "check": "npm run typecheck && npm run build",
+    "profile": "deno run --allow-net --allow-read --allow-write tests/profile-press-scene.mjs",
+    "record:first-load": "deno run --allow-net --allow-read --allow-write --allow-run=ffmpeg tests/record-press-first-load.mjs"
   },
   "dependencies": {
     "three": "0.171.0"

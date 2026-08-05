@@ -1016,6 +1016,66 @@ upper-right screenshot sample and requires at least `.985` ground coverage.
 This makes a transparent body fail even when the scene, books, and section
 grounds remain otherwise healthy.
 
+## Current checkpoint — 2026-08-05 browser and performance hardening
+
+The full scene gate passes **49/49** on headful Chrome 150 with the Apple M1 Pro
+Metal renderer and zero runtime errors. Its 28 captures cover entry, idle,
+pointer hold/drag/release, row control, section routing, every section ground,
+reduced motion, the compact layout, and both terminal surfaces. Evidence:
+`/tmp/zi3t-press-hardening-qa-20260805`.
+
+Fresh engine/device probes also passed:
+
+- Firefox Developer Edition 154 rendered WebGL2 on `Apple M1, or similar`, kept
+  the canvas and context alive through five seconds idle, retained the exact
+  `rgb(32, 24, 25)` ground, and emitted no browser or runtime errors. Evidence:
+  `/tmp/zi3t-firefox-press.png` and
+  `/tmp/zi3t-firefox-press-idle-5000.png`.
+- Safari 26.5.2 rendered the catalogue against the correct opaque ground. A
+  native Safari history traversal completed catalogue → Re-fly → Back →
+  catalogue → Forward → Re-fly, and the restored catalogue remained painted.
+  Evidence: `/tmp/zi3t-safari-press.png` and
+  `/tmp/zi3t-safari-press-after-back.png`. WebDriver's system-wide “Allow
+  Remote Automation” preference and macOS keystroke injection were left
+  disabled; the literal physical trackpad swipe remains a manual gesture check,
+  while the Back/Forward lifecycle it exercises is covered.
+- A CDP touch probe at 390×844 with five emulated touch points scrolled the
+  genuine compact catalogue, left no held/dragging state behind, and routed a
+  tap to `/press/refly/` with zero runtime errors. Evidence:
+  `/tmp/zi3t-touch-390.png`.
+
+The hardware performance profile records the reason for the chosen changes.
+The final cold load transfers 1,220,351 bytes: the flagged scene chunk is
+562,324 bytes decoded but only 145,543 bytes over the wire, while the three
+immediately visible scanned textures account for about 1.03 MB. First paint was
+596 ms, FCP 1,116 ms, scene ready 281 ms, entry complete 1,530 ms, CLS zero,
+and the single long task was 163 ms. Renderer diagnostics reported 23
+geometries, 68 textures, five programs, about 49.6 MB of mipmapped texture
+surfaces, and about 36.3 MB of used JS heap.
+
+Desktop idle now suspends the animation-frame loop instead of continuing to
+wake JavaScript after WebGL presentation has stopped. Across the same
+five-second window, the baseline's 619 animation-frame callbacks and 75.95 ms
+of renderer-main work became zero callbacks, zero presentations, and 0.6 ms of
+task work. A wheel input immediately restarted the loop. Sustained scroll stayed
+inside budget: animation callback p95 1.662 ms, max 2.758 ms, renderer-task max
+5.557 ms, and zero runtime errors. Reports:
+`/tmp/zi3t-press-profile-baseline.json` and
+`/tmp/zi3t-press-profile-final-v2.json`.
+
+`tests/profile-press-scene.mjs` makes the hardware timing, memory, idle, and
+scroll profile repeatable. `tests/record-press-first-load.mjs` adds a real-time
+hardware-GPU screencast; the inspected H.264 recording is
+`/tmp/zi3t-press-first-load.mp4` with its renderer/timing manifest at
+`/tmp/zi3t-press-first-load.json`. The host site now serves fingerprinted scene
+chunks and assets with one-year immutable browser caching, while stable entry
+files continue to revalidate.
+
+The transfer evidence does not support delaying the visible renderer through
+code splitting or degrading its scanned covers through another texture pass.
+No cover, material, logo, or typography refinement was made here; that final
+visual pass remains deliberately last. Deployment remains held.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:
@@ -1029,7 +1089,7 @@ Prioritize these only when the user asks to continue:
    diffuse-base, cone, or roughness adjustments.
 4. **Terminal content breadth:** the five-volume journey now resolves into an original two-surface ZI3T afterword. It intentionally does not reproduce Stripe's longer film, podcast, or publishing modules; expand it only with genuine ZI3T work.
 5. **Typography:** Iowan/Baskerville approximates the reference's Ivar family. Only change this with a properly licensed font and a fresh metric audit.
-6. **Browser/device profiling:** run Safari swipe-back, Firefox WebGL, touch-device, GPU memory, idle power, sustained-frame-time, and a physical-GPU first-load recording before deployment. Blocking software-GL screenshots are not reliable samples of the entry animation or of the persistent visible-frame renderer's power cost.
+6. **Browser/device profiling:** done 2026-08-05 on real Apple M1 GPU hardware — Safari Back/Forward lifecycle, Firefox WebGL2, touch input, GPU/heap accounting, idle power, sustained frame time, and a first-load recording are captured above. Keep a literal physical Safari trackpad swipe as a manual pre-deploy gesture check; software-GL screenshots remain inadmissible evidence.
 7. **Logo geometry:** the ZI3T mark is intentionally original; its held-background knockout can be refined without imitating Stripe's mark.
 8. **Scroll-feel calibration from the extracted pipeline:** done 2026-07-28 — the `.003`/`.4` velocity fan and the 1200ms idle pause (with `preserveDrawingBuffer`) are adopted; the `.0222/.027` camera ratios were evaluated and rejected as the DOM-anchored follow is their translation.
 9. **Animation-rig calibration from the extracted rig:** done 2026-07-28 — hover spine-z `.1`/frame adopted; twirl and cover-follow were already in; the universal-ease reset is present at activation (flight) and deliberately absent at release, whose 80/880ms profile is measured.

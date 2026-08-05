@@ -132,6 +132,16 @@ export async function connect(port = "9226", { width = 1568, height = 894 } = {}
   };
 
   /**
+   * Subscribes to raw protocol events for measurements such as screencasts.
+   * The returned function removes the listener, so one-off probes cannot leak
+   * handlers into later navigation or trace work.
+   */
+  const on = (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  };
+
+  /**
    * Reads the unmasked WebGL renderer. Every visual finding depends on this:
    * a headless Chrome on macOS silently falls back to software rasterisation,
    * so lighting, material and smoothness claims taken there describe SwiftShader.
@@ -203,6 +213,7 @@ export async function connect(port = "9226", { width = 1568, height = 894 } = {}
     waitFor,
     sleep,
     screenshot,
+    on,
     rendererInfo,
     requireHardwareGpu,
     trace,

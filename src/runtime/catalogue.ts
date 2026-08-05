@@ -1707,6 +1707,8 @@ const boot = () => {
   let focusIndex = -1;
   let pendingDeepLinkScroll = -1;
   let renderedFrames = 0;
+  let presentedFrames = 0;
+  let renderFrame = 0;
   let destroyed = false;
   let scrollFrame = 0;
   let resizeFrame = 0;
@@ -1784,7 +1786,20 @@ const boot = () => {
 
   const wakeScene = (duration = 720) => {
     renderUntil = Math.max(renderUntil, performance.now() + duration);
+    scheduleRender();
   };
+
+  // Desktop preserves its settled drawing buffer, so once the scene is idle it
+  // can stop requesting animation frames entirely. Every path that changes the
+  // pose already calls wakeScene(); using that same boundary avoids a 120 Hz
+  // callback loop which did no WebGL work but still consumed renderer-main CPU.
+  function scheduleRender() {
+    if (destroyed || renderFrame) return;
+    renderFrame = requestAnimationFrame((now) => {
+      renderFrame = 0;
+      render(now);
+    });
+  }
 
   const disposeGeometry = (book) => {
     book.geometry.forEach((geometry) => geometry.dispose());
@@ -2863,6 +2878,7 @@ const boot = () => {
   renderer.domElement.addEventListener("webglcontextlost", (event) => {
     event.preventDefault();
     destroyed = true;
+    cancelAnimationFrame(renderFrame);
     document.documentElement.classList.remove("press-scene-ready");
   });
 
@@ -2871,6 +2887,7 @@ const boot = () => {
     cancelAnimationFrame(scrollFrame);
     cancelAnimationFrame(resizeFrame);
     cancelAnimationFrame(pointerFrame);
+    cancelAnimationFrame(renderFrame);
     const textures = new Set();
     books.forEach((book) => {
       book.geometry.forEach((geometry) => geometry.dispose());
@@ -2995,7 +3012,7 @@ const boot = () => {
     });
   };
 
-  const render = (now) => {
+  function render(now) {
     if (destroyed) return;
     if (!entryStart) {
       entryStart = now;
@@ -3378,6 +3395,7 @@ const boot = () => {
       && now > renderUntil + IDLE_PAUSE_AFTER;
     if (document.visibilityState !== "hidden" && !idlePaused) {
       drawFrame();
+      presentedFrames += 1;
     }
     renderedFrames += 1;
     // A deep link lands on its section. Waiting for a drawn frame keeps the
@@ -3393,7 +3411,51 @@ const boot = () => {
         });
       }
     }
-    requestAnimationFrame(render);
+    if (!idlePaused) scheduleRender();
+  }
+
+  const rendererDebug = () => {
+    const textures = new Map();
+    books.forEach((book) => book.materials.forEach((material) => {
+      Object.values(material).forEach((value) => {
+        if (value?.isTexture) textures.set(value.uuid, value);
+      });
+    }));
+    const textureSurfaces = [...textures.values()].map((texture) => {
+      const image = texture.image;
+      const width = Number(image?.naturalWidth || image?.videoWidth || image?.width || 0);
+      const height = Number(image?.naturalHeight || image?.videoHeight || image?.height || 0);
+      const baseBytes = width * height * 4;
+      return {
+        width,
+        height,
+        mipmaps: Boolean(texture.generateMipmaps),
+        estimatedBytes: Math.round(baseBytes * (texture.generateMipmaps ? 4 / 3 : 1))
+      };
+    });
+    const now = performance.now();
+    const idlePaused = preserveDrawingBuffer
+      && entrySettled
+      && !holdGesture
+      && returningHoldIndex < 0
+      && !flight
+      && !cover.twirlX
+      && !cover.twirlY
+      && now > renderUntil + IDLE_PAUSE_AFTER;
+    return {
+      animationFrames: renderedFrames,
+      presentedFrames,
+      idlePaused,
+      preserveDrawingBuffer,
+      memory: { ...renderer.info.memory },
+      render: { ...renderer.info.render },
+      programs: renderer.info.programs?.length || 0,
+      textureSurfaces,
+      estimatedTextureBytes: textureSurfaces.reduce(
+        (total, texture) => total + texture.estimatedBytes,
+        0
+      )
+    };
   };
 
   if (debugEnabled) window.__pressDebug = () => ({
@@ -3449,7 +3511,8 @@ const boot = () => {
       y: Number(cover.y.toFixed(4)),
       dragging: cover.dragging,
       twirl: Number((Math.abs(cover.twirlX) + Math.abs(cover.twirlY)).toFixed(4))
-    }
+    },
+    renderer: rendererDebug()
   });
 
   resize(true);
@@ -3459,7 +3522,7 @@ const boot = () => {
   setCurrentIndex(deepLinkIndex >= 0 ? deepLinkIndex : 0);
   renderer.render(scene, camera);
   document.documentElement.classList.add("press-scene-ready");
-  requestAnimationFrame(render);
+  scheduleRender();
   return true;
 };
 
