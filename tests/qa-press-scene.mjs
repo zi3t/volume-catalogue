@@ -160,6 +160,7 @@ const capture = async (name) => {
   await writeFile(`${screenshotDirectory}/${name}.png`, Buffer.from(result.data, "base64"));
 };
 const FIGURE_COVERAGE_FLOOR = 0.12;
+const SECTION_GROUND_COVERAGE_FLOOR = 0.985;
 const screenshotBookCoverage = async (name) => {
   const result = await send("Page.captureScreenshot", {
     format: "png",
@@ -173,9 +174,11 @@ const screenshotBookCoverage = async (name) => {
   return evaluate(`(async () => {
     const canvas = document.querySelector('.press-scene-canvas');
     const book = document.querySelector('.press-volume-book');
-    if (!canvas || !book) return { available: false, coverage: 0, contextLost: true };
+    if (!canvas || !book) {
+      return { available: false, coverage: 0, groundCoverage: 0, contextLost: true };
+    }
     const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-    if (!gl) return { available: false, coverage: 0, contextLost: true };
+    if (!gl) return { available: false, coverage: 0, groundCoverage: 0, contextLost: true };
     const blob = await fetch(${source}).then((response) => response.blob());
     const bitmap = await createImageBitmap(blob);
     const sample = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -194,10 +197,31 @@ const screenshotBookCoverage = async (name) => {
         + Math.abs(pixels[index + 2] - 25);
       if (pixels[index + 3] > 240 && distance > 24) painted += 1;
     }
+    // Sample an unobstructed upper-right patch as a visual companion to the
+    // computed body colour. A transparent body reports correctly through CSS
+    // but captures as the browser's white canvas — the regression this guards.
+    const groundX = Math.min(bitmap.width - 1, 1220);
+    const groundY = Math.min(bitmap.height - 1, 150);
+    const groundWidth = Math.max(1, Math.min(84, bitmap.width - groundX));
+    const groundHeight = Math.max(1, Math.min(84, bitmap.height - groundY));
+    const groundPixels = context.getImageData(
+      groundX,
+      groundY,
+      groundWidth,
+      groundHeight
+    ).data;
+    let matchingGround = 0;
+    for (let index = 0; index < groundPixels.length; index += 4) {
+      const distance = Math.abs(groundPixels[index] - 32)
+        + Math.abs(groundPixels[index + 1] - 24)
+        + Math.abs(groundPixels[index + 2] - 25);
+      if (groundPixels[index + 3] > 240 && distance <= 12) matchingGround += 1;
+    }
     bitmap.close();
     return {
       available: true,
       coverage: painted / (width * height),
+      groundCoverage: matchingGround / (groundWidth * groundHeight),
       contextLost: gl.isContextLost()
     };
   })()`);
@@ -278,6 +302,7 @@ try {
     rowRect: document.querySelector('.press-volume-item').getBoundingClientRect().toJSON(),
     linkRect: document.querySelector('.press-volume').getBoundingClientRect().toJSON(),
     bookRect: document.querySelector('.press-volume-book').getBoundingClientRect().toJSON(),
+    bodyBackground: getComputedStyle(document.body).backgroundColor,
     cursor: getComputedStyle(document.querySelector('.press-volume')).cursor,
     catalogCursor: getComputedStyle(document.querySelector('.press-catalog')).cursor
   }))()`);
@@ -345,6 +370,13 @@ try {
 
   await wait(1000);
   const desktopIdle2250 = await screenshotBookCoverage("desktop-idle-2250");
+  check("catalogue rests on the opaque Stripe Press ground", (
+    desktop.bodyBackground === "rgb(32, 24, 25)"
+    && desktopIdle2250.groundCoverage > SECTION_GROUND_COVERAGE_FLOOR
+  ), {
+    bodyBackground: desktop.bodyBackground,
+    groundCoverage: Number(desktopIdle2250.groundCoverage.toFixed(5))
+  });
   check("desktop canvas survives 2.25 seconds idle", (
     desktopIdle2250.available
     && !desktopIdle2250.contextLost
@@ -507,6 +539,10 @@ try {
   // The rendered-silhouette check the contract has carried as missing: sample
   // the figure column out of a real frame and require the volume to be painted
   // there, measured against that section's own ground rather than the stage.
+  // The same frame also samples a quiet strip at the right edge. Stripe gives
+  // every product section its own opaque ground; a light/theme sheet or a
+  // leaking neighbouring section therefore fails here even when the book is
+  // otherwise visible.
   //
   // The book fills about .43 of the column, but a volume whose cover sits close
   // to its own ground colour reads lower — practice measures .20 where refly
@@ -522,7 +558,7 @@ try {
     return evaluate(`(async () => {
       const section = document.querySelectorAll('.press-volume-section')[${index}];
       const figure = section?.querySelector('.press-volume-figure');
-      if (!figure) return { available: false, coverage: 0 };
+      if (!figure) return { available: false, coverage: 0, groundCoverage: 0 };
       const blob = await fetch(${source}).then((response) => response.blob());
       const bitmap = await createImageBitmap(blob);
       const sample = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -533,12 +569,12 @@ try {
       const y = Math.max(0, Math.round(rect.top));
       const width = Math.max(1, Math.min(bitmap.width - x, Math.round(rect.width)));
       const height = Math.max(1, Math.min(bitmap.height - y, Math.round(rect.height)));
-      const ground = getComputedStyle(section).getPropertyValue('--press-volume-bg').trim();
-      const probe = document.createElement('span');
-      probe.style.color = ground;
-      document.body.append(probe);
-      const [gr, gg, gb] = getComputedStyle(probe).color.match(/\\d+/g).map(Number);
-      probe.remove();
+      const ground = getComputedStyle(section).backgroundColor;
+      const colourSample = new OffscreenCanvas(1, 1);
+      const colourContext = colourSample.getContext('2d', { willReadFrequently: true });
+      colourContext.fillStyle = ground;
+      colourContext.fillRect(0, 0, 1, 1);
+      const [gr, gg, gb] = colourContext.getImageData(0, 0, 1, 1).data;
       const pixels = context.getImageData(x, y, width, height).data;
       let painted = 0;
       for (let index = 0; index < pixels.length; index += 4) {
@@ -547,8 +583,29 @@ try {
           + Math.abs(pixels[index + 2] - gb);
         if (pixels[index + 3] > 240 && distance > 24) painted += 1;
       }
+      const groundX = Math.max(0, bitmap.width - 116);
+      const groundY = Math.min(bitmap.height - 1, 132);
+      const groundWidth = Math.max(1, Math.min(84, bitmap.width - groundX));
+      const groundHeight = Math.max(1, Math.min(132, bitmap.height - groundY));
+      const groundPixels = context.getImageData(
+        groundX,
+        groundY,
+        groundWidth,
+        groundHeight
+      ).data;
+      let matchingGround = 0;
+      for (let index = 0; index < groundPixels.length; index += 4) {
+        const distance = Math.abs(groundPixels[index] - gr)
+          + Math.abs(groundPixels[index + 1] - gg)
+          + Math.abs(groundPixels[index + 2] - gb);
+        if (groundPixels[index + 3] > 240 && distance <= 12) matchingGround += 1;
+      }
       bitmap.close();
-      return { available: true, coverage: painted / (width * height) };
+      return {
+        available: true,
+        coverage: painted / (width * height),
+        groundCoverage: matchingGround / (groundWidth * groundHeight)
+      };
     })()`);
   };
 
@@ -661,13 +718,28 @@ try {
   const historyBeforeScroll = await evaluate("history.length");
   const addressTrail = [];
   const sectionCoverage = [];
+  const sectionGroundCoverage = [];
+  const sectionSettled = [];
   for (let index = 0; index < sections.length; index += 1) {
+    const expectedPath = new URL(sections[index].address, "http://x").pathname;
     await evaluate(`window.scrollTo({ top: ${sections[index].top + 200}, behavior: 'instant' })`);
-    await waitFor(`location.pathname === '${new URL(sections[index].address, "http://x").pathname}'`, 4000);
-    await wait(260);
+    const settled = await waitFor(`(() => {
+      const debug = window.__pressDebug?.();
+      const book = debug?.books?.[${index}];
+      return location.pathname === ${JSON.stringify(expectedPath)}
+        && debug?.currentIndex === ${index}
+        && book?.visible
+        && book.sectionWeight > 0.99
+        && Math.abs(book.position.x - book.layout.x) < 1.5
+        && Math.abs(book.position.y - book.layout.y) < 1.5
+        && Math.abs(book.scale - book.layoutScale) < 0.015;
+    })()`, 6000);
+    sectionSettled.push(settled);
+    await wait(120);
     addressTrail.push(await evaluate("location.pathname"));
     const coverage = await figureCoverage(index, `desktop-section-${sections[index].address.replace(/\//g, "")}`);
     sectionCoverage.push(Number(coverage.coverage.toFixed(5)));
+    sectionGroundCoverage.push(Number(coverage.groundCoverage.toFixed(5)));
   }
   // The top of the volumes document is the first volume, not the catalogue —
   // the catalogue is not in this document to scroll back into.
@@ -682,8 +754,14 @@ try {
 
   check("every section draws its own volume", (
     sectionCoverage.length === 5
+    && sectionSettled.every(Boolean)
     && sectionCoverage.every((coverage) => coverage > FIGURE_COVERAGE_FLOOR)
-  ), sectionCoverage);
+  ), { sectionCoverage, sectionSettled });
+
+  check("every section owns an opaque full-width ground", (
+    sectionGroundCoverage.length === 5
+    && sectionGroundCoverage.every((coverage) => coverage > SECTION_GROUND_COVERAGE_FLOOR)
+  ), sectionGroundCoverage);
 
   // The pinned hero keeps its anchors' on-screen bounds while a section covers
   // it, so "invisible" is not enough — the shelf has to leave the tab order too.

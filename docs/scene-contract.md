@@ -973,6 +973,49 @@ machine-specific absolute paths.
 No renderer, interaction, route, geometry, or generated browser asset changed
 in this checkpoint. Deployment remains held.
 
+## Current checkpoint — 2026-08-05 opaque section grounds
+
+The volumes document now gives every product section its own direct, opaque
+background, matching the live Stripe Press product-section composition. The
+previous `z-index: -1` pseudo-element ground was removed: it depended on an
+uncontained negative stack and could expose the site's light canvas or a
+neighbouring section as a sheet across the active volume.
+
+The assembled document's layers are now explicit: section ground at the base,
+the collapsed pinned hero and WebGL canvas at `z-index: 1`, and the section
+stage/content at `z-index: 2`. Standalone project pages remain untouched.
+
+The real-GPU gate now waits for the address, active index, section weight, and
+physical book pose to settle before sampling each section. From the same frame
+it verifies both the rendered book silhouette and an unobstructed right-edge
+strip against the section's computed background. This removes the old 260 ms
+race without weakening the volume assertion and adds a regression check for
+light/theme bleed.
+
+Verification: **`48/48` PASS on headful Apple Metal with zero runtime errors**.
+All five section grounds measured `1.0` coverage; their book silhouette
+coverages were `.62637`, `.60541`, `.47563`, `.46749`, and `.56153`. Evidence:
+`/tmp/zi3t-press-ground-fixed-4`. All five standing-section captures were
+inspected. Nothing was deployed.
+
+## Current checkpoint — 2026-08-05 opaque catalogue ground
+
+The catalogue's rest canvas now owns the same flat oxblood-black ground as the
+live Stripe Press homepage. A live computed-style probe at 1568×894 measured
+Stripe's body as `rgb(32, 24, 25)` (`#201819`), which was already ZI3T's
+`--press-stage` token.
+
+The mismatch was cascade ownership, not colour selection:
+`volume-sections.css` made both `.home-hero` and `.home-page` transparent, but
+`.home-page` is the `<body>` itself. In catalogue mode that exposed the
+browser's default white canvas. The body now keeps `var(--press-stage)` while
+only the pinned hero stays transparent for direct section grounds.
+
+The real-GPU gate now pairs the computed body colour with an unobstructed
+upper-right screenshot sample and requires at least `.985` ground coverage.
+This makes a transparent body fail even when the scene, books, and section
+grounds remain otherwise healthy.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:

@@ -10,24 +10,18 @@
    The 3D volume is not here yet: `.press-volume-figure` reserves the column the
    scene will pose it into in phase 2. */
 
-/* The canvas has to draw *into* a section: the book belongs to the section's
-   hero, above its ground and below its words. The canvas cannot be lifted out
-   to do that — `.press-catalog` sets `perspective`, so it is the containing
-   block for any fixed descendant, and a body-level canvas would also rise above
-   the scrim, the hold caption, the help, the rail and the route layer, all of
-   which are deliberately above it today.
+/* The canvas draws *into* a section: the book belongs above that section's
+   ground and below its words. Paint the ground on the section itself, as the
+   reference does. The former negative-z `::before` ground depended on an
+   uncontained stacking layer; after a standalone page changed height, that
+   layer could remain visible across the next section and read as a white/light
+   sheet over the active book.
 
-   So the section layer is split around the pinned hero instead. `.home-hero` is
-   `position: sticky`, which makes it a stacking context at `z-index: auto` —
-   painted in the positioned-z-auto pass, above negative z and below anything
-   later in tree order. Each section's ground goes to a `::before` at `z-index:
-   -1`, under the hero and therefore under the canvas; each section's content is
-   positioned, so tree order puts it above the hero and therefore above the
-   canvas. Nothing between them may create a stacking context or its children
-   are trapped on one side.
-
-   This only applies to the assembled document: this sheet is served by the
-   worker, so `/index.html` on its own keeps its opaque hero. */
+   `.home-hero` remains the pinned canvas layer. The section backgrounds are
+   normal-flow paint below that positioned layer, while the stage and reading
+   content are explicitly lifted above it. This only applies to the assembled
+   document: this sheet is served by the worker, so the standalone pages keep
+   their own backgrounds. */
 /* The catalogue and the volumes are two states of one document. Measured on the
    reference: `/` is ~7 viewports whose address never changes however far it is
    scrolled, and a picked book is a ~66-viewport document of every volume, built
@@ -58,6 +52,7 @@
    is already `display: none` under the press layout, so letting it overflow
    lets exactly the canvas through and nothing else. */
 .press-volumes-open .home-hero {
+  z-index: 1;
   height: 0;
   min-height: 0;
   overflow: visible;
@@ -100,11 +95,15 @@
   display: none;
 }
 
-/* Both carry the same opaque stage colour, and both would paint over a
-   negative-z ground: `.home-page`'s in-flow background sits above the
-   negative-z pass, the hero's above that again. The colour is kept on `body`,
-   whose background propagates to the canvas underneath everything. */
-.home-page,
+/* The hero must stay transparent so each volume section can paint behind its
+   live book. `.home-page` is the body itself, though: making both selectors
+   transparent exposes the browser's white canvas in catalogue mode. Keep the
+   measured Stripe Press rest ground (`#201819`) on the body and only clear the
+   pinned hero. Section backgrounds remain direct, opaque paint above it. */
+.home-page {
+  background: var(--press-stage);
+}
+
 .home-hero {
   background: transparent;
 }
@@ -115,22 +114,16 @@
   position: relative;
   z-index: auto;
   padding-bottom: 46svh;
-  background: transparent;
+  background: var(--press-volume-bg);
   color: var(--press-volume-ink);
 }
 
-.press-volume-section::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: var(--press-volume-bg);
-}
-
-/* Positioned, so the words paint above the pinned hero and the canvas in it. */
+/* Positioned above the pinned hero, so the words paint over the canvas while
+   the transparent figure column still reveals the live volume. */
 .press-volume-stage,
 .press-volume-content {
   position: relative;
+  z-index: 2;
 }
 
 /* The hero stays pinned under every section, so its catalogue would keep
