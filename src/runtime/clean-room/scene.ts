@@ -19,10 +19,15 @@ import {
 } from "./motion";
 import { cleanRoomProfiles, type CleanRoomVolumeProfile } from "./profiles";
 import {
+  installCleanRoomRouting,
+  type CleanRoomPressMode
+} from "./routing";
+import {
   createSharedTextures,
   createSurfaceTextures,
   type CleanRoomMetadata
 } from "./textures";
+import { installCleanRoomVolumeInteraction } from "./volume-interaction";
 
 declare global {
   interface Window {
@@ -39,7 +44,13 @@ interface CleanRoomEntry {
   readonly target: HTMLElement;
   readonly book: CleanRoomBook;
   readonly homePosition: THREE.Vector3;
+  readonly sectionPosition: THREE.Vector3;
+  readonly figure: HTMLElement | null;
   homeScale: number;
+  sectionScale: number;
+  sectionTurnY: number;
+  sectionVisible: boolean;
+  sectionWeight: number;
   opacity: number;
   hover: number;
   hold: number;
@@ -62,6 +73,13 @@ interface CleanRoomDebugSnapshot {
     readonly isolation: number;
     readonly presentation: number;
     readonly backdrop: number;
+    readonly mode: CleanRoomPressMode;
+    readonly currentIndex: number;
+    readonly flightIndex: number;
+    readonly pendingDeepLinkIndex: number;
+    readonly coverRotation: readonly [number, number];
+    readonly coverDragging: boolean;
+    readonly coverTwirl: readonly [number, number];
   };
   readonly books: readonly {
     readonly slug: string;
@@ -71,6 +89,10 @@ interface CleanRoomDebugSnapshot {
     readonly homeScale: number;
     readonly rotation: readonly [number, number, number];
     readonly opacity: number;
+    readonly sectionPosition: readonly [number, number, number];
+    readonly sectionScale: number;
+    readonly sectionWeight: number;
+    readonly sectionVisible: boolean;
     readonly material: {
       readonly architecture: "clean-room-shader-material";
       readonly coverMaps: 7;
@@ -154,9 +176,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
   if (!stage || items.length !== cleanRoomProfiles.length) return false;
   const catalogueStage = stage;
 
-  const links = items.map((item) => item.querySelector<HTMLElement>(".press-volume"));
+  const links = items.map((item) => item.querySelector<HTMLAnchorElement>(".press-volume"));
   if (links.some((link) => !link)) return false;
-  const ownedLinks = links as HTMLElement[];
+  const ownedLinks = links as HTMLAnchorElement[];
+  const volumeFigures = Array.from(
+    document.querySelectorAll<HTMLElement>(".press-volume-figure")
+  );
 
   THREE.ColorManagement.enabled = false;
 
@@ -210,6 +235,17 @@ export const mountCleanRoomCatalogue = (): boolean => {
   let holdPresentation = 0;
   let holdBackdrop = 0;
   let holdClassTimer = 0;
+  let pressMode: CleanRoomPressMode = cleanRoomProfiles.some(
+    (profile) => window.location.pathname.endsWith(`/press/${profile.slug}/`)
+  ) ? "volumes" : "catalogue";
+  let currentRouteIndex = Math.max(0, cleanRoomProfiles.findIndex(
+    (profile) => window.location.pathname.endsWith(`/press/${profile.slug}/`)
+  ));
+  let routeFrames = 0;
+  let returningRouteIndex = -1;
+  let flight: { index: number; speed: number; approach: number } | null = null;
+  let requestRelayout = (): void => undefined;
+  let resetVolumeInput = (): void => undefined;
   let interactionSnapshot: CleanRoomInteractionSnapshot = {
     hoverIndex: -1,
     focusIndex: -1,
@@ -246,7 +282,13 @@ export const mountCleanRoomCatalogue = (): boolean => {
       target,
       book,
       homePosition: new THREE.Vector3(),
+      sectionPosition: new THREE.Vector3(),
+      figure: volumeFigures[index] ?? null,
       homeScale: 1,
+      sectionScale: 1,
+      sectionTurnY: 0,
+      sectionVisible: false,
+      sectionWeight: 0,
       opacity: 0,
       hover: 0,
       hold: 0,
@@ -275,10 +317,80 @@ export const mountCleanRoomCatalogue = (): boolean => {
     else holdClassTimer = window.setTimeout(remove, CLEAN_ROOM_MOTION.releaseClassDelay);
   };
 
+  const snapToShelf = (entry: CleanRoomEntry): void => {
+    if (!entry.initialized) return;
+    entry.book.root.position.copy(entry.homePosition);
+    entry.book.root.scale.setScalar(entry.homeScale);
+    entry.book.root.rotation.set(0, 0, 0);
+    entry.book.object.rotation.x = entry.profile.shelfPitch;
+    entry.book.object.scale.x = 1;
+    entry.sectionWeight = 0;
+    entry.sectionVisible = false;
+    setBookOpacity(entry, 1);
+  };
+
+  const routing = installCleanRoomRouting({
+    items,
+    links: ownedLinks,
+    onBeforeVolume: (index, source) => {
+      clearHoldClasses(true);
+      returningIndex = -1;
+      releasedAt = 0;
+      releasedFromDrag = false;
+      returningRouteIndex = -1;
+      resetVolumeInput();
+      flight = reducedMotion.matches || source === "deep-link"
+        ? null
+        : { index, speed: 0, approach: 0 };
+    },
+    onBeforeCatalogue: (index) => {
+      flight = null;
+      resetVolumeInput();
+      returningRouteIndex = index;
+      entries.forEach((entry) => {
+        if (entry.index !== index) snapToShelf(entry);
+      });
+    },
+    onModeChange: (mode) => {
+      pressMode = mode;
+      routeFrames = 0;
+      if (mode === "volumes") {
+        entryComplete = true;
+        document.documentElement.classList.add("press-entry-complete");
+      }
+      requestRelayout();
+      wake(1800);
+    },
+    onIndexChange: (index) => {
+      if (index !== currentRouteIndex) resetVolumeInput();
+      currentRouteIndex = index;
+      requestRelayout();
+      wake(900);
+    },
+    onWake: wake
+  });
+  pressMode = routing.snapshot().mode;
+  currentRouteIndex = routing.snapshot().currentIndex;
+
+  const volumeInteraction = installCleanRoomVolumeInteraction({
+    figures: routing.figures,
+    canInteract: () => (
+      pressMode === "volumes"
+      && !compact.matches
+      && !reducedMotion.matches
+      && !flight
+    ),
+    flightActive: () => Boolean(flight),
+    onWake: wake
+  });
+  resetVolumeInput = volumeInteraction.reset;
+
   const interactionState = installCleanRoomInteraction({
     items,
     links: ownedLinks,
-    canHold: () => !compact.matches && !reducedMotion.matches,
+    canHold: () => (
+      pressMode === "catalogue" && !compact.matches && !reducedMotion.matches
+    ),
     onBegin: (gesture) => {
       clearHoldClasses(true);
       returningIndex = gesture.index;
@@ -342,11 +454,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
     },
     onHover: () => undefined,
     onFocus: () => undefined,
+    onActivate: (index, event) => {
+      routing.activate(index, event);
+    },
     onWake: wake
   });
 
   function layout(): void {
     layoutFrame = 0;
+    routing.updateLayout();
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
     renderer.setSize(viewportWidth, viewportHeight, false);
@@ -372,13 +488,67 @@ export const mountCleanRoomCatalogue = (): boolean => {
       entry.homePosition.copy(center);
       entry.homePosition.z = depth;
       entry.homeScale = scale;
+
+      const figureRect = entry.figure?.getBoundingClientRect() ?? null;
+      const sectionEligible = pressMode === "volumes"
+        && !reducedMotion.matches
+        && Boolean(figureRect);
+      if (figureRect) {
+        entry.sectionPosition.copy(pointOnDepthPlane(
+          camera,
+          viewportWidth,
+          viewportHeight,
+          figureRect.left + figureRect.width * 0.5,
+          figureRect.top + figureRect.height * 0.5,
+          depth
+        ));
+        entry.sectionPosition.z = depth;
+        const sectionUnits = worldUnitsPerPixel(camera, viewportHeight, depth);
+        const heightLimited = viewportHeight
+          * CLEAN_ROOM_MOTION.sectionCoverViewportHeight
+          * sectionUnits;
+        const widthLimited = figureRect.width
+          * 0.95
+          * sectionUnits
+          / entry.profile.depthRatio;
+        entry.sectionScale = Math.min(heightLimited, widthLimited);
+        entry.sectionWeight = sectionEligible && figureRect.top < viewportHeight * 1.25 ? 1 : 0;
+        entry.sectionVisible = entry.sectionWeight > 0
+          && figureRect.bottom > -180
+          && figureRect.top < viewportHeight + 180;
+        entry.sectionTurnY = entry.index === currentRouteIndex && !compact.matches
+          ? (
+            viewportHeight * 0.5
+            - (figureRect.top + figureRect.height * 0.5)
+          ) * CLEAN_ROOM_MOTION.volumeScrollTurn
+          : 0;
+      } else {
+        entry.sectionPosition.copy(entry.homePosition);
+        entry.sectionScale = entry.homeScale;
+        entry.sectionWeight = 0;
+        entry.sectionVisible = false;
+        entry.sectionTurnY = 0;
+      }
       if (!entry.initialized) {
         unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, depth);
-        entry.book.root.position.copy(center);
-        entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
-        entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
-        entry.book.root.scale.setScalar(scale);
-        entry.book.object.rotation.x = entry.profile.shelfPitch;
+        if (entry.sectionWeight > 0 && entry.index === currentRouteIndex) {
+          entry.book.root.position.copy(entry.sectionPosition);
+          entry.book.root.scale.setScalar(entry.sectionScale);
+          entry.book.root.rotation.set(
+            0,
+            CLEAN_ROOM_MOTION.sectionCoverYaw,
+            CLEAN_ROOM_MOTION.sectionCoverRoll
+          );
+          entry.book.object.rotation.x = Math.PI / 2
+            - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall;
+          entry.book.object.scale.x = CLEAN_ROOM_MOTION.sectionObjectScaleX;
+        } else {
+          entry.book.root.position.copy(center);
+          entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
+          entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
+          entry.book.root.scale.setScalar(scale);
+          entry.book.object.rotation.x = entry.profile.shelfPitch;
+        }
         entry.initialized = true;
       }
     });
@@ -390,6 +560,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     if (layoutFrame) return;
     layoutFrame = window.requestAnimationFrame(layout);
   };
+  requestRelayout = scheduleLayout;
 
   function animate(now: number): void {
     frameRequest = 0;
@@ -398,6 +569,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
     const deltaSeconds = clamp(rawDelta, 1 / 240, 0.25);
     lastFrameAt = now;
     interactionSnapshot = interactionState();
+    if (pressMode === "volumes") volumeInteraction.advanceTwirl(deltaSeconds);
+    const volumePose = volumeInteraction.snapshot();
 
     const gesture = interactionSnapshot.gesture;
     const activeIndex = gesture?.index ?? returningIndex;
@@ -429,10 +602,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
       activeIndex >= 0 && holdIsolation > 0.9
     );
 
+    const activeFlight = flight;
+    if (activeFlight && pressMode === "volumes") {
+      const frames = clamp(deltaSeconds * 60, 0.25, 4);
+      activeFlight.speed = Math.min(
+        CLEAN_ROOM_MOTION.flightEaseCeiling,
+        activeFlight.speed + CLEAN_ROOM_MOTION.flightEaseStep * frames
+      );
+      activeFlight.approach = 1 - Math.pow(1 - activeFlight.speed, frames);
+    }
+
     let allEntryCurvesComplete = true;
     let entryResidual = 0;
     entries.forEach((entry, index) => {
-      const entryLinear = reducedMotion.matches
+      const entryLinear = reducedMotion.matches || pressMode === "volumes"
         ? 1
         : clamp(
           (now - entryStartedAt - CLEAN_ROOM_MOTION.entryDelay
@@ -446,6 +629,63 @@ export const mountCleanRoomCatalogue = (): boolean => {
         ? 1
         : smooth(clamp(entryLinear / 0.72, 0, 1));
       if (entryLinear < 1) allEntryCurvesComplete = false;
+
+      if (pressMode === "volumes") {
+        if (entry.sectionWeight <= 0) {
+          setBookOpacity(entry, 0);
+          return;
+        }
+        const live = index === currentRouteIndex;
+        const targetRotationY = CLEAN_ROOM_MOTION.sectionCoverYaw
+          + entry.sectionTurnY
+          + (live ? volumePose.rotationY : 0);
+        const targetRotationZ = CLEAN_ROOM_MOTION.sectionCoverRoll;
+        const targetObjectRotationX = Math.PI / 2
+          - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall
+          + (live ? volumePose.rotationX : 0);
+        if (activeFlight?.index === index) {
+          const approach = activeFlight.approach;
+          entry.book.root.position.lerp(entry.sectionPosition, approach);
+          const nextScale = mix(entry.book.root.scale.x, entry.sectionScale, approach);
+          entry.book.root.scale.setScalar(nextScale);
+          entry.book.root.rotation.x = mix(entry.book.root.rotation.x, 0, approach);
+          entry.book.root.rotation.y = mix(
+            entry.book.root.rotation.y,
+            targetRotationY,
+            approach
+          );
+          entry.book.root.rotation.z = mix(
+            entry.book.root.rotation.z,
+            targetRotationZ,
+            approach
+          );
+          entry.book.object.rotation.x = mix(
+            entry.book.object.rotation.x,
+            targetObjectRotationX,
+            approach
+          );
+          entry.book.object.scale.x = mix(
+            entry.book.object.scale.x,
+            CLEAN_ROOM_MOTION.sectionObjectScaleX,
+            approach
+          );
+          const residual = Math.max(
+            entry.book.root.position.distanceTo(entry.sectionPosition),
+            Math.abs(entry.book.root.scale.x - entry.sectionScale) * 20,
+            Math.abs(entry.book.object.rotation.x - targetObjectRotationX) * 10
+          );
+          entryResidual = Math.max(entryResidual, residual);
+          if (residual < 0.012 && flight === activeFlight) flight = null;
+        } else {
+          entry.book.root.position.copy(entry.sectionPosition);
+          entry.book.root.scale.setScalar(entry.sectionScale);
+          entry.book.root.rotation.set(0, targetRotationY, targetRotationZ);
+          entry.book.object.rotation.x = targetObjectRotationX;
+          entry.book.object.scale.x = CLEAN_ROOM_MOTION.sectionObjectScaleX;
+        }
+        setBookOpacity(entry, entry.sectionVisible ? 1 : 0);
+        return;
+      }
 
       const activelyHeld = gesture?.index === index;
       const interactive = !reducedMotion.matches && (
@@ -513,6 +753,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
         deltaSeconds
       );
       entry.book.root.scale.setScalar(nextScale);
+      entry.book.object.scale.x = damp(
+        entry.book.object.scale.x,
+        1,
+        11,
+        deltaSeconds
+      );
       entry.book.root.rotation.y = damp(
         entry.book.root.rotation.y,
         entry.holdRotationY * entry.hold,
@@ -541,6 +787,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
         Math.abs(entry.book.root.scale.x - entry.homeScale)
       );
     });
+
+    if (
+      pressMode === "catalogue"
+      && returningRouteIndex >= 0
+      && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+    ) returningRouteIndex = -1;
 
     if (
       !entryComplete
@@ -577,9 +829,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
     }
 
     renderOnce();
+    routeFrames += 1;
+    if (routeFrames >= 3 && routing.settlePendingDeepLink()) {
+      routeFrames = 0;
+      requestRelayout();
+    }
     const moving = !entryComplete
       || holding
       || returningIndex >= 0
+      || returningRouteIndex >= 0
+      || Boolean(flight)
+      || volumePose.dragging
+      || Boolean(volumePose.twirlX)
+      || Boolean(volumePose.twirlY)
+      || routing.snapshot().pendingDeepLinkIndex >= 0
       || entryResidual > CLEAN_ROOM_MOTION.entrySettleEpsilon
       || now < renderUntil;
     if (moving && !frameRequest) frameRequest = window.requestAnimationFrame(animate);
@@ -597,7 +860,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
   if (entryComplete) document.documentElement.classList.add("press-entry-complete");
 
   if (window.__pressDebugEnabled) {
-    window.__pressCleanRoomDebug = () => ({
+    window.__pressCleanRoomDebug = () => {
+      const volume = volumeInteraction.snapshot();
+      return ({
       renderer: "clean-room",
       state: {
         entryComplete,
@@ -608,9 +873,32 @@ export const mountCleanRoomCatalogue = (): boolean => {
         returningIndex,
         isolation: Number(holdIsolation.toFixed(4)),
         presentation: Number(holdPresentation.toFixed(4)),
-        backdrop: Number(holdBackdrop.toFixed(4))
+        backdrop: Number(holdBackdrop.toFixed(4)),
+        mode: pressMode,
+        currentIndex: currentRouteIndex,
+        flightIndex: flight?.index ?? -1,
+        pendingDeepLinkIndex: routing.snapshot().pendingDeepLinkIndex,
+        coverRotation: [
+          Number(volume.rotationX.toFixed(4)),
+          Number(volume.rotationY.toFixed(4))
+        ],
+        coverDragging: volume.dragging,
+        coverTwirl: [
+          Number(volume.twirlX.toFixed(4)),
+          Number(volume.twirlY.toFixed(4))
+        ]
       },
-      books: entries.map(({ profile, book, homePosition, homeScale, opacity }) => ({
+      books: entries.map(({
+        profile,
+        book,
+        homePosition,
+        sectionPosition,
+        homeScale,
+        sectionScale,
+        sectionWeight,
+        sectionVisible,
+        opacity
+      }) => ({
         slug: profile.slug,
         position: [
           Number(book.root.position.x.toFixed(4)),
@@ -624,6 +912,14 @@ export const mountCleanRoomCatalogue = (): boolean => {
         ],
         scale: Number(book.root.scale.x.toFixed(4)),
         homeScale: Number(homeScale.toFixed(4)),
+        sectionPosition: [
+          Number(sectionPosition.x.toFixed(4)),
+          Number(sectionPosition.y.toFixed(4)),
+          Number(sectionPosition.z.toFixed(4))
+        ],
+        sectionScale: Number(sectionScale.toFixed(4)),
+        sectionWeight: Number(sectionWeight.toFixed(4)),
+        sectionVisible,
         rotation: [
           Number(book.object.rotation.x.toFixed(4)),
           Number(book.root.rotation.y.toFixed(4)),
@@ -644,7 +940,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
         triangles: renderer.info.render.triangles,
         programs: renderer.info.programs?.length ?? 0
       }
-    });
+      });
+    };
   }
 
   wake(1800);

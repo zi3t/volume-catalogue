@@ -15,7 +15,19 @@ export const CLEAN_ROOM_MOTION = {
   releaseIsolation: 360,
   releasePresentation: 110,
   releaseBackdrop: 430,
-  releaseClassDelay: 780
+  releaseClassDelay: 780,
+  sectionCoverYaw: 0.35,
+  sectionCoverRoll: -(Math.PI / 2) + 0.04,
+  sectionCoverPitchShortfall: 0.16,
+  sectionCoverViewportHeight: 0.685,
+  sectionObjectScaleX: 0.86,
+  flightEaseStep: 0.006,
+  flightEaseCeiling: 0.15,
+  volumeFollowRate: 0.00015,
+  volumeDragRate: 0.003,
+  volumeScrollTurn: 0.0008,
+  volumeTwirlLimit: 0.3,
+  volumeTwirlDecay: 0.95
 } as const;
 
 export const clamp = (value: number, minimum: number, maximum: number): number => (

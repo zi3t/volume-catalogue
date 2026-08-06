@@ -227,7 +227,10 @@ export const createCleanRoomLayeredMaterial = (
 ): CleanRoomLayeredMaterial => {
   const uniforms = THREE.UniformsUtils.clone(THREE.ShaderLib.phong.uniforms);
   Object.assign(uniforms, {
-    diffuse: { value: new THREE.Color(surface === "cover" ? 0xbebebe : 0xe0e0e0) },
+    // The authored custom diffuse owns the surface colour. A grey Phong base
+    // multiplied it a second time, which was easy to miss on the shelf but
+    // made route-scale straw and ochre covers dissolve into their section.
+    diffuse: { value: new THREE.Color(0xffffff) },
     emissive: { value: new THREE.Color(0x000000) },
     specular: { value: new THREE.Color(profile.specular) },
     shininess: { value: profile.shininess },

@@ -128,3 +128,11 @@ rank-1 material architecture checkpoint: seven independently derived sampler
 roles and five original response profiles pass their hardware gate. This does
 not close the row for the shipping scene or make the replacement the default;
 interaction and route close-ups have not yet earned visual parity.
+
+**Checkpoint update 2026-08-07:** the replacement has now mechanically earned
+the single-shell catalogue/volume route, deep-link, history, rail, five-figure
+flight, and live-volume interaction contract on hardware WebGL. This still does
+not close the shipping rows: the renderer remains opt-in, catalogue
+scroll/terminal and compact/reduced/idle work remain, and route close-ups are
+visibly darker and flatter than the accepted implementation—most clearly the
+ochre Field Notes cover.

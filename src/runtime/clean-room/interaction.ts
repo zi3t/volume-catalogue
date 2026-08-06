@@ -26,6 +26,7 @@ interface CleanRoomInteractionCallbacks {
   readonly onFinish: (gesture: CleanRoomHoldGesture) => void;
   readonly onHover: (index: number) => void;
   readonly onFocus: (index: number) => void;
+  readonly onActivate: (index: number, event: MouseEvent) => void;
   readonly onWake: () => void;
 }
 
@@ -134,7 +135,9 @@ export const installCleanRoomInteraction = (
       if (completed?.moved || (gesture?.index === index && gesture.moved)) {
         event.preventDefault();
         event.stopPropagation();
+        return;
       }
+      callbacks.onActivate(index, event);
     });
     link?.addEventListener("dragstart", (event) => event.preventDefault());
     link?.addEventListener("focus", () => {

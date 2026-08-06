@@ -114,7 +114,7 @@ the same selected volume and cannot synthesize a click.
 Measured at 1568×894 on headful Chrome/Apple M1 Pro Metal:
 
 - clean-room foundation/material gate: **10/10 PASS**, zero runtime errors;
-- clean-room desktop interaction gate: **13/13 PASS**, zero runtime errors;
+- clean-room desktop interaction gate: **12/12 PASS**, zero runtime errors;
 - five volumes settle to their measured homes after entry and release; and
 - unchanged default-renderer gate: **49/49 PASS**, zero runtime errors.
 
@@ -125,3 +125,46 @@ remains opt-in. This checkpoint does not claim clean-room click routing,
 volume-mode flight, section scroll/history, rail navigation, compact or
 reduced-motion parity, terminal choreography, accessibility completion, or a
 final visual diff.
+
+## Checkpoint 3 — route document and live volume
+
+The clean-room renderer now keeps catalogue and volume reading as two modes of
+one shell while preserving `?press-renderer=clean-room` on every internal
+address. A deliberate shelf pick pushes one history entry; section-centering
+scroll replaces the current address; the rail and arrow keys move between all
+five volumes; and Back/Forward restores both the prior document mode and the
+catalogue offset. A direct volume URL settles on its named section without
+claiming another address during startup.
+
+The selected book flies from its DOM-derived shelf slot into the section figure
+with the extracted `.006`/`.15` recurrence, then remains the live scene object
+for that section. All five figures own an independently posed volume, covered
+shelf anchors leave the tab order, and the sidebar control returns the current
+volume to its original shelf slot.
+
+The live cover interaction is independently implemented from the numeric
+capture:
+
+- passive pointer follow at `.00015` radians per pixel;
+- figure drag at `.003` radians per pixel around a fixed centre;
+- release from a last-delta clamp of `.3`, decaying by `.95` per 60Hz frame;
+  and
+- active-section scroll turn at `.0008` radians per pixel.
+
+Measured at 1568×894 on headful Chrome/Apple M1 Pro Metal:
+
+- clean-room foundation/material gate: **10/10 PASS**, zero runtime errors;
+- clean-room desktop interaction gate: **12/12 PASS**, zero runtime errors;
+- clean-room route/history gate: **15/15 PASS**, zero runtime errors;
+- clean-room live-volume gate: **8/8 PASS**, zero runtime errors; and
+- unchanged default-renderer gate: **49/49 PASS**, zero runtime errors.
+
+Evidence is `/tmp/zi3t-clean-room-routing-pass5`,
+`/tmp/zi3t-clean-room-volume-final`,
+`/tmp/zi3t-clean-room-route-interaction-final`, and
+`/tmp/zi3t-clean-room-routing-accepted-gate`. The clean-room renderer remains
+opt-in. Its route close-ups are still darker and flatter than the accepted
+renderer, most visibly on the ochre Field Notes cover; this checkpoint claims
+mechanics, not final lighting parity. Catalogue scroll/terminal choreography,
+compact and reduced-motion parity, complete accessibility/idle behavior, and a
+final visual diff remain unclaimed.

@@ -1118,7 +1118,7 @@ button guard make release continuous outside the row. Drag release suppresses
 the anchor click, then reverses rotation and stack evacuation without a pose
 snap.
 
-The clean-room interaction gate passes **13/13** at 1568×894 on headful
+The clean-room interaction gate passes **12/12** at 1568×894 on headful
 Chrome/Apple M1 Pro Metal with zero errors. Its foundation/material gate passes
 **10/10**, and the untouched default renderer passes **49/49** on a fresh tab.
 Evidence: `/tmp/zi3t-clean-room-interaction-pass2`,
@@ -1129,6 +1129,43 @@ Click routing, volume flight, section scroll/history, rail navigation, compact
 and reduced-motion behavior, terminal choreography, accessibility completion,
 and final visual-diff parity remain unclaimed. The clean-room renderer remains
 opt-in and nothing was deployed.
+
+## Current checkpoint — 2026-08-07 Option B routes and live volumes
+
+The opt-in clean-room renderer now owns the catalogue-to-volume journey. It
+keeps catalogue and reading states in one shell, carries the renderer marker
+through internal addresses, pushes on a deliberate shelf pick, replaces during
+section-centering scroll, and restores the prior mode and shelf offset through
+Back/Forward. Deep links settle directly on the named volume without transient
+address claims.
+
+The selected scene book flies from its DOM-derived shelf slot into the matching
+figure with the extracted `.006`/`.15` recurrence. Each of the five sections
+owns its posed live volume; covered shelf anchors are inert, rail and arrow-key
+navigation reach every section, and the sidebar returns the current volume to
+its shelf slot.
+
+Live-volume motion follows the captured numeric contract: `.00015`
+radians-per-pixel passive follow, `.003` figure drag around a fixed centre, a
+`.3` last-delta throw clamp with `.95` per-60Hz-frame decay, and `.0008`
+radians-per-pixel active-section scroll turn. The implementation normalizes the
+geometric throw advance by elapsed frame time rather than assuming a 60Hz
+display.
+
+On headful Chrome/Apple M1 Pro Metal, the route/history gate passes **15/15**,
+the live-volume gate **8/8**, the foundation/material gate **10/10**, and the
+desktop interaction gate **12/12**, all with zero errors. The untouched default
+renderer passes **49/49** on a fresh target. Evidence:
+`/tmp/zi3t-clean-room-routing-pass5`, `/tmp/zi3t-clean-room-volume-final`,
+`/tmp/zi3t-clean-room-route-interaction-final`, and
+`/tmp/zi3t-clean-room-routing-accepted-gate`.
+
+This is a mechanics checkpoint, not final visual parity. Clean-room route
+close-ups remain darker and flatter than the accepted renderer, especially the
+ochre Field Notes cover. Catalogue scroll/terminal choreography, compact and
+reduced-motion parity, complete accessibility/idle behavior, and the final
+visual diff remain unclaimed. The clean-room renderer remains opt-in and
+nothing was deployed.
 
 ## Remaining fidelity work
 

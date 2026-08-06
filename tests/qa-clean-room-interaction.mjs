@@ -40,6 +40,12 @@ try {
   const gpu = await cdp.requireHardwareGpu();
   check("the interaction gate is running on hardware WebGL", !gpu.software, gpu);
 
+  // Chrome retains the host cursor position across fresh CDP targets. Move it
+  // clear of the shelf before asserting the unhovered semantic home pose.
+  await dispatchMouse("mouseMoved", 10, 10, { button: "none", buttons: 0 });
+  await cdp.waitFor(`window.__pressCleanRoomDebug?.().books.every((book) => (
+    Math.abs(book.position[2] - book.homePosition[2]) < .02
+  ))`, 4_000);
   const base = await state();
   check(
     "all five books park on their semantic homes after entry",
