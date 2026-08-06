@@ -37,10 +37,16 @@ export interface CleanRoomVolumeProfile {
   readonly cloth: string;
   readonly ink: string;
   readonly artworkUrl: string;
+  readonly caption: string;
   readonly thicknessRatio: number;
   readonly depthRatio: number;
   readonly shelfPitch: number;
   readonly shelfRoll: number;
+  readonly drag: {
+    readonly revealPitch: number;
+    readonly verticalResponse: number;
+    readonly yawResponse: number;
+  };
   readonly material: CleanRoomMaterialProfile;
 }
 
@@ -55,10 +61,12 @@ export const cleanRoomProfiles = [
     cloth: "#c1b676",
     ink: "#18185e",
     artworkUrl: reflyArtwork,
+    caption: "Re-run browser incidents frame by frame—from captured evidence to deterministic replay, with network, input, and state changes kept inspectable.",
     thicknessRatio: 0.137,
     depthRatio: 0.792,
     shelfPitch: 0.052,
     shelfRoll: 0.0015,
+    drag: { revealPitch: 0.03, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 4.2,
       specular: "#ffffff",
@@ -81,10 +89,12 @@ export const cleanRoomProfiles = [
     cloth: "#d9d1ae",
     ink: "#29435c",
     artworkUrl: armArtwork,
+    caption: "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
     thicknessRatio: 0.122,
     depthRatio: 0.815,
     shelfPitch: 0.048,
     shelfRoll: -0.001,
+    drag: { revealPitch: 0.04, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 2.6,
       specular: "#dfe5e4",
@@ -107,10 +117,12 @@ export const cleanRoomProfiles = [
     cloth: "#243447",
     ink: "#e7e7df",
     artworkUrl: telemetryArtwork,
+    caption: "Replay distributed-system evidence in order, without sanding away uncertainty.",
     thicknessRatio: 0.112,
     depthRatio: 0.826,
     shelfPitch: 0.046,
     shelfRoll: 0.001,
+    drag: { revealPitch: 0.035, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 3.8,
       specular: "#f2ead0",
@@ -133,10 +145,12 @@ export const cleanRoomProfiles = [
     cloth: "#6d2949",
     ink: "#f0dfb4",
     artworkUrl: practiceArtwork,
+    caption: "Show the boundary, the contract, and the evidence behind every engineering claim.",
     thicknessRatio: 0.129,
     depthRatio: 0.803,
     shelfPitch: 0.051,
     shelfRoll: -0.0015,
+    drag: { revealPitch: 0.045, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 5.4,
       specular: "#f4e2ae",
@@ -159,10 +173,12 @@ export const cleanRoomProfiles = [
     cloth: "#ad763b",
     ink: "#26333d",
     artworkUrl: notesArtwork,
+    caption: "Working notes on replayable systems, verification, and engineering decisions that can be inspected.",
     thicknessRatio: 0.139,
     depthRatio: 0.78,
     shelfPitch: 0.053,
     shelfRoll: 0.001,
+    drag: { revealPitch: 0.05, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 2.2,
       specular: "#e6e2d8",

@@ -1103,6 +1103,33 @@ Evidence: `/tmp/zi3t-clean-room-material-final.png` and
 volume mode, compact/reduced behavior, terminal choreography, accessibility,
 and full visual parity remain unclaimed. Nothing was deployed.
 
+## Current checkpoint — 2026-08-07 Option B entry and desktop interaction
+
+The opt-in clean-room renderer now owns its entry and desktop shelf gesture
+pipeline. Five books fade and lift from staggered below-row starts into their
+DOM-derived homes before `press-entry-complete`; hover adds a restrained depth
+pop, and a mouse press isolates the selected book while evacuating the stack.
+
+The full semantic row remains the pointer target. A move below the recorded 4px
+Manhattan threshold remains a press; crossing it enters a `.003`
+radians-per-pixel 3D orbit with vertical correction, cloth backdrop, held
+caption, and light-rake response. Window-level pointer capture and the primary
+button guard make release continuous outside the row. Drag release suppresses
+the anchor click, then reverses rotation and stack evacuation without a pose
+snap.
+
+The clean-room interaction gate passes **13/13** at 1568×894 on headful
+Chrome/Apple M1 Pro Metal with zero errors. Its foundation/material gate passes
+**10/10**, and the untouched default renderer passes **49/49** on a fresh tab.
+Evidence: `/tmp/zi3t-clean-room-interaction-pass2`,
+`/tmp/zi3t-clean-room-interaction-foundation-final.png`, and
+`/tmp/zi3t-clean-room-interaction-accepted-gate`.
+
+Click routing, volume flight, section scroll/history, rail navigation, compact
+and reduced-motion behavior, terminal choreography, accessibility completion,
+and final visual-diff parity remain unclaimed. The clean-room renderer remains
+opt-in and nothing was deployed.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:

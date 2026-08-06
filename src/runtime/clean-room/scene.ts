@@ -1,7 +1,22 @@
 import * as THREE from "three";
 
 import { createCleanRoomBook, type CleanRoomBook } from "./geometry";
+import {
+  installCleanRoomInteraction,
+  type CleanRoomHoldGesture,
+  type CleanRoomInteractionSnapshot
+} from "./interaction";
 import { createCleanRoomLightRig } from "./lighting";
+import {
+  CLEAN_ROOM_MOTION,
+  clamp,
+  damp,
+  frameApproach,
+  heldOrbitAngle,
+  mix,
+  smooth,
+  spring
+} from "./motion";
 import { cleanRoomProfiles, type CleanRoomVolumeProfile } from "./profiles";
 import {
   createSharedTextures,
@@ -17,17 +32,45 @@ declare global {
 }
 
 interface CleanRoomEntry {
+  readonly index: number;
   readonly profile: CleanRoomVolumeProfile;
+  readonly item: HTMLElement;
+  readonly link: HTMLElement;
   readonly target: HTMLElement;
   readonly book: CleanRoomBook;
+  readonly homePosition: THREE.Vector3;
+  homeScale: number;
+  opacity: number;
+  hover: number;
+  hold: number;
+  holdRotationX: number;
+  holdRotationY: number;
+  holdTargetRotationX: number;
+  holdTargetRotationY: number;
+  initialized: boolean;
 }
 
 interface CleanRoomDebugSnapshot {
   readonly renderer: "clean-room";
+  readonly state: {
+    readonly entryComplete: boolean;
+    readonly hoverIndex: number;
+    readonly focusIndex: number;
+    readonly heldIndex: number;
+    readonly dragging: boolean;
+    readonly returningIndex: number;
+    readonly isolation: number;
+    readonly presentation: number;
+    readonly backdrop: number;
+  };
   readonly books: readonly {
     readonly slug: string;
     readonly position: readonly [number, number, number];
+    readonly homePosition: readonly [number, number, number];
     readonly scale: number;
+    readonly homeScale: number;
+    readonly rotation: readonly [number, number, number];
+    readonly opacity: number;
     readonly material: {
       readonly architecture: "clean-room-shader-material";
       readonly coverMaps: 7;
@@ -43,6 +86,9 @@ interface CleanRoomDebugSnapshot {
     readonly programs: number;
   };
 }
+
+const LEGACY_LIGHT_SCALE = Math.PI;
+const BACK_LIGHT_REST = new THREE.Color(0x211815);
 
 const getMetadata = (item: HTMLElement, index: number): CleanRoomMetadata => ({
   title: item.querySelector("strong")?.textContent?.trim() ?? "",
@@ -80,14 +126,42 @@ const worldUnitsPerPixel = (
     / viewportHeight;
 };
 
+const setBookOpacity = (entry: CleanRoomEntry, opacity: number): void => {
+  const next = clamp(opacity, 0, 1);
+  entry.opacity = next;
+  entry.book.root.visible = next > 0.001;
+  entry.book.materials.forEach((material) => {
+    material.opacity = next;
+    if (material instanceof THREE.ShaderMaterial) {
+      const opacityUniform = material.uniforms.opacity;
+      if (opacityUniform) opacityUniform.value = next;
+    }
+  });
+};
+
+const screenCenterY = (
+  entry: CleanRoomEntry,
+  camera: THREE.PerspectiveCamera,
+  viewportHeight: number
+): number => {
+  const projected = entry.book.root.position.clone().project(camera);
+  return (1 - projected.y) * viewportHeight * 0.5;
+};
+
 export const mountCleanRoomCatalogue = (): boolean => {
   const stage = document.querySelector<HTMLElement>(".press-catalog");
   const items = Array.from(document.querySelectorAll<HTMLElement>(".press-volume-item"));
   if (!stage || items.length !== cleanRoomProfiles.length) return false;
+  const catalogueStage = stage;
+
+  const links = items.map((item) => item.querySelector<HTMLElement>(".press-volume"));
+  if (links.some((link) => !link)) return false;
+  const ownedLinks = links as HTMLElement[];
 
   THREE.ColorManagement.enabled = false;
 
   const compact = window.matchMedia("(max-width: 899px)");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({
@@ -107,7 +181,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.domElement.className = "press-scene-canvas press-scene-canvas--clean-room";
   renderer.domElement.setAttribute("aria-hidden", "true");
-  stage.prepend(renderer.domElement);
+  catalogueStage.prepend(renderer.domElement);
+
+  const holdCaption = document.createElement("aside");
+  holdCaption.className = "press-hold-caption";
+  holdCaption.setAttribute("aria-hidden", "true");
+  catalogueStage.append(holdCaption);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(12, 1, 1, 650);
@@ -115,29 +194,161 @@ export const mountCleanRoomCatalogue = (): boolean => {
   camera.rotation.x = -0.06;
   const lights = createCleanRoomLightRig(scene);
 
+  let frameRequest = 0;
   let layoutFrame = 0;
-  const render = (): void => {
+  let entryStartedAt = 0;
+  let entryComplete = reducedMotion.matches;
+  let lastFrameAt = 0;
+  let renderUntil = performance.now() + 1800;
+  let viewportWidth = window.innerWidth;
+  let viewportHeight = window.innerHeight;
+  let unitsPerPixel = 0.024;
+  let returningIndex = -1;
+  let releasedAt = 0;
+  let releasedFromDrag = false;
+  let holdIsolation = 0;
+  let holdPresentation = 0;
+  let holdBackdrop = 0;
+  let holdClassTimer = 0;
+  let interactionSnapshot: CleanRoomInteractionSnapshot = {
+    hoverIndex: -1,
+    focusIndex: -1,
+    gesture: null
+  };
+  const backdropColor = new THREE.Color(0x201819);
+  const backLightTarget = new THREE.Color(0x211815);
+
+  const renderOnce = (): void => {
     renderer.render(scene, camera);
   };
-  const shared = createSharedTextures(renderer, render);
+  const shared = createSharedTextures(renderer, () => {
+    renderUntil = Math.max(renderUntil, performance.now() + 300);
+    if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
+  });
 
   const entries = items.map((item, index): CleanRoomEntry => {
     const profile = cleanRoomProfiles[index];
-    if (!profile) throw new Error(`Missing clean-room profile ${index}`);
-    const link = item.querySelector<HTMLElement>(".press-volume");
-    const target = link?.querySelector<HTMLElement>(".press-volume-book") ?? link;
-    if (!target) throw new Error(`Missing clean-room layout target ${index}`);
+    const link = ownedLinks[index];
+    if (!profile || !link) throw new Error(`Missing clean-room volume ${index}`);
+    const target = link.querySelector<HTMLElement>(".press-volume-book") ?? link;
     const metadata = getMetadata(item, index);
-    const surfaces = createSurfaceTextures(renderer, profile, metadata, shared, render);
+    const surfaces = createSurfaceTextures(renderer, profile, metadata, shared, () => {
+      renderUntil = Math.max(renderUntil, performance.now() + 300);
+      if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
+    });
     const book = createCleanRoomBook(profile, surfaces, shared);
     scene.add(book.root);
-    return { profile, target, book };
+    const entry: CleanRoomEntry = {
+      index,
+      profile,
+      item,
+      link,
+      target,
+      book,
+      homePosition: new THREE.Vector3(),
+      homeScale: 1,
+      opacity: 0,
+      hover: 0,
+      hold: 0,
+      holdRotationX: 0,
+      holdRotationY: 0,
+      holdTargetRotationX: 0,
+      holdTargetRotationY: 0,
+      initialized: false
+    };
+    setBookOpacity(entry, entryComplete ? 1 : 0);
+    return entry;
   });
 
-  const layout = (): void => {
+  const wake = (duration = 1200): void => {
+    renderUntil = Math.max(renderUntil, performance.now() + duration);
+    if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
+  };
+
+  const clearHoldClasses = (immediate = false): void => {
+    window.clearTimeout(holdClassTimer);
+    const remove = (): void => {
+      catalogueStage.classList.remove("is-book-held", "is-book-dragging");
+      document.body.classList.remove("press-book-held", "press-book-dragging");
+    };
+    if (immediate) remove();
+    else holdClassTimer = window.setTimeout(remove, CLEAN_ROOM_MOTION.releaseClassDelay);
+  };
+
+  const interactionState = installCleanRoomInteraction({
+    items,
+    links: ownedLinks,
+    canHold: () => !compact.matches && !reducedMotion.matches,
+    onBegin: (gesture) => {
+      clearHoldClasses(true);
+      returningIndex = gesture.index;
+      releasedAt = 0;
+      releasedFromDrag = false;
+      const entry = entries[gesture.index];
+      if (!entry) return;
+      entry.holdRotationX = 0;
+      entry.holdRotationY = 0;
+      entry.holdTargetRotationX = 0;
+      entry.holdTargetRotationY = 0;
+      backdropColor.set(entry.profile.cloth);
+      document.body.style.setProperty("--press-held-background", entry.profile.cloth);
+      document.body.style.setProperty("--press-held-ink", entry.profile.ink);
+      holdCaption.textContent = entry.profile.caption;
+      catalogueStage.classList.add("is-book-held");
+      document.body.classList.add("press-book-held");
+    },
+    onMove: (gesture, startedDragging) => {
+      const entry = entries[gesture.index];
+      if (!entry || !gesture.moved) return;
+      if (startedDragging) {
+        catalogueStage.classList.add("is-book-dragging");
+        document.body.classList.add("press-book-dragging");
+        holdCaption.classList.toggle(
+          "is-low",
+          screenCenterY(entry, camera, viewportHeight) < viewportHeight * 0.5
+        );
+      }
+      const distance = Math.hypot(gesture.dx, gesture.dy);
+      const reveal = smooth(clamp(
+        (distance - CLEAN_ROOM_MOTION.dragThreshold)
+          / (CLEAN_ROOM_MOTION.revealDistance - CLEAN_ROOM_MOTION.dragThreshold),
+        0,
+        1
+      ));
+      const directionalPitch = heldOrbitAngle(
+        gesture.dy,
+        entry.profile.drag.verticalResponse
+      );
+      const revealPitch = gesture.dy > 0
+        ? entry.profile.drag.revealPitch * 0.16
+        : entry.profile.drag.revealPitch;
+      entry.holdTargetRotationX = clamp(
+        reveal * revealPitch + directionalPitch,
+        -CLEAN_ROOM_MOTION.orbitLimit,
+        CLEAN_ROOM_MOTION.orbitLimit
+      );
+      entry.holdTargetRotationY = heldOrbitAngle(
+        gesture.dx,
+        entry.profile.drag.yawResponse
+      );
+    },
+    onFinish: (gesture) => {
+      returningIndex = gesture.index;
+      releasedAt = performance.now();
+      releasedFromDrag = gesture.moved;
+      catalogueStage.classList.remove("is-book-dragging");
+      document.body.classList.remove("press-book-dragging");
+      clearHoldClasses(false);
+    },
+    onHover: () => undefined,
+    onFocus: () => undefined,
+    onWake: wake
+  });
+
+  function layout(): void {
     layoutFrame = 0;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    viewportWidth = window.innerWidth;
+    viewportHeight = window.innerHeight;
     renderer.setSize(viewportWidth, viewportHeight, false);
     camera.aspect = viewportWidth / viewportHeight;
     camera.updateProjectionMatrix();
@@ -158,36 +369,267 @@ export const mountCleanRoomCatalogue = (): boolean => {
       const scale = rect.width
         * worldUnitsPerPixel(camera, viewportHeight, depth)
         * (compact.matches ? 0.985 : 1);
-      entry.book.root.position.copy(center);
-      entry.book.root.position.z = depth;
-      entry.book.root.scale.setScalar(scale);
+      entry.homePosition.copy(center);
+      entry.homePosition.z = depth;
+      entry.homeScale = scale;
+      if (!entry.initialized) {
+        unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, depth);
+        entry.book.root.position.copy(center);
+        entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
+        entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
+        entry.book.root.scale.setScalar(scale);
+        entry.book.object.rotation.x = entry.profile.shelfPitch;
+        entry.initialized = true;
+      }
     });
-
-    render();
-  };
+    unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, -3);
+    wake(1200);
+  }
 
   const scheduleLayout = (): void => {
     if (layoutFrame) return;
     layoutFrame = window.requestAnimationFrame(layout);
   };
+
+  function animate(now: number): void {
+    frameRequest = 0;
+    if (!entryStartedAt) entryStartedAt = now;
+    const rawDelta = lastFrameAt ? (now - lastFrameAt) / 1000 : 1 / 60;
+    const deltaSeconds = clamp(rawDelta, 1 / 240, 0.25);
+    lastFrameAt = now;
+    interactionSnapshot = interactionState();
+
+    const gesture = interactionSnapshot.gesture;
+    const activeIndex = gesture?.index ?? returningIndex;
+    const holding = Boolean(gesture);
+    const presenting = Boolean(gesture?.moved);
+    const releaseElapsed = releasedAt ? now - releasedAt : Infinity;
+    const isolating = holding
+      || (releasedFromDrag && releaseElapsed < CLEAN_ROOM_MOTION.releaseIsolation);
+    const returningPresentation = releasedFromDrag
+      && releaseElapsed < CLEAN_ROOM_MOTION.releasePresentation;
+    const backingPresentation = presenting
+      || (releasedFromDrag && releaseElapsed < CLEAN_ROOM_MOTION.releaseBackdrop);
+
+    holdIsolation = damp(holdIsolation, isolating ? 1 : 0, isolating ? 14 : 6, deltaSeconds);
+    holdPresentation = damp(
+      holdPresentation,
+      presenting || returningPresentation ? 1 : 0,
+      presenting || returningPresentation ? 7.8 : 4.6,
+      deltaSeconds
+    );
+    holdBackdrop = damp(
+      holdBackdrop,
+      backingPresentation ? 1 : 0,
+      backingPresentation ? 12.5 : 7,
+      deltaSeconds
+    );
+    catalogueStage.classList.toggle(
+      "is-stack-evacuated",
+      activeIndex >= 0 && holdIsolation > 0.9
+    );
+
+    let allEntryCurvesComplete = true;
+    let entryResidual = 0;
+    entries.forEach((entry, index) => {
+      const entryLinear = reducedMotion.matches
+        ? 1
+        : clamp(
+          (now - entryStartedAt - CLEAN_ROOM_MOTION.entryDelay
+            - index * CLEAN_ROOM_MOTION.entryStagger)
+            / CLEAN_ROOM_MOTION.entryDuration,
+          0,
+          1
+        );
+      const entryDrive = reducedMotion.matches ? 1 : spring(entryLinear);
+      const entryOpacity = reducedMotion.matches
+        ? 1
+        : smooth(clamp(entryLinear / 0.72, 0, 1));
+      if (entryLinear < 1) allEntryCurvesComplete = false;
+
+      const activelyHeld = gesture?.index === index;
+      const interactive = !reducedMotion.matches && (
+        interactionSnapshot.hoverIndex === index
+        || interactionSnapshot.focusIndex === index
+        || activelyHeld
+      );
+      const holdTarget = (activelyHeld && Boolean(gesture?.moved))
+        || (index === returningIndex && returningPresentation);
+      entry.hover = damp(entry.hover, interactive ? 1 : 0, interactive ? 9.2 : 6.8, deltaSeconds);
+      entry.hold = damp(entry.hold, holdTarget ? 1 : 0, holdTarget ? 15 : 6.5, deltaSeconds);
+      entry.holdRotationX = damp(
+        entry.holdRotationX,
+        activelyHeld || returningPresentation ? entry.holdTargetRotationX : 0,
+        activelyHeld ? 14.5 : 7.5,
+        deltaSeconds
+      );
+      entry.holdRotationY = damp(
+        entry.holdRotationY,
+        activelyHeld || returningPresentation ? entry.holdTargetRotationY : 0,
+        activelyHeld ? 14.5 : 7.5,
+        deltaSeconds
+      );
+
+      const evictionPixels = index === activeIndex
+        ? 0
+        : (activeIndex - index)
+          * viewportHeight
+          * CLEAN_ROOM_MOTION.stackEvictionViewports
+          * holdIsolation;
+      const targetY = entry.homePosition.y
+        - (1 - entryDrive) * 28 * unitsPerPixel
+        + evictionPixels * unitsPerPixel;
+      const hoverDepth = camera.position.z
+        * (1 - 1 / CLEAN_ROOM_MOTION.hoverProjectedScale);
+      const holdDepth = camera.position.z
+        * (1 - 1 / CLEAN_ROOM_MOTION.holdProjectedScale);
+      const entryDepth = -camera.position.z * 0.012 * (1 - smooth(entryLinear));
+      const targetDepth = entry.homePosition.z
+        + entryDepth
+        + mix(entry.hover * hoverDepth, holdDepth, entry.hold);
+
+      entry.book.root.position.x = damp(
+        entry.book.root.position.x,
+        entry.homePosition.x,
+        11.5,
+        deltaSeconds
+      );
+      entry.book.root.position.y = damp(
+        entry.book.root.position.y,
+        targetY,
+        11.5,
+        deltaSeconds
+      );
+      entry.book.root.position.z = frameApproach(
+        entry.book.root.position.z,
+        targetDepth,
+        CLEAN_ROOM_MOTION.spineZEase,
+        deltaSeconds
+      );
+      const nextScale = damp(
+        entry.book.root.scale.x,
+        entry.homeScale,
+        11,
+        deltaSeconds
+      );
+      entry.book.root.scale.setScalar(nextScale);
+      entry.book.root.rotation.y = damp(
+        entry.book.root.rotation.y,
+        entry.holdRotationY * entry.hold,
+        13,
+        deltaSeconds
+      );
+      entry.book.root.rotation.z = damp(
+        entry.book.root.rotation.z,
+        -entry.holdRotationY * entry.hold * 0.038
+          + (1 - entryDrive) * (index % 2 ? -0.008 : 0.008),
+        13,
+        deltaSeconds
+      );
+      entry.book.object.rotation.x = damp(
+        entry.book.object.rotation.x,
+        entry.profile.shelfPitch + entry.holdRotationX * entry.hold,
+        13,
+        deltaSeconds
+      );
+      setBookOpacity(entry, entryOpacity);
+
+      entryResidual = Math.max(
+        entryResidual,
+        Math.abs(entry.book.root.position.y - targetY),
+        Math.abs(entry.book.root.position.z - targetDepth),
+        Math.abs(entry.book.root.scale.x - entry.homeScale)
+      );
+    });
+
+    if (
+      !entryComplete
+      && allEntryCurvesComplete
+      && (
+        entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+        || now - entryStartedAt > CLEAN_ROOM_MOTION.entrySettleTimeout
+      )
+    ) {
+      entryComplete = true;
+      document.documentElement.classList.add("press-entry-complete");
+    }
+
+    renderer.setClearColor(backdropColor, holdBackdrop);
+    const activeEntry = activeIndex >= 0 ? entries[activeIndex] : undefined;
+    if (activeEntry && holdPresentation > 0.001) {
+      backLightTarget.set(activeEntry.profile.cloth).lerp(BACK_LIGHT_REST, 1 - holdPresentation);
+    } else {
+      backLightTarget.copy(BACK_LIGHT_REST);
+    }
+    lights.back.color.lerp(backLightTarget, 1 - Math.exp(-5.2 * deltaSeconds));
+    lights.rake.intensity = damp(
+      lights.rake.intensity,
+      mix(0.75, 0.05, holdPresentation) * LEGACY_LIGHT_SCALE,
+      5.2,
+      deltaSeconds
+    );
+
+    if (!holding && holdIsolation < 0.002 && holdPresentation < 0.002 && holdBackdrop < 0.002) {
+      returningIndex = -1;
+      releasedAt = 0;
+      releasedFromDrag = false;
+      catalogueStage.classList.remove("is-stack-evacuated");
+    }
+
+    renderOnce();
+    const moving = !entryComplete
+      || holding
+      || returningIndex >= 0
+      || entryResidual > CLEAN_ROOM_MOTION.entrySettleEpsilon
+      || now < renderUntil;
+    if (moving && !frameRequest) frameRequest = window.requestAnimationFrame(animate);
+  }
+
   window.addEventListener("resize", scheduleLayout, { passive: true });
+  window.addEventListener("scroll", scheduleLayout, { passive: true });
   compact.addEventListener("change", scheduleLayout);
+  reducedMotion.addEventListener("change", scheduleLayout);
 
   layout();
   document.documentElement.dataset.pressRenderer = "clean-room";
-  document.documentElement.classList.add("press-scene-ready", "press-entry-complete");
+  document.documentElement.classList.remove("press-entry-complete");
+  document.documentElement.classList.add("press-scene-ready");
+  if (entryComplete) document.documentElement.classList.add("press-entry-complete");
 
   if (window.__pressDebugEnabled) {
     window.__pressCleanRoomDebug = () => ({
       renderer: "clean-room",
-      books: entries.map(({ profile, book }) => ({
+      state: {
+        entryComplete,
+        hoverIndex: interactionSnapshot.hoverIndex,
+        focusIndex: interactionSnapshot.focusIndex,
+        heldIndex: interactionSnapshot.gesture?.index ?? -1,
+        dragging: Boolean(interactionSnapshot.gesture?.moved),
+        returningIndex,
+        isolation: Number(holdIsolation.toFixed(4)),
+        presentation: Number(holdPresentation.toFixed(4)),
+        backdrop: Number(holdBackdrop.toFixed(4))
+      },
+      books: entries.map(({ profile, book, homePosition, homeScale, opacity }) => ({
         slug: profile.slug,
         position: [
           Number(book.root.position.x.toFixed(4)),
           Number(book.root.position.y.toFixed(4)),
           Number(book.root.position.z.toFixed(4))
         ],
+        homePosition: [
+          Number(homePosition.x.toFixed(4)),
+          Number(homePosition.y.toFixed(4)),
+          Number(homePosition.z.toFixed(4))
+        ],
         scale: Number(book.root.scale.x.toFixed(4)),
+        homeScale: Number(homeScale.toFixed(4)),
+        rotation: [
+          Number(book.object.rotation.x.toFixed(4)),
+          Number(book.root.rotation.y.toFixed(4)),
+          Number(book.root.rotation.z.toFixed(4))
+        ],
+        opacity: Number(opacity.toFixed(4)),
         material: {
           architecture: book.materialModel.cover.architecture,
           coverMaps: book.materialModel.cover.mapCount,
@@ -205,5 +647,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
     });
   }
 
+  wake(1800);
   return true;
 };

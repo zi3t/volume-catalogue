@@ -21,6 +21,7 @@ try {
   const ready = await cdp.waitFor(`(
     document.documentElement.dataset.pressRenderer === "clean-room"
     && document.documentElement.classList.contains("press-scene-ready")
+    && document.documentElement.classList.contains("press-entry-complete")
     && Number.parseFloat(
       getComputedStyle(document.querySelector("canvas.press-scene-canvas"))?.opacity || "0"
     ) > 0.99

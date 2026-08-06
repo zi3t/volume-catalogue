@@ -87,3 +87,41 @@ Evidence is `/tmp/zi3t-clean-room-material-final.png` and
 `/tmp/zi3t-clean-room-material-accepted-gate`. The clean-room renderer remains
 opt-in. This checkpoint does not claim entry, interaction, volume-mode, compact,
 reduced-motion, terminal, accessibility, or full visual-diff parity.
+
+## Checkpoint 2 — entry and desktop shelf interaction
+
+The clean-room scene now owns its catalogue motion instead of borrowing the
+accepted runtime's state. The authored entry places the five books below their
+rows, fades and lifts them into their DOM-derived homes, then emits
+`press-entry-complete` only after every volume has settled.
+
+Each full-width semantic book row owns one pointer state machine. On a desktop
+mouse it provides:
+
+- a restrained hover depth pop;
+- press isolation before the gesture becomes a drag;
+- the recorded 4px Manhattan drag threshold and `.003` radians-per-pixel orbit;
+- stack evacuation, cloth backdrop, held caption, light-rake response, and
+  vertical drag correction during presentation; and
+- a continuous release reversal that suppresses navigation after a drag.
+
+The interaction remains attached to the existing anchors rather than a canvas
+hit map, and window-level pointer capture plus a `buttons & 1` guard keeps a
+release outside the row from leaving a book held. A sub-threshold move remains
+a press, while a drag beginning on either flank of the full-width row rotates
+the same selected volume and cannot synthesize a click.
+
+Measured at 1568×894 on headful Chrome/Apple M1 Pro Metal:
+
+- clean-room foundation/material gate: **10/10 PASS**, zero runtime errors;
+- clean-room desktop interaction gate: **13/13 PASS**, zero runtime errors;
+- five volumes settle to their measured homes after entry and release; and
+- unchanged default-renderer gate: **49/49 PASS**, zero runtime errors.
+
+Evidence is `/tmp/zi3t-clean-room-interaction-pass2`,
+`/tmp/zi3t-clean-room-interaction-foundation-final.png`, and
+`/tmp/zi3t-clean-room-interaction-accepted-gate`. The clean-room renderer
+remains opt-in. This checkpoint does not claim clean-room click routing,
+volume-mode flight, section scroll/history, rail navigation, compact or
+reduced-motion parity, terminal choreography, accessibility completion, or a
+final visual diff.

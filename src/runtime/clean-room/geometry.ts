@@ -9,6 +9,7 @@ import type { CleanRoomSharedTextures, CleanRoomSurfaceTextures } from "./textur
 
 export interface CleanRoomBook {
   readonly root: THREE.Group;
+  readonly object: THREE.Group;
   readonly materials: readonly THREE.Material[];
   readonly geometries: readonly THREE.BufferGeometry[];
   readonly materialModel: {
@@ -92,15 +93,22 @@ export const createCleanRoomBook = (
   const root = new THREE.Group();
   root.add(object);
 
+  const materials = [
+    clothMaterial,
+    coverLayer.material,
+    spineLayer.material,
+    pageMaterial,
+    endpaperMaterial
+  ];
+  materials.forEach((material) => {
+    material.transparent = true;
+    material.depthWrite = true;
+  });
+
   return {
     root,
-    materials: [
-      clothMaterial,
-      coverLayer.material,
-      spineLayer.material,
-      pageMaterial,
-      endpaperMaterial
-    ],
+    object,
+    materials,
     geometries: [pageGeometry, boardGeometry, coverGeometry, spineGeometry],
     materialModel: {
       cover: coverLayer.diagnostics,
