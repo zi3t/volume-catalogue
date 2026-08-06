@@ -1,5 +1,9 @@
 import * as THREE from "three";
 
+import {
+  createCleanRoomLayeredMaterial,
+  type CleanRoomMaterialDiagnostics
+} from "./material";
 import type { CleanRoomVolumeProfile } from "./profiles";
 import type { CleanRoomSharedTextures, CleanRoomSurfaceTextures } from "./textures";
 
@@ -7,6 +11,10 @@ export interface CleanRoomBook {
   readonly root: THREE.Group;
   readonly materials: readonly THREE.Material[];
   readonly geometries: readonly THREE.BufferGeometry[];
+  readonly materialModel: {
+    readonly cover: CleanRoomMaterialDiagnostics;
+    readonly spine: CleanRoomMaterialDiagnostics;
+  };
 }
 
 export const createCleanRoomBook = (
@@ -23,34 +31,20 @@ export const createCleanRoomBook = (
   const clothMaterial = new THREE.MeshPhongMaterial({
     color: new THREE.Color(profile.cloth).multiplyScalar(0.82),
     bumpMap: shared.clothBump,
-    bumpScale: profile.material.clothBump * 0.008,
+    bumpScale: profile.material.bump.base * 0.3,
     specular: new THREE.Color(profile.material.specular),
     shininess: Math.max(1, profile.material.shininess * 0.72)
   });
-  const coverMaterial = new THREE.MeshPhongMaterial({
-    map: surfaces.cover,
-    // The recovered rake is intentionally hot. Reduce the authored albedo
-    // before that light reaches it so pale cloth keeps detail instead of
-    // clipping to white in the linear/no-tone-mapping pipeline.
-    color: 0xaaaaaa,
-    bumpMap: shared.clothBump,
-    bumpScale: profile.material.clothBump * 0.01,
-    specular: new THREE.Color(profile.material.specular),
-    shininess: profile.material.shininess,
-    polygonOffset: true,
-    polygonOffsetFactor: -1,
-    polygonOffsetUnits: -1
-  });
-  const spineMaterial = new THREE.MeshPhongMaterial({
-    map: surfaces.spine,
-    bumpMap: shared.clothBump,
-    bumpScale: profile.material.clothBump * 0.012,
-    specular: new THREE.Color(profile.material.specular),
-    shininess: profile.material.shininess,
-    polygonOffset: true,
-    polygonOffsetFactor: -1,
-    polygonOffsetUnits: -1
-  });
+  const coverLayer = createCleanRoomLayeredMaterial(
+    profile.material,
+    surfaces.cover,
+    "cover"
+  );
+  const spineLayer = createCleanRoomLayeredMaterial(
+    profile.material,
+    surfaces.spine,
+    "spine"
+  );
   const pageMaterial = new THREE.MeshPhongMaterial({
     map: shared.paper,
     color: 0xe8e2ca,
@@ -80,7 +74,7 @@ export const createCleanRoomBook = (
   const lowerBoard = new THREE.Mesh(boardGeometry, clothMaterial);
   lowerBoard.position.y = -(thickness * 0.5 - boardThickness * 0.5);
 
-  const cover = new THREE.Mesh(coverGeometry, coverMaterial);
+  const cover = new THREE.Mesh(coverGeometry, coverLayer.material);
   cover.rotation.x = -Math.PI / 2;
   cover.position.y = thickness * 0.5 + 0.0015;
 
@@ -88,7 +82,7 @@ export const createCleanRoomBook = (
   underside.rotation.x = Math.PI / 2;
   underside.position.y = -(thickness * 0.5 + 0.0015);
 
-  const spine = new THREE.Mesh(spineGeometry, spineMaterial);
+  const spine = new THREE.Mesh(spineGeometry, spineLayer.material);
   spine.position.z = depth * 0.5 + 0.0015;
 
   const object = new THREE.Group();
@@ -102,11 +96,15 @@ export const createCleanRoomBook = (
     root,
     materials: [
       clothMaterial,
-      coverMaterial,
-      spineMaterial,
+      coverLayer.material,
+      spineLayer.material,
       pageMaterial,
       endpaperMaterial
     ],
-    geometries: [pageGeometry, boardGeometry, coverGeometry, spineGeometry]
+    geometries: [pageGeometry, boardGeometry, coverGeometry, spineGeometry],
+    materialModel: {
+      cover: coverLayer.diagnostics,
+      spine: spineLayer.diagnostics
+    }
   };
 };

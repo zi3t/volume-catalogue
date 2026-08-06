@@ -1076,6 +1076,33 @@ code splitting or degrading its scanned covers through another texture pass.
 No cover, material, logo, or typography refinement was made here; that final
 visual pass remains deliberately last. Deployment remains held.
 
+## Current checkpoint — 2026-08-07 Option B seven-map material
+
+The opt-in clean-room renderer at `/press/?press-renderer=clean-room` has earned
+its first post-foundation checkpoint. The accepted renderer remains the default.
+
+- Cover and spine now share a clean-room `ShaderMaterial` architecture with
+  base/custom diffuse, base/custom bump, foil, gloss, and glitter samplers.
+- Per-surface custom bump, foil, and gloss masks are registered to original
+  ZI3T SVG artwork and generated typography. Shared diffuse/bump inputs remain
+  the committed CC0 cloth scans; sparse glitter is deterministic and original.
+- The dual-relief, finish suppression, palette sweep, gloss, glitter, emissive,
+  and additive-specular equations are independently authored on Three.js's
+  public Phong chunks. No reference shader source or literal reference scalar
+  profile was copied.
+- All five books own distinct response signatures. Cover diffuse canvases are
+  1600×1280 and registered masks are 800×640, preserving normalized alignment
+  without multiplying five visible books into the reference's full 19-book
+  texture budget.
+- The clean-room hardware gate passes **10/10** on Apple M1 Pro Metal with four
+  programs, 30 calls, 210 triangles, and zero errors. The untouched accepted
+  renderer simultaneously passes **49/49** with zero errors.
+
+Evidence: `/tmp/zi3t-clean-room-material-final.png` and
+`/tmp/zi3t-clean-room-material-accepted-gate`. Entry, pointer interaction,
+volume mode, compact/reduced behavior, terminal choreography, accessibility,
+and full visual parity remain unclaimed. Nothing was deployed.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:

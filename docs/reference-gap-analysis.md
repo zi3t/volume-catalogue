@@ -122,3 +122,9 @@ existing scene remains the default until the replacement independently earns
 the contract and real-GPU gates. Every Reject in this analysis remains binding;
 Option B is permission to replace the implementation, not to erase prior art-
 direction or behavior decisions.
+
+**Checkpoint update 2026-08-07:** the opt-in clean-room renderer has earned the
+rank-1 material architecture checkpoint: seven independently derived sampler
+roles and five original response profiles pass their hardware gate. This does
+not close the row for the shipping scene or make the replacement the default;
+interaction and route close-ups have not yet earned visual parity.

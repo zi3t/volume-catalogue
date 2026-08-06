@@ -28,10 +28,19 @@ interface CleanRoomDebugSnapshot {
     readonly slug: string;
     readonly position: readonly [number, number, number];
     readonly scale: number;
+    readonly material: {
+      readonly architecture: "clean-room-shader-material";
+      readonly coverMaps: 7;
+      readonly spineMaps: 7;
+      readonly coverDiffuseSize: readonly [number, number];
+      readonly coverMaskSize: readonly [number, number];
+      readonly responseSignature: string;
+    };
   }[];
   readonly render: {
     readonly calls: number;
     readonly triangles: number;
+    readonly programs: number;
   };
 }
 
@@ -119,7 +128,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     const target = link?.querySelector<HTMLElement>(".press-volume-book") ?? link;
     if (!target) throw new Error(`Missing clean-room layout target ${index}`);
     const metadata = getMetadata(item, index);
-    const surfaces = createSurfaceTextures(renderer, profile, metadata, render);
+    const surfaces = createSurfaceTextures(renderer, profile, metadata, shared, render);
     const book = createCleanRoomBook(profile, surfaces, shared);
     scene.add(book.root);
     return { profile, target, book };
@@ -178,11 +187,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
           Number(book.root.position.y.toFixed(4)),
           Number(book.root.position.z.toFixed(4))
         ],
-        scale: Number(book.root.scale.x.toFixed(4))
+        scale: Number(book.root.scale.x.toFixed(4)),
+        material: {
+          architecture: book.materialModel.cover.architecture,
+          coverMaps: book.materialModel.cover.mapCount,
+          spineMaps: book.materialModel.spine.mapCount,
+          coverDiffuseSize: book.materialModel.cover.diffuseSize,
+          coverMaskSize: book.materialModel.cover.maskSize,
+          responseSignature: book.materialModel.cover.responseSignature
+        }
       })),
       render: {
         calls: renderer.info.render.calls,
-        triangles: renderer.info.render.triangles
+        triangles: renderer.info.render.triangles,
+        programs: renderer.info.programs?.length ?? 0
       }
     });
   }

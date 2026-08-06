@@ -60,6 +60,34 @@ try {
     state.debug?.render?.calls > 0 && state.debug?.render?.triangles > 0,
     state.debug?.render
   );
+  const materialModels = state.debug?.books?.map((book) => book.material) ?? [];
+  check(
+    "each cover and spine uses the independent seven-map shader material",
+    materialModels.length === 5 && materialModels.every((material) => (
+      material.architecture === "clean-room-shader-material"
+      && material.coverMaps === 7
+      && material.spineMaps === 7
+    )),
+    materialModels
+  );
+  check(
+    "route-resolution diffuse and registered masks back every cover",
+    materialModels.length === 5 && materialModels.every((material) => (
+      material.coverDiffuseSize?.[0] >= 1600
+      && material.coverDiffuseSize?.[1] >= 1280
+      && material.coverMaskSize?.[0] >= 800
+      && material.coverMaskSize?.[1] >= 640
+    )),
+    materialModels.map((material) => ({
+      diffuse: material.coverDiffuseSize,
+      masks: material.coverMaskSize
+    }))
+  );
+  check(
+    "the five volumes keep five independently authored material responses",
+    new Set(materialModels.map((material) => material.responseSignature)).size === 5,
+    materialModels.map((material) => material.responseSignature)
+  );
   check("the runtime reports no browser errors", cdp.errors.length === 0, cdp.errors);
 
   if (screenshotPath) await cdp.screenshot(screenshotPath);
