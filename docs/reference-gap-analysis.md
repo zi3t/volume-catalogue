@@ -116,4 +116,9 @@ same-run evidence, and it preserves the parts already proved on real hardware.
 Choose B only if replacing the current implementation is itself the goal.
 Choose C only with named, genuine film/podcast/newsletter content.
 
-**Decision requested: A, B, or C. No build begins before that choice.**
+**Decision recorded 2026-08-07: Option B.** The clean-room implementation starts
+on `feature/press-clean-room`, stacked above `feature/reference-capture`. The
+existing scene remains the default until the replacement independently earns
+the contract and real-GPU gates. Every Reject in this analysis remains binding;
+Option B is permission to replace the implementation, not to erase prior art-
+direction or behavior decisions.

@@ -8,4 +8,5 @@ export type {
   VolumeRouteMode
 } from "./content/volumes";
 export { mountVolumeCatalogue } from "./runtime/catalogue";
+export { mountCleanRoomCatalogue } from "./runtime/clean-room";
 export { initializeRevealMotion } from "./runtime/reveal";
