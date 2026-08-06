@@ -1,0 +1,2263 @@
+{
+  "capturedAt": "2026-08-06T17:33:51.180Z",
+  "entryUrl": "https://press.stripe.com/",
+  "counts": {
+    "discovered": 250,
+    "behavioral": 136,
+    "creative": 114,
+    "written": 135,
+    "recordedOnly": 114
+  },
+  "entries": [
+    {
+      "url": "https://assets.stripeassets.com/fzn2n1nzq965/nu0iR4KqmkdJ52fgRts09/c3a10df318e7ffb1f516073daadea625/favicon.ico",
+      "status": 200,
+      "mimeType": "image/x-icon",
+      "resourceType": "Other",
+      "class": "creative",
+      "sha256": "50630726cbd85299c64dbb510f051e5d70013abcd620fa2b23be82e618140150",
+      "bytes": 15086
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/imt-82cd89515b1ac3dcd7281fa3d6ecbbfc.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "6b9f4f012e657ceab2bec51bfd7c05f65ef120285722f2eb2655432ecbf74eb7",
+      "bytes": 83205
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-AnalyticsButton-SVGKJ2QN.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "4a45495b873bb6eb69ce17cfbaee3def9656790b4ba3d079b0388d1ce68db474",
+      "bytes": 223
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Book-f3374d9ea08a3820b06f.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "f3374d9ea08a3820b06ffa01b502a839904025cb5b3ea8e3f362d3b6074682ec",
+      "bytes": 879
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-BookAuthor-dd4cac78f13b9906116e.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "dd4cac78f13b9906116e9f8dcfb14c684be98655518a862c0fdcde7ae0d5e7f1",
+      "bytes": 1159
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-BookDescription-4e624b8dd238d44c1321.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "4e624b8dd238d44c1321ecdade0cf31cba1b5851b5357e10e16387287f490a47",
+      "bytes": 603
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-BookDetails-d2dbe10073ad0ea1cfb1.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "d2dbe10073ad0ea1cfb18fbf253aa8580d362d9d2f4c3c13dcdf755fcea91344",
+      "bytes": 5620
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-BookVideo-65375dc965e85ba33a1d.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "65375dc965e85ba33a1da41fbb51f5739677d1595b80827b0eb5f77db9635bce",
+      "bytes": 822
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-BookZine-c8cef82283ffa161612e.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "c8cef82283ffa161612e3917e437ff03a18caa2260750e362e5c5aef91bfb2c3",
+      "bytes": 985
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Bootstrapper-66I6GJS4.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "27da86cef4c801f67d6049c9cc280a091c31147bca0f18799183b34555e02691",
+      "bytes": 188
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Canvas-8ac80b09b2ebbb6485d1.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "8ac80b09b2ebbb6485d10844d8448aa5207cea6be557531920d47eb3c822dfc2",
+      "bytes": 352
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Canvas-K32UN2VO.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "2332e962ea6713d2c45d674aa5fed1d41f084b15b01c1128590e6f9cc1ae26f3",
+      "bytes": 276
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-ControlPanel-dda72b0c303a8e673f40.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "dda72b0c303a8e673f4060648e9a02ed068f8be16e86c74e092c1484700f941a",
+      "bytes": 2311
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-DomGraphic-5a317684eb2b9d1f76d2.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "5a317684eb2b9d1f76d28f58af89c091897e88935c549bcb6f8e04700b3e3727",
+      "bytes": 683
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-DomGraphic-PWST4JNU.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "75b1ac749f798765ab5ee21a7901a9f8e0b2b801732530636b53e97b9af1e436",
+      "bytes": 210
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-EnforceSameSiteLaxOnCookies-5NDXH4YF.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "01d3eff521c62426d85ab9a948c9e64f7969645384bfcd9afd1ead0b851c0c31",
+      "bytes": 317
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Film-3971416be5ca80cf28ac.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "3971416be5ca80cf28accdcbc38394b5d46c2f91b555f0b3d18f1b9cb35844d0",
+      "bytes": 663
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmDetails-7e31efd659633784f239.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "7e31efd659633784f239348e9888ea0b25fb37e80f72c87d59b7f77a8a42b55b",
+      "bytes": 6288
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmDetailsCredits-8833321fa88a9f5bfc37.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "8833321fa88a9f5bfc37d791977355a0946022bcd7a1e54267970790a4e2cad3",
+      "bytes": 1164
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmDetailsHero-738d91e3aef7236bcba2.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "738d91e3aef7236bcba27d3082520554872fa0768c6f167ce875314ce2db96e8",
+      "bytes": 1499
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmDetailsHero-GF3WSSHX.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "e19e2a47937a548712a08a081e64e53be8b12978291a004d2821b79c909e769d",
+      "bytes": 161
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmOverlay-9b73685b4e236efc778f.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "9b73685b4e236efc778f4a153e714580b830277c0a6f1276a63d7e42e57ed553",
+      "bytes": 985
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FilmOverlay-AFYMC4VK.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "734e1728a50e6971e6f79f3e6db3b6e3cf050a9fb023424dc8e4f5134fe6b1ef",
+      "bytes": 188
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Footer-VS2M666R.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "99fe79168cc68301d48065ba61359cfb85e55fca4fa66721ef7db96c29c3d964",
+      "bytes": 447
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Footer-f588a0f85f22e2bb454b.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "f588a0f85f22e2bb454b729240310b2647e708a73476bff6a246e4b2cfad5608",
+      "bytes": 1935
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FooterNewsletter-SCGMQP6K.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "5d853739b59947fad21b3aa42951e6182a3f80c093a21c200548575cace9e830",
+      "bytes": 193
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-FooterNewsletter-a8c6c9d7634b9dd8bf93.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "a8c6c9d7634b9dd8bf93091884fbdb3a476ba7fe6cd48d9ab6d53ead6a746e30",
+      "bytes": 837
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Link-d2d3aeca535307db3b84.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "d2d3aeca535307db3b84444d526a1e0b33f99fea3f0e0093b6fd301d2262be9c",
+      "bytes": 580
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Loader-WZQEDPCV.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "10dba184fb9ff3dee9a9ca76de32bc4cc8ac3a314790a1b429d41655fe7dbbae",
+      "bytes": 1065
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-LoaderScript-LKPKMLSY.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "74630091433c2649c0b7565dd21a6915924711b4170a559b6cf3378e552ff616",
+      "bytes": 349
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Logo-QQHVTC24.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "201e934126cda8d85b22ae6f773ca61d5e0cce411fb6c4c76b1f34cfdb33d506",
+      "bytes": 276
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Logo-df85877d5241a0e7cc3a.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "df85877d5241a0e7cc3a420e865a855b47da3c56da929143ad299747c528412c",
+      "bytes": 1088
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Menu-6YONRBGR.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "bdc34073df77f3d8badfd61f4e658a3f8cfd089223e282c8ce28f0e62df48106",
+      "bytes": 150
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Menu-b7d5063837e4314c5ab0.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "b7d5063837e4314c5ab085a2b437a306d17b76d37fa6e95afcf4664e3587c6c9",
+      "bytes": 4353
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-MonitorWebVitals-IA3IBGZC.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "7aa0fc3346d29ac02091c037a05f2ac33df1a3459523441e0117f0a906a9c534",
+      "bytes": 550
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Page-53812006aaa3053130dd.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "53812006aaa3053130dd420c376a33a3d1fd7f4f66ef2de8b496f9e08df50383",
+      "bytes": 3896
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Page-DS72ESRF.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "085b6ccc6efb5b0d429e38b0f6945ed8260a6f8475f5df5c4e17b209b75cfafc",
+      "bytes": 42183
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Page-UDCV7YTT.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "04b316e908864acab1eb7c20099e29d8fb2d841788b46f880b147d5f8b3b6732",
+      "bytes": 293
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Picture-df4ab1fa79ea16808fb0.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "df4ab1fa79ea16808fb0506c73c052c29fe89b86be5fbd2d98dcc26fc70c5187",
+      "bytes": 674
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Podcast-be667c8040864fa3bc2b.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "be667c8040864fa3bc2bfd51ae51e82b7a033cc83c4b4c65bcf66617a1600acd",
+      "bytes": 502
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-PodcastDetails-3b5fc8ca13db8576e250.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "3b5fc8ca13db8576e250bf496273e04e3f56abb08b33d4537a4032e18c57add6",
+      "bytes": 8785
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-PodcastTranscriptOverlay-DYLIGOTF.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "105faa0830d970b86b07b05d21dae87e9316989364b94b41feb1b9eeca7f2f58",
+      "bytes": 170
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-PodcastTranscriptOverlay-cf7b20cbaa76bd01c61d.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "cf7b20cbaa76bd01c61dd047f1a5e46bf9a3f515b3ba3e800af4c17406131a77",
+      "bytes": 2033
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Praise-cccb60e53e86626cabbb.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "cccb60e53e86626cabbb1cdeeebd347aef7d705382fda3605319bee517587332",
+      "bytes": 499
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-PraiseList-05901f7eb005646967b7.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "05901f7eb005646967b7ead0d3276c7c5180b68ff51c509dd77ff7f4611c5186",
+      "bytes": 555
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-ProductDetailsList-d11fdf8ee866a1c1b95d.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "d11fdf8ee866a1c1b95d74f99e138aa4e3eecc25bfb9aed1b50d079b9cda5904",
+      "bytes": 585
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-ProductList-7ddbcf8cdb352bbae943.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "7ddbcf8cdb352bbae9437f0c4e7e21b54798f670b18922d188925be1932b588d",
+      "bytes": 671
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-ProductListHeader-5278aa12a712cfb0f070.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "5278aa12a712cfb0f0703b16568ccca92f957eb75633c6884c9c46588e087bb8",
+      "bytes": 853
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-ScrollDepthTracker-BGQRSFVJ.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "e06cbd7f595ca2f41c68c8a65672935febd986d3c7ea20a567c30db970f0b66d",
+      "bytes": 2278
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Sentry-IABPFTSH.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b46b76479cc1b5db0cf7de211d047772f07d92e622b0adfe08867db0689fd062",
+      "bytes": 283
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-SentryInstance-XEYVPMR5.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "2272fade15af8d156c6b024a6c9d1f75252ac814c404ef3ed5f0e68db554ce40",
+      "bytes": 76808
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-UniversalChatCtaButton-8aa0bd81148af3cf06f1.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "8aa0bd81148af3cf06f19281d23a066c9dc761cb0fe92590e6bc133045c644eb",
+      "bytes": 2600
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-UniversalChatCtaButtonLarge-309b7eee3096c2febc3b.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "309b7eee3096c2febc3b93b88df0418b9774778b0f229e330d78b46b95fc5701",
+      "bytes": 3858
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-UniversalChatCtaButtonLarge-EDB6YOVH.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "1d9c38153a29ddc13679cb117039df45c1c97e28a5d39d8687654428adc0ce46",
+      "bytes": 1107
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-UniversalChatCtaCard-4166efd7f4278c4518df.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "4166efd7f4278c4518df49e6f7ffbfbc1303705ba8295d31d26aecc7bc891826",
+      "bytes": 3444
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-UniversalChatInitializer-CCTOVNP3.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "38bf0c4f5075598c27f216a1aae599c80e5b80eddf722dff87776d3d356c21e5",
+      "bytes": 11788
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Video-698bff41ae1a4f783e36.css",
+      "status": 200,
+      "mimeType": "text/css",
+      "resourceType": "Stylesheet",
+      "class": "behavioral",
+      "sha256": "698bff41ae1a4f783e36199d5c23ae7432e7486d8cb0ab6db110a9be962a1f38",
+      "bytes": 2205
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-Video-I4MH2NSB.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "61e4ae49d560b7232cd248038d968640130512b8fb5eda0389db626aa2b44e26",
+      "bytes": 151
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-analytics-NCLFVXFX.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "8a830b7e3572c9dc58de646b5979dab0c887ef57f2d0a1ca05a40e02c60a6f26",
+      "bytes": 354
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-2PON3HJD.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "8a665fad5c6d69644fd6557808c4869a0ad3c234a90f805defdeae8eee9d7138",
+      "bytes": 515747
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-2TMPUOVY.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "f71a6e5edcc166d3a4563ed3e8f29da78063641de775329955f4ad903ff0ef5c",
+      "bytes": 195
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-423M6RNU.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "96e44667a205791484de0e12a1586a87fa8451ff1cdad7acaca8bc8ca1dd2a47",
+      "bytes": 118
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-6IOYUKIA.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b4ab7133ace8bc5a5de65207497484a3e21930cd4c4507de5d51af14ac9b27c7",
+      "bytes": 274
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-7DYK47VG.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "afe0e52134bd34cd9eab39576e1207a1d7c191ba4575c37cfc4770955e2d3f78",
+      "bytes": 3092
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-BBRUNZII.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "3eea9fd1454b1d51debc64b30edc9e426c7310e6f94dcfefa16877e0385e215d",
+      "bytes": 5345
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-C6COBQDB.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "2de6a1c463bc7ea966bb7042eb074984edab1a925869a41209db37a4ac8c931e",
+      "bytes": 63328
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-CBTREM2U.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "91c888015156f6d077644af53f0f8a9d34ee34587bfe692f98f98ba0063b17dd",
+      "bytes": 636
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-DDDINZUK.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "d63d9521755eafc7a4d32be8ced74bc57ef9a404a38bad4790eae8b05aefb2ec",
+      "bytes": 178230
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-DWBZBWX3.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "d3f1a70aeb2e62c21f4f3c644595cdfbea23a6470a2e1b888648a911a2b400ae",
+      "bytes": 743
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-FWBFJDHN.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "c6f7b84cd5cbce5c04a1e3084be5dacafa7afa07c8df7085877a87232a5cf6d1",
+      "bytes": 1360
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-GOKFJGIT.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b3aaf480a5c99c38b870eb807f5da250ebeb03214e5d3c3361a1eea9d4dc309b",
+      "bytes": 526
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-H4LWRMRP.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "5c9c97d890312de313dffabfcb9122784dba003ba614eb3506131e562910d995",
+      "bytes": 105462
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-HAG6WFYH.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b206149667a837bc19784a7a76545a68d69f698b4a8484d2eda6dd3a6350b33d",
+      "bytes": 4148
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-HMRIQCRQ.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "162da68a031dac75b56cf7daec49ef0f25e5ee19b0006a067e20b03311d0882d",
+      "bytes": 832
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-HT3MKZNK.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "a9eb378bba52a552c2920e546d6cb6b89583a92a2942d76a46fd9fde77f1f18a",
+      "bytes": 42688
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-KL6TGKM2.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "20fd5ad01cbf1ccb8a52534dcc9d58c6b703a789cf1ef5e13d8e91d2c28e2b12",
+      "bytes": 9112
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-KWARAS4N.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "73c65af6562c51746847424c6b1891a511cbc73cedfd2013cf7d93957cb16585",
+      "bytes": 1451
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-L47DZ4U7.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "28e6c3d686bd3723ba4a0c69ef4f9c8e8b3ff20b116302db09c2be496171d6b3",
+      "bytes": 591
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-NEYGJHPQ.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "be2d7b25bec56b9cd1f8ef8428383704c2cc31928c18641a0224adbfe93a2b1b",
+      "bytes": 960
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-PD7ZE23O.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "3522c9a1d3b6b29aadff606d5f71a624cdcbfdcfa4a4c97527044dd514d09f40",
+      "bytes": 1723
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-PGCDLQHV.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "8e58ed28e6203c2ea299a310d6b7ece8d070f7b7f1333c8f5ad719bc8fff41c7",
+      "bytes": 1783
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-PKIM2HLL.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "5314f4fd72e3a8603156332410f6d98919ab33d02847a1973790c9de9d3c9f88",
+      "bytes": 6032
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-QAMXPDSP.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-QFB4W3FL.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "9c3e01d2c9d127d98cded1b56c9527b21a940d2db7c8ff4e30be8bf05258ef1c",
+      "bytes": 590
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-RDECJG2M.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "c9f8087f59f8818f0bec7567ee0b583974fd7dae130d24822759395bb91d992e",
+      "bytes": 589
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-RWSFZCE7.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "77b3402e4cf6b948968234c0052da727a8a4c9574d989dd685fc07d578912ba3",
+      "bytes": 737
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-T5ICMMKC.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b83e885d893c834663e6682cbe04f99a938e5f5ac3c0224c9bb44963a1d893e9",
+      "bytes": 76508
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-UDAMXDHU.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "5e7bcb5e579ace367962a3f59ba153c4a43f61d6ecef405a1ebd54e58ff6d4d1",
+      "bytes": 22688
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-UF5MH26M.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "557cfe186bd101cbfc0a533cb203604ead0754a8324a6b4b5041afd2440f00f8",
+      "bytes": 3824
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-VCFIWL6P.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "dd2ac029f5d3025ea6415a59640f551c8b6814d4662176929eb3ead5dab8957d",
+      "bytes": 785
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-W54ZCUX6.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "12abac7b123a2eeefd6f0d3bfe45c18f8447c26e3fe2ffbc977609fdf5e8b909",
+      "bytes": 1684
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-WZDFEUPW.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "007129e6979b5a92e9312445cfa20c9e565c0d50699730a20d26aa9f48113ac1",
+      "bytes": 144
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-Y7TCXFZ7.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "b6548a6571af9c7c84393f298b58594f07e4db69dba009b68a965b3ba1661d8a",
+      "bytes": 9816
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-chunk-YC5T7HCK.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "e04942762a0a8d9e6d8f2d55aa43da650b724b414820fc495b41c298c81e630b",
+      "bytes": 1127
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1-web-vitals-54EPCMNT.js",
+      "status": 200,
+      "mimeType": "text/javascript",
+      "resourceType": "Script",
+      "class": "behavioral",
+      "sha256": "56806669f894bc3efff3616135e6d84cd212e6db3ae3eff305bb5130b1445e78",
+      "bytes": 7183
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/18a1ab3b.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "aa5b42cd8f5d003b90e0c0c98ffaa6453b245007649a5c6133a0c167b4f421aa",
+      "bytes": 17236
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/40bf0e1c.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "e9054a3d23dae53b07e1c26481d1cd3fbeb66ab331de484def8ef7b7cf67352c",
+      "bytes": 15128
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/4d787dcb.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "5176d47cfbcbd39aed2bf657d2901e523c529e069f1000807e7cf453d55ef12d",
+      "bytes": 27400
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/58fd9366.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "706f4faed86599a7618bc2c23d737bb7ad5316e1dc5035109b1fdf7a9f2ae91d",
+      "bytes": 14564
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/a8c88f19.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "a4ed1a7c7130ed192b5b0fc18dc6a903a004f0702bf47d4b54a7074e43f872c2",
+      "bytes": 14564
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/bc5b004b.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "92e8813d773e10b68db5eff12cd9c1674196e0d7261c188bf45cc48084b646d4",
+      "bytes": 14976
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/bfcf464d.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "9ee7f45a70f2d0936d55daced61864b72e95c91df65e0ca00a30a4f4892a8a34",
+      "bytes": 14616
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/c00c2fff.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "43abdbf0753d5d876bb511135918b17d8df5db30f091d625337299b2a018b435",
+      "bytes": 15768
+    },
+    {
+      "url": "https://b.stripecdn.com/mkt-statics-srv/assets/v1/f448a1c3.woff2",
+      "status": 200,
+      "mimeType": "font/woff2",
+      "resourceType": "Font",
+      "class": "creative",
+      "sha256": "89f1d494c110ba1dd771140f45e3c50f59238b05abd2ee215d134ea18294f913",
+      "bytes": 15068
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=04fb3032-a6cf-4aa8-8aa3-6280e6f7eeb0&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=1647a5a3-c6e2-4400-bb6c-024562eb2261&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=21f9c2c0-dc8f-41f0-9aec-370a15d8faf4&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=290d9a69-717b-43fb-9939-7d74587351cb&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=2de081b5-5095-4873-9486-339df703e641&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=40dc2a5c-1753-4124-9eaf-fd48ce11fc5f&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=67479822-0c12-4672-9e71-3b0c6a78f190&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=94d32f63-590f-41e4-b11b-11adaa20c477&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=b2c5eac7-1e94-4996-b6ff-f4b9d4aff1f4&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=b66e74d4-64bb-4c6c-8fbb-12291c7a5073&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=e040bfac-c50b-428a-98b0-a1697783c967&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=e0cb21fd-b597-4ab9-8a82-e48bc74f132c&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/GoogleTagManager.html?id=eb71dcea-b123-4308-861d-b8e20916597c&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "bbb0d96d376948f01fe97d95353a4cca3c0b8c9a5fdc61ad855a3cd3eed23889",
+      "bytes": 289
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=102a9c35-b880-4568-be40-ad95494b9187&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=1ee36fd9-7dd5-4cf0-8ec1-74e42852af0d&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=56b2fdb7-088e-4d16-9773-2627a044275c&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=70b8870e-bcaf-410f-a1d4-1388e3f33503&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=80a6d177-3639-48a5-bab2-708fc82b0bc8&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=9a46d6c1-53d7-49c1-8b45-66933ca04b6b&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=9e7b2125-19a0-4b66-8a0a-2f30d2d3a8d4&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=9eb7d80d-0903-4976-ba4b-7d3534aa444d&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=a710af52-5a9c-4b9c-b0b5-826f26862e4e&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=adfa420c-c8e1-47e9-8ee5-e983f941a968&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=adfec9e1-9e79-4905-a228-a94ffaec0408&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=baacc741-05a0-48a3-a90d-02163c111e96&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://b.stripecdn.com/stripethirdparty-srv/assets/v33.1/PrivacyCompliance.html?id=d30a630d-feef-4db5-aabc-eb9303fbc355&origin=https%3A%2F%2Fpress.stripe.com",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2445bcf6e14841d0932b4a7cbd423dc6da5b965b7cdf295029fc6d3841fc1245",
+      "bytes": 290
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/12PNIwzl24W5ocqAUQc5sn/d081c65335f9dc6ad8996dfbc343bb49/POTA_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "241d011fce83909024eb39dae93b90b78b1f1f4ab02d048430e9bd35539dc70c",
+      "bytes": 22494
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/14wGAFoLdGlzzES2HBEZxy/137a4506c8dfa08ea0fc6dda55b02da4/MOE_foil_spine.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "49b5cd0d766311a725beea4d7bfdddd3afb84e9bdef087040114cbd9f9b6ef6b",
+      "bytes": 32471
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/165Ql0VyUmqJrvek8BzP9M/8d8ef6bee43bbdb42f8c2e34c93a90a5/GT_bump.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "df89f594969d27f78ab9f6032f762b3274391a589673fdbbdada2970b22da79c",
+      "bytes": 9822
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/18CUwqG3ncCyPrHWA1r3N8/455a2c02e8afc218e529a57df349a2a7/OOE_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "f8b53c41b3cf05a3e26ff3d40f6b15750fe8bc97d55431fd52483d923b5ffda6",
+      "bytes": 23884
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1BP6fmkh8YJQGnVPFrZ5Hj/cc61d1947d2f1a91c9c9d45376d50cc5/WIMFC_bump.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "d126466d8c95500a1b66177900c8b6044ce1ff8af2440633187a38b7923c5a8d",
+      "bytes": 32382
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1Ihw0SzaJCMgAMgEKCZ05X/3c56461f66c8a3d350bf161225a259a5/OOE_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1c2e0d1da0abef95333795b2add14cd0635ecd2dcbfba736ced290be959e91c8",
+      "bytes": 33324
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1KFHzXs8DH4ldMmY3QsE0f/5ed293640535502f5ef38b385c5204bc/PCA_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "7d3f3d22c41f41230f3b581ac636fa1af7bd429863faa7310cd168b7d1fceb49",
+      "bytes": 86713
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1LxllmpIB1fQHaAhlHIhE7/2e00fcc34f68ed1165f3fb178300b2b3/SP_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "b216de43d6792495450958bd7f0a8f4f1ddddf4eb65dc492a4d53ed51cde7dc1",
+      "bytes": 37897
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1Mu5x9yVhG5Bk4h58EV7sT/16e6fee37e30b9c28d77c7c020517a51/HGH_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "9cc882585a27c26405b449abbd27123707a335fc0bc07e1f50d28af8051df6c0",
+      "bytes": 26092
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1UEFL6ze2ortMaoPIJH4y8/a557300ee8519d4fcf846a7310074588/TDM_foil.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "c5c6cb6fd4b799ecc71e75a86b6fc42c408b8cd0d505d9c0da576244dd25437a",
+      "bytes": 19122
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1WghVN4OzScMvJlXtCD71S/a2908a652953f2040a2771905767a49e/WIMFC_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "62923efece48fa0fea0da164c32c8f2df941da75156218b775ce742a871d886c",
+      "bytes": 53421
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1jaEGHAlr4SF2ZWF7tNfuL/4233ad5d2321e98e71522105b86426a6/texture-city-rect.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1be731326d92fa7f59e01b7e0e929f570ef009ae1869f15a499c54cf9ab7284c",
+      "bytes": 97038
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1pvPyzCyCAu5nQJoRkvZGy/ab328b950ad7e7422c5aec8d6317a421/shared_bump_cardboard.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "8d7211a105426ec186fbfd1f6ba059b36bd5a032dea9e11f69159b98b79295e5",
+      "bytes": 64005
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/1xQULP0LAfZ9qWRpaYaO5p/55f731aaa07a4056df0de31d8507699c/OOE_diffuse.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "6f69a32f2cea01b0c86a100931d4ea211f97ec61d8c4122e2f525eaedf954f15",
+      "bytes": 148034
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2CGmRH2GstW66s5KNTW2B5/c4f90da5ae1d4e6c19255736e7caf14b/SA_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "e248f513e44cf538cb5742aabd9909c60920d3252bac642946b532bd7a0423a9",
+      "bytes": 102896
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2UxGW08BEH706ppN3GE1qR/6691bf729bc1344ecbc2a084f61073b8/SF_bump.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "566d61facd135b01b6023e0c76293e2aae81e291e9d424483faa436edc926793",
+      "bytes": 32716
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2ZiI32pAsuCNLV5GV6yxBm/6a53f7415ecb11de126150d8c4622116/BOOM_diffuse.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "78e237b8c585f86fe0454eec09136f5989a07aa7a034c3c0b03ec33916568d47",
+      "bytes": 70169
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2a7739fCj3KI5KYTV6RqSU/9c18f7bdbd82b496a66357430357e922/shared_bump_buckram.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "a7ab72ce6f66ac41e358010e70ed2583d08c1c99c8e6408c4bf3e4e7296bf941",
+      "bytes": 228505
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2bVqdjWtT4vYI9svLddJvY/b8a28464406a5a37a2ad8d4a81512f19/WAAG_poster.png?fm=jpg&q=55&w=1000",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "9695c25f51d5caafc53195753496c3bddf2f4ac130f817ad08fb72433e5c054c",
+      "bytes": 89804
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2dPplkoC21Bjmn5rsnVjsG/cd601ec4c04b525962fb96faf6cae9f0/PCA_diffuse.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "01cdecb717d5220285a972dc7b068cf93d5e25eb3ce40c11a488cbbd50f646b5",
+      "bytes": 109624
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2jLX0J4EHb6KF5I9exiB8S/7b9a4d66e1cdcf62a83bd46a6f00afed/texture-cover-bot.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "500174e495ddd15e71d24febda7155e78b7e55b8c6402383cc658440ace15119",
+      "bytes": 97977
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2lSAXeOJLSmdtkRSUDOs8Y/8dbcd8979a937c60002d7c51cc9e4b40/POP_diffuse.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "8a5c5cd9279b5c967a9f2d111e22e548355c4ac3a00b920772abf494a1059ab0",
+      "bytes": 30010
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/2zRrQH2uU4yfZXNjWo9yM0/35b86aa48a5459731d14894cd869faed/texture-inner-back.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "6257d019aa9280877a1f7d625ea70a8bd2ae16c74f4dec9a2d185e2ae2ffdc65",
+      "bytes": 75991
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/37J0NUe7gj3q2mhgEQ8mHO/82e28f7a81a7d9dfbe44ab2fbc568f8f/POTA_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "4c46d206d1f46c054cdd8aaf36f17442ec061dfecee6c0b71b03a5faf4a08abc",
+      "bytes": 29444
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3KEDi9TMrfBkGSkWzEOtdh/bedb0c1eb3028f04159833f6f7fbfdc5/shared_foil_none.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1a1b7165d1fcab7eca2549d4dcafe069bf24026e2def9bc1958ed5344b1f5f7d",
+      "bytes": 66
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3KTblYZeIHNhmLOgVICbDe/262cf4b5850016ff8c5d2b74137ee366/MOE_diffuse_spine.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "7d6752092b4aaeceb7a3dba8af18728cb0995ddd0f4f0352d5bbb3dca15f3034",
+      "bytes": 115200
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3UIFMwh9irrX147Pef5xnO/9e08761b3b69f56c3e2861603bed43de/TBS_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "689a32aa1bea73865362d617d623e4d7ca6ee3e1f32d4ee78aae3ccc1b4627f7",
+      "bytes": 19738
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3cIWy4DyVGTjj96CO8kAnC/f0614fdb3ecfc8614ef4125edb9e2d6c/TSE_foil.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "ba35f69233ca35a7504f8c4da4f049f766cfdbba155e6937b1184271f535d5e2",
+      "bytes": 205939
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3dl1MoUUCtrEhLFXWvkZcT/7026ebdd98cadc8f02cd5873fddae8d3/TSE_diffuse.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "326a0c1a9bc69d5e9b3d583024f1c8f4fc407d37cb237a50102113f696881086",
+      "bytes": 159784
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3ebbJCe4at6qFXliF5FoTp/77d99e3beea7e0a6a0a02df04df5c1f9/TSE_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "8a7b38ced64553bdf91dc2fd1ff1a01a7c2ea0d135508be5e9ee7faf03a85abf",
+      "bytes": 43444
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3pAkRz3rZgntldyi6LEZmO/cacdc7e810f36979d85974fe876d4933/TBS_bump.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "6db22f38d94084ee7e8d0534f3000188569ffc475d243df8f475615770550cc8",
+      "bytes": 71080
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/3rg6VJWaMO4rrz0m1Rpz4g/dee54e716c40e89849982a85ea6e1512/TDM_bump.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "2401a3b335c09ca3afa33d0b00056dc61b2ef11b7d1c463843b4a2bf6a55ef65",
+      "bytes": 21558
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/46jf1aRXKht6nh6N9GblL/ac1081f5d857cdc68535075491dc64e1/ROTP_foil__1_.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1dfd342d8f2577b4037887edc6e1ac7a1bcfa207a6f02023b2142f9e128902fe",
+      "bytes": 13886
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/48bjCo7hZ07iMN45fVi0XW/154fa1ab150db2de6585ea1ea0c40ab3/WIMFC_diffuse.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "34d198ca1eda2ade89ec2b1909c74bb287c47c3ed3d6f138a366e8d6e45dcacb",
+      "bytes": 73378
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4AA678nVT05ZSq4ibzOUsQ/2922c45b2b649ec42d560c81c1e30106/shared_diffuse_none.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "20db880de400bd08e0c1715c6ac6372458bd139218e7c1139a6a80c58df67e16",
+      "bytes": 64
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4Ca5Hhny1HtnJT8gZL83aV/3854b93ca218dca64f80f847446f777b/ROTP_bump.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "5dd17471af0d8885f2ce7377b0bc48ffdfd17ed97588d7d1820e60917077bbb4",
+      "bytes": 14616
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4MGPSslHFTTvBSA4BY2TLO/c0426964170f97150ce5009ad4693fa3/SP_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "f2f36f56ff2a8eb16129129b598740c37a2f40a24ad8a5fc294cbd2aa8ec7462",
+      "bytes": 16378
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4MbmPagXJvRR9UgPY7HKPa/8e02a70d74e1b8396d9555c5531cab23/SP_diffuse.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "9b50136167f97d76683f900276df3e2232d44b2f579292ada467ecdd472030d8",
+      "bytes": 69092
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4NJ9u7zEiHd8a2kjAK6JGs/456bfbef7c6d1d7bb1e223eefe68f988/TADSE_foil.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "24c0148535ff7c4a181132c66b42589f0297badf3252548c190818bd2cf93b40",
+      "bytes": 26978
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4TUb1j4wGfiZGrSzAh6NVI/39a30de968807ffbe0a43dd10c7118e4/PCA_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "86ddf0dc06cace1b72c82589e3f81ea45409a345d5715c40aac212f2353b493a",
+      "bytes": 50265
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4VISloTqMRbo2YTMcKY3lf/9b449c95271477356c414eeb407cfae4/ROTP_diffuse.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "79fedba0182c4b2b3e37ad264e33b0e5f1823738b3b3ead0b6dc020f14fdf5f1",
+      "bytes": 113816
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4Z9N9aTPc89LYZX8vKcBLO/022240091852875588b56e8cbcd280e5/TADSE_bump.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "589d5ec5abebb89ba7f49ffef14988cefc1fdd2aaa89d7d20123ce9379eeccb3",
+      "bytes": 12012
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4gGpwmX9KhcRMyMDWSsIko/c9b9739f55a4dec320a8bf78d56c252a/SF_foil.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "f7666975a9f2bdcc108cbd59865725a5925dd0d9b1100ea021817e2f38b718b9",
+      "bytes": 98810
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4rEwY7dYJNUwYBitv9riX4/754c179746978bec6aa25152cee6ab10/BOOM_bump.png?&w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1e70dd48fdd634e386b1371a5df6c17c96170fdc04b912852018b05e79f9a66e",
+      "bytes": 39097
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/4yQnbUm2Lwj3uYDuSn2grX/1b65d40af95583e1f7487a84306e13a3/WIP_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "4eadd2c2ad785ff86eb0ea50f92fc99690d2430ec7a583eb2c8bbea19e0a326d",
+      "bytes": 90536
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/56OcExXFKWH5ibDzmGmhNT/0f77e825e04633c8bef0dd57e3f879c0/TADSE_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "16d914491818614d925765e17a00a73892ba6eef7b8e010fa2a6cce8e17b1514",
+      "bytes": 31206
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5CsqeFeEwrWDf9qaSZcMDG/ca3de33097f486172435fae6e59941cf/texture-inner-front.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "913721b92d0bf4c2cbf0da6a55ea588c2c53cceb4950754f3cbe4da8441b42bf",
+      "bytes": 109842
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5IAAo6yjRgsQWvHz2oN7T2/65b82130bd2347711821ed12b012a372/POP_bump.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "2c221878e85482605c6ce1a990ea8384e9bc3328a1b2afb305b9640671168542",
+      "bytes": 12396
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5NL8NZRoh8by6UR8ZLDJZD/148a9c962eb4545a50a80b557c3e4a2f/shared_bump_none.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "20db880de400bd08e0c1715c6ac6372458bd139218e7c1139a6a80c58df67e16",
+      "bytes": 64
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5e9DBYelRDQaXlBqLKvKIP/6838e04381e6c9f37927cf1dfcd9c3dd/GT_foil.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "2a9416646f265ac0f27e78a8e66670e510918790e911ca5c81f11910580b70de",
+      "bytes": 20016
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5hofqL08noCppsPsdxjvso/de26fe8a37a37f6c79e39fc8be160fcd/shared_bump_paper.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "e075d1228f743f893834bdfae15bb8fddc1a5d7092db5a57aca9b76087c5b8f7",
+      "bytes": 121457
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5kON77i1wHLP73SOBDNlJV/51e1684d6650038bc2ce70da92b53f3f/shared_diffuse_overlay.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "c74f73fb50a3d37dee5df8d9a797bd8842257dc9639184d2d7ed1892913fe1cc",
+      "bytes": 21280
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5su1CiUZFjwfGEEVnG90yB/2af1e8595ea55cc2073ae605da845423/WIP_bump.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "788e880baeeb91c67d68e0f343432f11c6da1079e5520c00ec3ce3aab6f12db7",
+      "bytes": 31982
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/5x3yOcmVNMssgNJbAkl2jY/426a20f158a4682cd3ff44d566de4da8/SF_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "036eac1e509237e9e5be52465d5c1eaf5e7e531cf5387fbd3ae641b7723534bf",
+      "bytes": 122586
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/6ERCAPptgpsH5jfCr1rEYO/6d7a12f79bd2af28c3efadd3a2dad2e9/AEP_foil.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cc595dbdabf4506adf0626afe8525e04965f4fc019fb46077672a0ec0ff0949c",
+      "bytes": 62569
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/6lCgWYRcJ8RdUb3jD5GahZ/b3e29520cb2bd40fbbdc95196c5e7dbf/HGH_bump.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "89c9638d77f08950a6430da3f24b1d364de98c486047f3ecdeedf391b856d750",
+      "bytes": 13722
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/6ofvxdT98sQkSGQVsNwvCw/7ec263469b68cfb79b258223ff584d05/AEP_bump.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "5f4d8db66c4ff8a2604561c813c695c86981493ab4a699d7f71d31a751e34a6a",
+      "bytes": 24822
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/79oXRNhBdrdVRifTn02aPK/8cf34de6707b0cd8bf7a89a68ab403ae/texture-metal-roughness-new.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "77ce9a02dde17756f762f58879cbe0582b71c620bb3920f629a490c8ae1dc3c0",
+      "bytes": 42600
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7Kk5WdtiKdUbU0aNjBZicP/6fed87ea6ac7347ec89743244c844e87/SP_gloss.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "0ad6cf9fbef78ab93cf443891a5af0228c13eb2ce793851bde1b1c14e8ca36aa",
+      "bytes": 12778
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7cRFQsJtdzXTwQ9zvws2gf/e9d26cd4b42d28fc982f3f8f76ca396f/MOE_bump_spine.jpg?&w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "f2b1b0ad6d694b711b423f315f0a6138d9d6c31148976b37ff4e5cf2ec1194d6",
+      "bytes": 47924
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7itLc708oUSntS10BARYE/c086759323b20781959feecf13808ab5/TDM_diffuse.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "959f97cdca0929f964535630927a7e734e3931ce45b830079e484f49d913563d",
+      "bytes": 99634
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7jjDo3bQfSGTL9j34vYkF/ca95e4a2d5c30c8fd362eb57f93d1487/BOOM_foil.jpg?w=1920",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "c248df62c00d091402831cdbb31def389715f88efc2b25034384614781549ccb",
+      "bytes": 112255
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7nAMwiShXZ1ZseQv9izipm/2dfc29aa312ee847de992eb00bf32919/AEP_diffuse.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "81eb96ac94b4b197507458d1feecf1344b757fd3c8806160f454c81f97ac86c2",
+      "bytes": 8818
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7oJ7kReVTiseh5o8rfuNEd/263ac13f97b2839aee7f1ef52119b20a/GT_diffuse.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "a235829f2d43c58584e2bb8786848ee710f8199145612618961fa634f0f73ed1",
+      "bytes": 24540
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/7xj5cH3oztgXLBi8Gl51DU/253a2b79fc048876e6238822ab4b44c5/TBS_foil__3_.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "d881c861ed4e3ad39d4e7b6bc5e66a7c339c92fd69a136d1a5eb0d24d30addfc",
+      "bytes": 107526
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/8Vsm90Ol748zjW2PVqiDp/8bdbb657113d33a29b5e87661b924934/texture-mountains-rect.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "08a9c84ab077d8720b966e210b8cfa1cbdc4a86206589e36fd0645276a7b5cbc",
+      "bytes": 88957
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/PJh4vun8Hpm5110u1Z0qY/70a7ec11bc09495144a1d3c69b71b699/POTA_diffuse.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "e07e644f3f9d3376d6aae9d9a2a5dc1a6be118b3569a9abf71233421c8430c7c",
+      "bytes": 87104
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/RwPT5Q1nbcA3zlC3NIEbQ/63974af33b50fce7df2fcb67883d37b1/texture-cover-top.jpg",
+      "status": 200,
+      "mimeType": "image/jpeg",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1578e21a518d3b6d1133e313563306f78b388fdc2cc72db12bf6609f85f04e3d",
+      "bytes": 76073
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/bTOGPaootCfudD3UyCCrw/5dbdad700a8bf2a27e3985a318a2b20a/SA_bump.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "ceb91151a8bfffb116cedc1c379db2031e080c4f9fae4e0f75550121e8d809d5",
+      "bytes": 9215
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/kbRE3NhvjI0SFrPAXyEh6/b6325415ccf3a7656da18c303878ec30/SA_foil.png?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "a28db1c97c41a8971c06df405b093f1da992782a400959dcecb37203277a2eb3",
+      "bytes": 10030
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/lvpH5W651FKFj9Zmxwgt4/48998557d175a971811b1cf8f6f4ce06/shared_glitter.png?w=1920",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "a6c570d6bed8bdb1a93c9cb30d34c581fd0380fc378568b0420c451e931cb634",
+      "bytes": 3479
+    },
+    {
+      "url": "https://images.ctfassets.net/fzn2n1nzq965/osGaC3rDL3AMgt0tBIfEO/d7ba7c5d81f1990c78724921c38f2277/POTA_gloss.jpg?fm=webp&q=60&w=1920",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "b60ac4bbf2f744a452479322e4c56bb030ef86d6b854a1edf4520b49a657f733",
+      "bytes": 21998
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/1aAb4JhTplUL2DgBBXT865/c802a5a7d3ba32ca24ef06394116aa0d/WIMFC_zine.png?q=100&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "0650bba579cc4609f9dc53e5afa4415448aef9aba5419494023144a390245f46",
+      "bytes": 36442
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/1ugVcSePA1mwNlsw27CF1Y/2ccb204860c9fda9dbf15cfbd0eea732/image__31_.svg?q=80",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "7d4fae2c29912bc4e6202c43f2efa42a53a506a8aa9beee2e37e5c1f46e693a1",
+      "bytes": 566299
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/2q0zkzmadOr2qY22zjUY9l/0ee84e54ff3a44c28993120d7a6474c9/image__17_.svg?q=80",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "184ba0212f7bfaf73df955d053bab0c242295d04edc64012913744a39c5a0016",
+      "bytes": 44971
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/2rrvfUSUQfZA4ukboUlQSs/2406078e7261acb1d39976746686d3f9/stbob__1_.png?q=100&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "1f02ce36b15281a427e54fdc63875d331774f12d567137ba3584b9d38cc85a2a",
+      "bytes": 53498
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/37hf9sWSuPV9LtZZT3l9Po/2fdd0efed4857452c6c9c605196f16db/TSE_zine_2x.png?q=80&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "9b2afeb5cc298835b2991cfa3049fc206327f41d98bcc0480c142f61034e89b6",
+      "bytes": 92224
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/4wzfOi4wL517XqgfOm0hzB/5aa55936a82dca5e15cbd34fb79fece3/TADSE_poster.jpg?q=60&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "d615c4521a08a6f95863120a2b804c26e52c228acfc4e7aa8f5cd9bdc284eaaf",
+      "bytes": 100768
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/52vxF6r0Ji4bgHpv0ORTE/80350e4188b48ab0df5c0a3b3380d28f/OOE-zine.jpg?q=80&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "510a0d9efa345dafd3d22269b725a560cb7f1a5ee8e5535aeb4d301d87d7874a",
+      "bytes": 74106
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/5cLg9BzN5ukNrupNJtJqp3/a60158cd400b37bcd67dfad49f66de7b/waag_video_poster.jpeg?fm=webp&w=1000",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "80286dbdf71946ab2ac3dce8dcfbb36d5aa1783b255cf95affffa1df7dfb0fb7",
+      "bytes": 66264
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/5ooUEv9mzoyOAAsFpB8Qp9/016921bedf9724a36e40a768c535efab/fixed-bg.png",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "6e92bc2e8fe8961a9a6adb97bdd98a5ba69ded49721867a381dbcbf765e28df3",
+      "bytes": 227979
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/6W1e7oV6JMoZNJ6M44AZ6l/aa456c04fa0c4137e8cc9d1b1757a364/boomZine.png?q=80&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "79247e0a38d99fb6e3b21b2bf8728eb66ec6a81a491e887b6abe1d5cbe2651af",
+      "bytes": 83030
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/6imAJPrCgmiJglaPZMgrMf/96ea3bc5bc4b3a2003ac54532acfb0f3/claire2.png",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "d89b29b05b33a2449994eeeea57214297964fedb26c71f3a8e66cfa6c5e1b668",
+      "bytes": 32464
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/7L93GjeIf2Qk9vkaryXZhP/0dc2a4235b17f1852fe95c7ce0ede25b/PCA_zine.png?q=80&fm=webp",
+      "status": 200,
+      "mimeType": "image/webp",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "033b957bcda0695375f2e7b16761276379021158aeebf44e77bffea3bd9e5abe",
+      "bytes": 36802
+    },
+    {
+      "url": "https://images.stripeassets.com/fzn2n1nzq965/7n9Goyq3IsmsQr1QlzfflU/89aa3709ec154e0d33e4b1531258c7c4/WAAG_stars.png",
+      "status": 200,
+      "mimeType": "image/png",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "6ecbfea15f81eaf937fa59710569d8cb7122898fb653c6a7208e3d36125e7c88",
+      "bytes": 30437
+    },
+    {
+      "url": "https://press.stripe.com/",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "43b6fea3a47d7524283b99861ca5541c9cfc9856ecc7e9c98da71cb5b73e4306",
+      "bytes": 1016263
+    },
+    {
+      "url": "https://press.stripe.com/boom",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "f3f2363b6c6b47fec4e605e406c6126320bcbaba6349810b5e0b7b7bab6ba8a5",
+      "bytes": 1016440
+    },
+    {
+      "url": "https://press.stripe.com/maintenance-part-one",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "b13bc93261d88e8b464976d0ab4d14dca95b782bbf255ce23af6ed1ed0143ef2",
+      "bytes": 1016403
+    },
+    {
+      "url": "https://press.stripe.com/notifications",
+      "status": 200,
+      "mimeType": "application/json",
+      "resourceType": "Fetch",
+      "class": "behavioral",
+      "sha256": "2b7eeacb2b5b893beb77ed29adf9b863e02313dfb359b6031ed390688c3f3fb3",
+      "bytes": 28
+    },
+    {
+      "url": "https://press.stripe.com/origins-of-efficiency",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "578c97b2c7f8d7cc85e59274877497a41e5e8f777a556c3b7aad804be9127f9d",
+      "bytes": 1016778
+    },
+    {
+      "url": "https://press.stripe.com/pieces-of-the-action",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "2f7b4239e35677bbe429d4f3a1466a6e9c00fd2ac358ecbf2c4a93f7540aa853",
+      "bytes": 1016532
+    },
+    {
+      "url": "https://press.stripe.com/poor-charlies-almanack",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "43e9c693d4c98006222fbc7f8e2d657a68f187c6e180a4dd335cc74149e1ab08",
+      "bytes": 1016594
+    },
+    {
+      "url": "https://press.stripe.com/scaling",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "9f38086cbe09b90391015a0166c6648392af496f60ccb05558c418bfb9371277",
+      "bytes": 1016349
+    },
+    {
+      "url": "https://press.stripe.com/scaling-people",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "0c7611a3e8477bade4bd57bd2e8f27b403204c46d56b0d00ee7017081758acc5",
+      "bytes": 1016530
+    },
+    {
+      "url": "https://press.stripe.com/scientific-freedom",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "f95f85a4e3766f38690afb12208edebaac5c532ad4314efe9d9f4d6469db7696",
+      "bytes": 1016362
+    },
+    {
+      "url": "https://press.stripe.com/the-art-of-doing-science-and-engineering",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "558daa80210785bf94c41eb8bb11573417b16b04cb6c3d3b00530ea798526190",
+      "bytes": 1016650
+    },
+    {
+      "url": "https://press.stripe.com/the-big-score",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "b9bd63844572613e22b7011eea88823f00f8809bb0ae2a6ca0e4bf9ada6f5903",
+      "bytes": 1016431
+    },
+    {
+      "url": "https://press.stripe.com/where-is-my-flying-car",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "f1fb7b9179f42188d4be1f3e02b353d899e9c47121cb92201bdc07085f86f80e",
+      "bytes": 1016444
+    },
+    {
+      "url": "https://press.stripe.com/working-in-public",
+      "status": 200,
+      "mimeType": "text/html",
+      "resourceType": "Document",
+      "class": "behavioral",
+      "sha256": "aa9f834992138ecfbb0e4ad183d822244ad9f65d308dc4dc418213480e58be86",
+      "bytes": 1016416
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&category=Page&label=percent_10&value=undefined&from_mkt_srv=true&document_height=7805&scroll_y=1800&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&action_name=scrolled&viewed_name=press_home&event=scrolled.action&event_count=2&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_2&privacy_consent_loaded=true&privacy_consent_functional=true&privacy_consent_advertising=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&category=Page&label=percent_25&value=undefined&from_mkt_srv=true&document_height=7805&scroll_y=2700&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&action_name=scrolled&viewed_name=press_home&event=scrolled.action&event_count=4&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_4&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&category=Page&label=percent_50&value=undefined&from_mkt_srv=true&document_height=7805&scroll_y=4500&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&action_name=scrolled&viewed_name=press_home&event=scrolled.action&event_count=5&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_5&privacy_consent_loaded=true&privacy_consent_functional=true&privacy_consent_advertising=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&category=Page&label=percent_75&value=undefined&from_mkt_srv=true&document_height=7805&scroll_y=6911&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&action_name=scrolled&viewed_name=press_home&event=scrolled.action&event_count=6&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_6&privacy_consent_loaded=true&privacy_consent_functional=true&privacy_consent_advertising=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&from_mkt_srv=true&ttfb=1231.5999999642372&fps=75.9898680166919&document_height=7805&scroll_y=2700&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&action_name=web_vitals&viewed_name=press_home&event=web_vitals.action&event_count=3&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_3&privacy_consent_loaded=true&privacy_consent_functional=true&privacy_consent_advertising=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2F&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Ideas%20for%20progress&mkt_path=%2F&from_mkt_srv=true&document_height=7805&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2F&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f&event_id=9f7ca7d2-5d9c-4547-9c80-7497502aa42f_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fboom&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Boom&mkt_path=%2Fboom&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fboom&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=cf181a23-da36-4588-9cca-8fa922e3a164&event_id=cf181a23-da36-4588-9cca-8fa922e3a164_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fmaintenance-part-one&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Maintenance&mkt_path=%2Fmaintenance-part-one&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fmaintenance-part-one&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=57542fb3-7d41-47e9-a35e-bd841df92242&event_id=57542fb3-7d41-47e9-a35e-bd841df92242_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Forigins-of-efficiency&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20The%20Origins%20of%20Efficiency&mkt_path=%2Forigins-of-efficiency&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Forigins-of-efficiency&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=dba4c5cc-6789-49fd-b952-da9447e14294&event_id=dba4c5cc-6789-49fd-b952-da9447e14294_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fpieces-of-the-action&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Pieces%20of%20the%20Action&mkt_path=%2Fpieces-of-the-action&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fpieces-of-the-action&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=185be625-f2c7-4964-9f69-632816a05aff&event_id=185be625-f2c7-4964-9f69-632816a05aff_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fpoor-charlies-almanack&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Poor%20Charlie%E2%80%99s%20Almanack&mkt_path=%2Fpoor-charlies-almanack&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fpoor-charlies-almanack&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=85dba63d-814c-4230-96e7-7c01a18bf454&event_id=85dba63d-814c-4230-96e7-7c01a18bf454_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fscaling&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20The%20Scaling%20Era&mkt_path=%2Fscaling&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fscaling&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=9c38e02d-0de1-4177-8a9c-cc714c621f90&event_id=9c38e02d-0de1-4177-8a9c-cc714c621f90_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fscaling-people&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Scaling%20People&mkt_path=%2Fscaling-people&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fscaling-people&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=1a9cf84e-2195-4e74-8187-d9647db4001f&event_id=1a9cf84e-2195-4e74-8187-d9647db4001f_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fscientific-freedom&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Scientific%20Freedom&mkt_path=%2Fscientific-freedom&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fscientific-freedom&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=6ef740be-98b7-421f-88b5-0ab19edaf871&event_id=6ef740be-98b7-421f-88b5-0ab19edaf871_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fthe-art-of-doing-science-and-engineering&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20The%20Art%20of%20Doing%20Science%20and%20Engineering&mkt_path=%2Fthe-art-of-doing-science-and-engineering&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fthe-art-of-doing-science-and-engineering&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=c9485ce5-6fe7-46c6-a6ce-9816b62d55df&event_id=c9485ce5-6fe7-46c6-a6ce-9816b62d55df_1&privacy_consent_loaded=true&privacy_consent_advertising=false&privacy_consent_functional=false",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fthe-big-score&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20The%20Big%20Score&mkt_path=%2Fthe-big-score&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fthe-big-score&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=3a9902a2-dd10-4294-ab6c-d386c53744e5&event_id=3a9902a2-dd10-4294-ab6c-d386c53744e5_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fwhere-is-my-flying-car&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Where%20Is%20My%20Flying%20Car%3F&mkt_path=%2Fwhere-is-my-flying-car&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fwhere-is-my-flying-car&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=95dd85f4-28a9-4996-bf97-c0a473f5dd1c&event_id=95dd85f4-28a9-4996-bf97-c0a473f5dd1c_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://q.stripe.com/?cid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&lsid=d448495a-7bea-47ce-a6cb-8d33c24fdf19&analytics_ua=analytics.js-CURRENT_VERSION&ua_browser_name=Chrome&ua_browser_version=150.0.0.0&ua_os_name=Mac%20OS&ua_os_version=10.15.7&ua_device_model=Macintosh&ua_device_vendor=Apple&ua_engine_name=Blink&ua_engine_version=150.0.0.0&page=%2Fworking-in-public&referrer=&domain=press.stripe.com&viewport_height=894&viewport_width=1568&title=Stripe%20Press%20%E2%80%94%20Working%20in%20Public&mkt_path=%2Fworking-in-public&from_mkt_srv=true&document_height=59529&scroll_y=0&stripe_locale=en-US&unglobalized_path=%2Fworking-in-public&token_b057adf6=b057adf6b43d1bc4ccae7fb536e3f7d13e322b8b&viewed_name=press_home&event=press_home.viewed&event_count=1&page_view_id=fcb4f4eb-b163-4e66-a7c8-e1a1858bcc3d&event_id=fcb4f4eb-b163-4e66-a7c8-e1a1858bcc3d_1&privacy_consent_loaded=true&privacy_consent_advertising=true&privacy_consent_functional=true",
+      "status": 200,
+      "mimeType": "image/gif",
+      "resourceType": "Image",
+      "class": "creative",
+      "sha256": "cf4724b2f736ed1a0ae6bc28f1ead963d9cd2c1fd87b6ef32e7799fc1c5c8bda",
+      "bytes": 43
+    },
+    {
+      "url": "https://r.stripe.com/0",
+      "status": 200,
+      "mimeType": "text/plain",
+      "resourceType": "Fetch",
+      "class": "behavioral",
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "url": "https://stripe-images.s3.us-west-1.amazonaws.com/newsroom/medallion.glb",
+      "status": 200,
+      "mimeType": "binary/octet-stream",
+      "resourceType": "Fetch",
+      "class": "creative",
+      "sha256": "4db6cb5b5d8195840168e8cb4f92b8f73e63832e6ee24555d4802cae351c26c8",
+      "bytes": 1476716
+    },
+    {
+      "url": "https://stripe.com/cookie-settings/enforcement-mode",
+      "status": 200,
+      "mimeType": "application/json",
+      "resourceType": "Fetch",
+      "class": "behavioral",
+      "sha256": "cf47d3a034eb704dbc6a1b479427ab513892062349ae526c3b96a4ba6465e3d4",
+      "bytes": 15
+    }
+  ]
+}

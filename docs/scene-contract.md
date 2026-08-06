@@ -1080,6 +1080,17 @@ visual pass remains deliberately last. Deployment remains held.
 
 Prioritize these only when the user asks to continue:
 
+Item 3 now has evidence behind it. A 2026-08-07 runtime capture of the reference
+independently confirmed the extracted light rig: dividing out the r151 π
+premultiply recovers ambient `.52`, left directional `.6`, spotlight
+`0xCCEECC × .75` and cone `.36` exactly, and both directional light directions
+match the recorded positions. The light rig repeated across runs; the cover
+material scalars did not, which rules out a single global material but does not
+yet distinguish per-volume variation from per-interaction-state variation — the
+runs did not scroll to the same place. `docs/reference-extraction-plan.md` names
+the experiment that settles it. Committed readings live in `docs/reference/`.
+Read the plan before resuming item 1, 2 or 3.
+
 1. **Incremental case/cover refinement:** CC0 cloth and paper scans now supply the primary surface detail while original cover art remains authored SVG. A generic rounded-board extrusion was measured and rejected because it flattened the extreme-orbit interior; any later board bevel needs a purpose-built layered mesh that preserves that view. The next low-risk visual work is a design pass on the five original covers. Do not import a fixed stock mesh unless the calibrated parametric route/section poses are deliberately reworked.
 2. **Source-proportion silhouette:** the canonical held lower edge and some extreme-angle right-edge slopes remain a few to a few-dozen pixels different from the Poor Charlie references because the genuine ZI3T book is wider and thicker. Do not distort the original artwork merely to erase that difference.
 3. **Real-GPU lighting nuance:** the resting, four-direction, extended-orbit,
