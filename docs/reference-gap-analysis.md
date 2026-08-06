@@ -136,3 +136,16 @@ not close the shipping rows: the renderer remains opt-in, catalogue
 scroll/terminal and compact/reduced/idle work remain, and route close-ups are
 visibly darker and flatter than the accepted implementation—most clearly the
 ochre Field Notes cover.
+
+**Checkpoint update 2026-08-07:** the clean-room replacement has now earned its
+remaining catalogue contract on hardware WebGL: five native shelf stops, the
+`.003`/`.4` fan, the genuine two-surface terminal, desktop idle suspension,
+compact continuous presentation, reduced motion, inertness, and live compact
+routes. Its dedicated journey gate passes 18/18 alongside the 10/10, 12/12,
+15/15, and 8/8 clean-room gates; the untouched renderer still passes 49/49.
+Aligned route captures narrow the visual residual to softer clean-room
+specular/highlight response, most visibly on Re-fly and Arm. Field Notes is not
+a unique outlier when both renderers are captured at the same scroll offset.
+No Reject changed classification, and a global material gain was not adopted
+because it makes the closer covers worse. Option B is complete as an opt-in
+implementation; default promotion remains a separate decision.

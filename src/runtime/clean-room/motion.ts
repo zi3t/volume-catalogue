@@ -27,7 +27,12 @@ export const CLEAN_ROOM_MOTION = {
   volumeDragRate: 0.003,
   volumeScrollTurn: 0.0008,
   volumeTwirlLimit: 0.3,
-  volumeTwirlDecay: 0.95
+  volumeTwirlDecay: 0.95,
+  scrollVelocityPerPixel: 0.003,
+  scrollVelocityDecay: 0.4,
+  scrollVelocityLimit: 1,
+  terminalScrollViewports: 2.18,
+  idlePauseAfter: 1200
 } as const;
 
 export const clamp = (value: number, minimum: number, maximum: number): number => (

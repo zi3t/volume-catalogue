@@ -1167,6 +1167,53 @@ reduced-motion parity, complete accessibility/idle behavior, and the final
 visual diff remain unclaimed. The clean-room renderer remains opt-in and
 nothing was deployed.
 
+## Current checkpoint — 2026-08-07 Option B complete opt-in journey
+
+The clean-room replacement has now independently earned the remainder of the
+catalogue contract without changing the default renderer. At 1568×894 its
+native catalogue document is `3605px` tall with `2711px` of scroll, five shelf
+stops spaced by `.213` viewport heights, and the genuine ZI3T terminal over the
+final `2.18` viewports. Scroll stays on the catalogue address and fans the shelf
+with the extracted `delta × .003`, ±1 clamp, and `.4` frame-normalized decay.
+
+The signature study and closing statement are the existing semantic panels,
+not WebGL imitations. Shelf anchors, section controls, and closing links are
+made inert whenever their visual surface is covered or offscreen. Desktop
+preserves the buffer and suspends both animation and presentation after 1200ms
+of settled idle; input wakes it immediately. Compact intentionally keeps an
+unpreserved buffer presenting continuously.
+
+At 390×844, compact retains the measured `1604px` catalogue, first anchors at
+`276.83px` and `470.22px`, three genuine books on first load, the real
+single-column route figure, and no pointer-held or fabricated terminal journey.
+Reduced motion collapses the main to `100svh`, removes the long terminal and
+live figure volumes, and makes route changes immediate.
+
+Visual inspection caught and rejected a bad literal camera translation before
+the checkpoint: moving the normalized camera by the reference's pixel-space
+scroll value blanked the shelf. The existing camera-follow Reject is preserved
+by reprojecting semantic DOM rectangles while keeping camera `y=6.5`.
+
+On headful Chrome/Apple M1 Pro Metal, the clean-room gates pass **10/10**
+foundation/material, **12/12** desktop interaction, **15/15** route/history,
+**8/8** live volume, and **18/18** catalogue journey/fallbacks, all with zero
+runtime errors. The untouched default renderer passes **49/49** on a fresh
+target. Primary evidence is `/tmp/zi3t-clean-room-journey-pass3` and
+`/tmp/zi3t-clean-room-functional-accepted-gate`; the other clean-room evidence
+paths are recorded in `option-b-checkpoints.md`.
+
+The aligned five-route comparison at section top plus 200px is
+`/tmp/zi3t-clean-room-visual-sections` against
+`/tmp/zi3t-clean-room-routing-accepted-gate`. Shelf and section silhouettes,
+compact composition, and both terminal surfaces are credibly aligned, but the
+clean-room custom Phong route highlight remains softer than the accepted
+patched physical response, most visibly on Re-fly and Arm. Field Notes is no
+longer a unique outlier in the aligned set. A global material lift was rejected
+because it overexposes the closer Practice and Field Notes covers.
+
+Option B is complete as an independently gated opt-in renderer. Default
+promotion is a separate user decision. Nothing was pushed or deployed.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:

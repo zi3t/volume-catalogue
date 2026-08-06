@@ -37,6 +37,7 @@ export interface CleanRoomRouteController {
   readonly available: boolean;
   snapshot: () => CleanRoomRouteSnapshot;
   activate: (index: number, event?: MouseEvent) => boolean;
+  setCatalogueIndex: (index: number) => void;
   settlePendingDeepLink: () => boolean;
   updateLayout: () => void;
 }
@@ -329,6 +330,9 @@ export const installCleanRoomRouting = (
       catalogueScrollY
     }),
     activate,
+    setCatalogueIndex: (index: number) => {
+      if (mode === "catalogue") setCurrentIndex(index, "scroll");
+    },
     settlePendingDeepLink,
     updateLayout: updateDocumentHeight
   };

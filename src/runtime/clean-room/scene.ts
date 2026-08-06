@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import { installCleanRoomCatalogueScroll } from "./catalogue-scroll";
 import { createCleanRoomBook, type CleanRoomBook } from "./geometry";
 import {
   installCleanRoomInteraction,
@@ -106,6 +107,21 @@ interface CleanRoomDebugSnapshot {
     readonly calls: number;
     readonly triangles: number;
     readonly programs: number;
+    readonly animationFrames: number;
+    readonly presentedFrames: number;
+    readonly idlePaused: boolean;
+    readonly preserveDrawingBuffer: boolean;
+  };
+  readonly scroll: {
+    readonly y: number;
+    readonly documentHeight: number;
+    readonly currentScrollStep: number;
+    readonly stackShift: number;
+    readonly scrollVelocity: number;
+    readonly terminalProgress: number;
+    readonly terminalSceneOpacity: number;
+    readonly mainHeight: number;
+    readonly cameraY: number;
   };
 }
 
@@ -187,13 +203,14 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   const compact = window.matchMedia("(max-width: 899px)");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const preserveDrawingBuffer = !compact.matches;
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: !compact.matches
+      preserveDrawingBuffer
     });
   } catch (error) {
     console.warn("Clean-room Press renderer unavailable; retaining the DOM catalogue.", error);
@@ -224,6 +241,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
   let entryStartedAt = 0;
   let entryComplete = reducedMotion.matches;
   let lastFrameAt = 0;
+  let animationFrames = 0;
+  let presentedFrames = 0;
+  let lastEntryResidual = Number.POSITIVE_INFINITY;
   let renderUntil = performance.now() + 1800;
   let viewportWidth = window.innerWidth;
   let viewportHeight = window.innerHeight;
@@ -302,7 +322,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     return entry;
   });
 
-  const wake = (duration = 1200): void => {
+  const wake = (duration = 720): void => {
     renderUntil = Math.max(renderUntil, performance.now() + duration);
     if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
   };
@@ -339,7 +359,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       releasedFromDrag = false;
       returningRouteIndex = -1;
       resetVolumeInput();
-      flight = reducedMotion.matches || source === "deep-link"
+      flight = reducedMotion.matches || compact.matches || source === "deep-link"
         ? null
         : { index, speed: 0, approach: 0 };
     },
@@ -371,6 +391,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
   });
   pressMode = routing.snapshot().mode;
   currentRouteIndex = routing.snapshot().currentIndex;
+
+  const catalogueScroll = installCleanRoomCatalogueScroll({
+    items,
+    stage: catalogueStage,
+    compact,
+    reducedMotion,
+    mode: () => pressMode,
+    onCurrentIndex: routing.setCatalogueIndex
+  });
 
   const volumeInteraction = installCleanRoomVolumeInteraction({
     figures: routing.figures,
@@ -465,9 +494,14 @@ export const mountCleanRoomCatalogue = (): boolean => {
     routing.updateLayout();
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
+    catalogueScroll.update();
     renderer.setSize(viewportWidth, viewportHeight, false);
     camera.aspect = viewportWidth / viewportHeight;
     camera.updateProjectionMatrix();
+    // This scene uses normalized camera space and reprojects every shifted DOM
+    // rect directly. Moving the camera by the CSS pixel shift as well would
+    // apply the accepted pixel-world cancellation twice and blank the shelf.
+    camera.position.y = 6.5;
     camera.updateMatrixWorld(true);
     lights.updateCameraY(camera.position.y);
 
@@ -553,7 +587,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       }
     });
     unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, -3);
-    wake(1200);
+    wake(720);
   }
 
   const scheduleLayout = (): void => {
@@ -569,6 +603,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     const deltaSeconds = clamp(rawDelta, 1 / 240, 0.25);
     lastFrameAt = now;
     interactionSnapshot = interactionState();
+    const catalogueMotion = catalogueScroll.advance(deltaSeconds);
     if (pressMode === "volumes") volumeInteraction.advanceTwirl(deltaSeconds);
     const volumePose = volumeInteraction.snapshot();
 
@@ -774,11 +809,13 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       entry.book.object.rotation.x = damp(
         entry.book.object.rotation.x,
-        entry.profile.shelfPitch + entry.holdRotationX * entry.hold,
+        entry.profile.shelfPitch
+          + catalogueMotion.scrollVelocity * (1 - entry.hold)
+          + entry.holdRotationX * entry.hold,
         13,
         deltaSeconds
       );
-      setBookOpacity(entry, entryOpacity);
+      setBookOpacity(entry, entryOpacity * catalogueMotion.terminalSceneOpacity);
 
       entryResidual = Math.max(
         entryResidual,
@@ -828,24 +865,32 @@ export const mountCleanRoomCatalogue = (): boolean => {
       catalogueStage.classList.remove("is-stack-evacuated");
     }
 
-    renderOnce();
+    lastEntryResidual = entryResidual;
+    const latestVolumePose = volumeInteraction.snapshot();
+    const idlePaused = preserveDrawingBuffer
+      && entryComplete
+      && !interactionSnapshot.gesture
+      && returningIndex < 0
+      && returningRouteIndex < 0
+      && !flight
+      && !latestVolumePose.dragging
+      && !latestVolumePose.twirlX
+      && !latestVolumePose.twirlY
+      && routing.snapshot().pendingDeepLinkIndex < 0
+      && catalogueMotion.scrollVelocity === 0
+      && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+      && now > renderUntil + CLEAN_ROOM_MOTION.idlePauseAfter;
+    if (document.visibilityState !== "hidden" && !idlePaused) {
+      renderOnce();
+      presentedFrames += 1;
+    }
+    animationFrames += 1;
     routeFrames += 1;
     if (routeFrames >= 3 && routing.settlePendingDeepLink()) {
       routeFrames = 0;
       requestRelayout();
     }
-    const moving = !entryComplete
-      || holding
-      || returningIndex >= 0
-      || returningRouteIndex >= 0
-      || Boolean(flight)
-      || volumePose.dragging
-      || Boolean(volumePose.twirlX)
-      || Boolean(volumePose.twirlY)
-      || routing.snapshot().pendingDeepLinkIndex >= 0
-      || entryResidual > CLEAN_ROOM_MOTION.entrySettleEpsilon
-      || now < renderUntil;
-    if (moving && !frameRequest) frameRequest = window.requestAnimationFrame(animate);
+    if (!idlePaused && !frameRequest) frameRequest = window.requestAnimationFrame(animate);
   }
 
   window.addEventListener("resize", scheduleLayout, { passive: true });
@@ -862,6 +907,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
   if (window.__pressDebugEnabled) {
     window.__pressCleanRoomDebug = () => {
       const volume = volumeInteraction.snapshot();
+      const scroll = catalogueScroll.snapshot();
+      const idlePaused = preserveDrawingBuffer
+        && entryComplete
+        && !interactionSnapshot.gesture
+        && returningIndex < 0
+        && returningRouteIndex < 0
+        && !flight
+        && !volume.dragging
+        && !volume.twirlX
+        && !volume.twirlY
+        && routing.snapshot().pendingDeepLinkIndex < 0
+        && scroll.scrollVelocity === 0
+        && lastEntryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+        && performance.now() > renderUntil + CLEAN_ROOM_MOTION.idlePauseAfter;
       return ({
       renderer: "clean-room",
       state: {
@@ -938,7 +997,22 @@ export const mountCleanRoomCatalogue = (): boolean => {
       render: {
         calls: renderer.info.render.calls,
         triangles: renderer.info.render.triangles,
-        programs: renderer.info.programs?.length ?? 0
+        programs: renderer.info.programs?.length ?? 0,
+        animationFrames,
+        presentedFrames,
+        idlePaused,
+        preserveDrawingBuffer
+      },
+      scroll: {
+        y: window.scrollY,
+        documentHeight: document.documentElement.scrollHeight,
+        currentScrollStep: Number(scroll.currentScrollStep.toFixed(4)),
+        stackShift: Number(scroll.stackShift.toFixed(4)),
+        scrollVelocity: Number(scroll.scrollVelocity.toFixed(4)),
+        terminalProgress: Number(scroll.terminalProgress.toFixed(4)),
+        terminalSceneOpacity: Number(scroll.terminalSceneOpacity.toFixed(4)),
+        mainHeight: Number(scroll.mainHeight.toFixed(4)),
+        cameraY: Number(camera.position.y.toFixed(4))
       }
       });
     };

@@ -44,6 +44,7 @@
     "qa:clean-room:interaction": "deno run --allow-net --allow-read --allow-write tests/qa-clean-room-interaction.mjs",
     "qa:clean-room:routing": "deno run --allow-net --allow-read --allow-write tests/qa-clean-room-routing.mjs",
     "qa:clean-room:volume": "deno run --allow-net --allow-read --allow-write tests/qa-clean-room-volume.mjs",
+    "qa:clean-room:journey": "deno run --allow-net --allow-read --allow-write tests/qa-clean-room-journey.mjs",
     "record:first-load": "deno run --allow-net --allow-read --allow-write --allow-run=ffmpeg tests/record-press-first-load.mjs",
     "capture:reference": "deno run --allow-net --allow-read --allow-write tests/capture-reference.mjs",
     "capture:glframe": "deno run --allow-net --allow-read --allow-write tests/capture-glframe.mjs"

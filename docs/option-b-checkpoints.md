@@ -168,3 +168,68 @@ renderer, most visibly on the ochre Field Notes cover; this checkpoint claims
 mechanics, not final lighting parity. Catalogue scroll/terminal choreography,
 compact and reduced-motion parity, complete accessibility/idle behavior, and a
 final visual diff remain unclaimed.
+
+## Checkpoint 4 — complete catalogue journey and fallback contract
+
+The opt-in clean-room renderer now owns the rest of the catalogue document.
+At 1568×894 the semantic main is exactly `3605px` tall (`2711px` of native
+scroll), with five shelf stops spaced by `.213` viewport heights and a genuine
+terminal journey spanning `2.18` viewports. Native catalogue scroll never
+claims a volume address. Its shelf fan uses the extracted `delta × .003` law,
+clamped to ±1 for trackpad safety and decayed by `.4` per frame inside the
+damped pitch target.
+
+The terminal reuses the existing ZI3T signature study and closing statement;
+no reference film, podcast, newsletter, or placeholder volume was fabricated.
+Only the currently visible shelf, section, or terminal controls remain in the
+interaction and tab order. Covered shelf anchors and offscreen closing links
+are inert until their surfaces become available.
+
+The fallback paths are now independently earned:
+
+- at 390×844 the compact catalogue remains the measured `1604px` document,
+  with its first two anchors at `276.83px` and `470.22px`, three genuine books
+  visible on load, no held choreography, and no fabricated terminal length;
+- compact routes place the live volume in the existing single-column figure
+  and keep presenting because their WebGL buffer is intentionally unpreserved;
+- reduced motion collapses the catalogue to `100svh`, removes the long terminal
+  journey and live figure volumes, and keeps navigation immediate; and
+- desktop preserves the drawing buffer, stops animation and presentation after
+  1200ms of settled idle, then wakes immediately on scroll or pointer input.
+
+One visual review found a false literal translation before this checkpoint was
+accepted: applying the reference's pixel-space camera-follow ratio directly to
+the normalized scene moved every book out of frame during scroll. The binding
+camera-follow Reject is now expressed as DOM-rect reprojection while the
+normalized camera stays at `y=6.5`. The journey gate keeps this failure visible
+through desktop scroll coverage and compact presentation assertions.
+
+Measured on headful Chrome/Apple M1 Pro Metal, with zero runtime errors:
+
+- foundation/material: **10/10 PASS**;
+- desktop interaction: **12/12 PASS**;
+- route/history: **15/15 PASS**;
+- live volume: **8/8 PASS**;
+- catalogue journey/fallbacks: **18/18 PASS**; and
+- unchanged default renderer: **49/49 PASS**.
+
+Evidence is `/tmp/zi3t-clean-room-functional-final.png`,
+`/tmp/zi3t-clean-room-functional-interaction-final`,
+`/tmp/zi3t-clean-room-functional-routing-final`,
+`/tmp/zi3t-clean-room-functional-volume-final`,
+`/tmp/zi3t-clean-room-journey-pass3`, and
+`/tmp/zi3t-clean-room-functional-accepted-gate`. The aligned five-route visual
+set is `/tmp/zi3t-clean-room-visual-sections`, captured at the same section-top
+plus 200px offset as `/tmp/zi3t-clean-room-routing-accepted-gate`.
+
+The final visual review finds the clean-room shelf, section silhouettes,
+compact route, and terminal composition credibly aligned, but not pixel
+identical. The custom Phong response retains softer route highlights than the
+accepted patched physical material, most visibly on Re-fly and Arm; the
+aligned Field Notes frame is no longer a unique lighting outlier. A global
+gain was rejected because it would wash out the already-close Practice and
+Field Notes faces. This is an honest residual, not a failed behavior gate.
+
+Option B is complete as an independently gated, opt-in implementation. Making
+it the default renderer is a separate promotion decision. Nothing was pushed
+or deployed.
