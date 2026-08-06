@@ -40,7 +40,9 @@
     "build:site": "npm run build && node scripts/sync-site.mjs",
     "check": "npm run typecheck && npm run build",
     "profile": "deno run --allow-net --allow-read --allow-write tests/profile-press-scene.mjs",
-    "record:first-load": "deno run --allow-net --allow-read --allow-write --allow-run=ffmpeg tests/record-press-first-load.mjs"
+    "record:first-load": "deno run --allow-net --allow-read --allow-write --allow-run=ffmpeg tests/record-press-first-load.mjs",
+    "capture:reference": "deno run --allow-net --allow-read --allow-write tests/capture-reference.mjs",
+    "capture:glframe": "deno run --allow-net --allow-read --allow-write tests/capture-glframe.mjs"
   },
   "dependencies": {
     "three": "0.171.0"
