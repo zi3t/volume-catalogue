@@ -102,11 +102,13 @@ const metrics = await cdp.evaluate(`(async () => {
   const sc = w / 1568;
   const [rl, rt, rw, rh] = rect.map((v) => Math.round(v * sc));
 
-  // Ground sampled just above the case, inside the shelf band, so it is the
-  // surface the case sits on rather than whatever the page corner holds.
-  const gx = Math.min(w-1, Math.max(0, rl + (rw>>1)));
-  const gy = Math.max(0, rt - Math.max(6, Math.round(10*sc)));
-  const gi = (gy*w + gx)*4;
+  // Ground sampled from the page corner. Sampling just above the case looks
+  // safer and is not: the shelf stacks cases tightly, so ten pixels above one
+  // case is the next case, and matching against it discards most of the surface
+  // — the reference scored sigma 0.39 over a fifth of the rect that way.
+  // measure-visual-parity.mjs samples the corner and locates cases correctly on
+  // both sides, including the reference.
+  const gi = (4*w + 4)*4;
   const g = [d[gi], d[gi+1], d[gi+2]];
 
   const best = { px: [], l: rl, t: rt, r: rl+rw-1, bt: rt+rh-1 };

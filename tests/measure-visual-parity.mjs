@@ -40,6 +40,21 @@ const OUT = args.get("out") ?? null;
 const DESKTOP = { width: 1568, height: 894 };
 const COMPACT = { width: 390, height: 844 };
 
+// The catalogue and a route live at different paths on the reference than here,
+// so both are overridable. Locating the reference's own shelf box is what makes
+// a cross-site surface-response comparison possible — a rect recorded in an
+// older capture does not survive into a fresh one.
+const CATALOGUE_PATH = args.get("catalogue-path") ?? "/press/";
+const ROUTE_PATH = args.get("route-path") ?? "/press/refly/";
+const ONLY = args.get("only") ?? null;
+
+// The shelf column, as a fraction of viewport width. The left index is a narrow
+// column of ticks that survives DOM subtraction on the reference and, being
+// taller than any case, wins a topmost-component search — the first run against
+// the live site returned it as the "first rest book". Cases live to the right of
+// it on both sides (ours starts at x=393 of 1568), so the search starts there.
+const SHELF_X0 = Number(args.get("shelf-x0") ?? 0.2);
+
 const q = (path) => {
   const url = new URL(path, BASE);
   if (RENDERER) url.searchParams.set("press-renderer", RENDERER);
@@ -265,34 +280,34 @@ const REFERENCE = {
 const STATES = [
   {
     name: "desktop.firstRestBook",
-    path: "/press/",
+    path: CATALOGUE_PATH,
     viewport: DESKTOP,
-    bookRegion: [0, 0.15, 1, 0.75],
+    bookRegion: [SHELF_X0, 0.15, 1, 0.75],
     mode: "topmost"
   },
   {
     name: "desktop.draggedBookEdges",
-    path: "/press/",
+    path: CATALOGUE_PATH,
     viewport: DESKTOP,
     prepare: HOLD_DRAG
   },
   {
     name: "desktop.standing",
-    path: "/press/refly/",
+    path: ROUTE_PATH,
     viewport: DESKTOP,
     bookRegion: [0, 0, 0.62, 1],
     contentRegion: [0.5, 0, 1, 1]
   },
   {
     name: "compact.firstRestBook",
-    path: "/press/",
+    path: CATALOGUE_PATH,
     viewport: COMPACT,
-    bookRegion: [0, 0.15, 1, 0.85],
+    bookRegion: [SHELF_X0, 0.15, 1, 0.85],
     mode: "topmost"
   },
   {
     name: "compact.standing",
-    path: "/press/refly/",
+    path: ROUTE_PATH,
     viewport: COMPACT,
     bookRegion: [0, 0, 1, 0.72],
     contentRegion: [0, 0.4, 1, 1]
@@ -308,7 +323,7 @@ const results = [];
 let renderer = null;
 
 for (const viewport of [DESKTOP, COMPACT]) {
-  const states = STATES.filter((s) => s.viewport === viewport);
+  const states = STATES.filter((s) => s.viewport === viewport && (!ONLY || s.name === ONLY));
   if (!states.length) continue;
 
   const cdp = await connect(PORT, viewport);
