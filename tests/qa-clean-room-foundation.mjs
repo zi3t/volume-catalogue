@@ -100,6 +100,38 @@ try {
       transform: material.textureTransform
     }))
   );
+  const bindingModels = state.debug?.books?.map((book) => book.binding) ?? [];
+  check(
+    "every case has rounded boards, a recessed block, two spine caps, and a recessed joint on each cover",
+    bindingModels.length === 5
+      && bindingModels.every((binding) => (
+        binding.spineSegments === 12
+        && binding.coverJointCount === 2
+        && binding.spineHubCount === 0
+        && binding.coverJointInset > 0.004
+        && binding.coverJointInset < 0.007
+        && binding.coverJointWidth >= 0.038
+        && binding.coverJointWidth <= 0.042
+        && binding.coverJointDepth > 0.0035
+        && binding.coverJointDepth < 0.005
+        && binding.coverSkinOffset > 0
+        && binding.coverSkinOffset < 0.0006
+        && binding.boardCornerRadius > 0.004
+        && binding.pageBlockInset > binding.boardCornerRadius * 2
+        && binding.spineEndCapCount === 2
+        && binding.spineEndCapDepth > binding.boardCornerRadius
+        && binding.headbandCount === 2
+      ))
+      && new Set(bindingModels.map((binding) => (
+        JSON.stringify([
+          binding.coverJointInset,
+          binding.coverJointWidth,
+          binding.coverJointDepth,
+          binding.coverSkinOffset
+        ])
+      ))).size === 5,
+    bindingModels
+  );
   check("the runtime reports no browser errors", cdp.errors.length === 0, cdp.errors);
 
   if (screenshotPath) await cdp.screenshot(screenshotPath);

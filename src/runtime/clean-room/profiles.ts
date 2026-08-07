@@ -96,6 +96,12 @@ export interface CleanRoomVolumeProfile {
     readonly headband: readonly [string, string];
     readonly leafDensity: number;
     readonly signatureEvery: number;
+    /** Recessed exterior joints where the two cover boards meet the spine. */
+    readonly coverJoints: {
+      readonly inset: number;
+      readonly width: number;
+      readonly depth: number;
+    };
   };
   readonly material: CleanRoomMaterialProfile;
 }
@@ -123,7 +129,8 @@ export const cleanRoomProfiles = [
       endpaper: "#a49b61",
       headband: ["#18185e", "#d7c568"],
       leafDensity: 1,
-      signatureEvery: 9
+      signatureEvery: 9,
+      coverJoints: { inset: 0.005, width: 0.04, depth: 0.0042 }
     },
     material: {
       shininess: 17,
@@ -169,7 +176,8 @@ export const cleanRoomProfiles = [
       endpaper: "#b6ad8d",
       headband: ["#29435c", "#d9d1ae"],
       leafDensity: 0.78,
-      signatureEvery: 7
+      signatureEvery: 7,
+      coverJoints: { inset: 0.006, width: 0.038, depth: 0.0036 }
     },
     material: {
       shininess: 11,
@@ -215,7 +223,8 @@ export const cleanRoomProfiles = [
       endpaper: "#172737",
       headband: ["#d6b86b", "#243447"],
       leafDensity: 1.24,
-      signatureEvery: 12
+      signatureEvery: 12,
+      coverJoints: { inset: 0.0055, width: 0.0395, depth: 0.0038 }
     },
     material: {
       shininess: 15,
@@ -261,7 +270,8 @@ export const cleanRoomProfiles = [
       endpaper: "#4c1b33",
       headband: ["#f0dfb4", "#6d2949"],
       leafDensity: 0.9,
-      signatureEvery: 8
+      signatureEvery: 8,
+      coverJoints: { inset: 0.0065, width: 0.039, depth: 0.0039 }
     },
     material: {
       shininess: 22,
@@ -307,7 +317,8 @@ export const cleanRoomProfiles = [
       endpaper: "#8a552d",
       headband: ["#26333d", "#ad763b"],
       leafDensity: 0.68,
-      signatureEvery: 6
+      signatureEvery: 6,
+      coverJoints: { inset: 0.0045, width: 0.042, depth: 0.0045 }
     },
     material: {
       shininess: 9,

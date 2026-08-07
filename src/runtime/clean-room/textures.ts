@@ -192,12 +192,15 @@ const createHeadbandTexture = (
   const context = canvas.getContext("2d", { alpha: false });
   if (!context) throw new Error("2D canvas is unavailable for the headband");
   const [first, second] = profile.binding.headband;
-  for (let x = 0; x < canvas.width; x += 4) {
-    context.fillStyle = Math.floor(x / 4) % 2 ? first : second;
-    context.fillRect(x, 0, 4, canvas.height);
+  // Cylinder v follows the headband's long axis. Alternating on canvas-y
+  // makes the tiny cord read as a sewn two-colour band in the head/tail view;
+  // alternating on x produced one solid dark line from that angle.
+  for (let y = 0; y < canvas.height; y += 3) {
+    context.fillStyle = Math.floor(y / 3) % 2 ? first : second;
+    context.fillRect(0, y, canvas.width, 3);
   }
   context.fillStyle = "rgba(0,0,0,.14)";
-  for (let y = 3; y < canvas.height; y += 7) context.fillRect(0, y, canvas.width, 1);
+  for (let x = 3; x < canvas.width; x += 7) context.fillRect(x, 0, 1, canvas.height);
   const texture = new THREE.CanvasTexture(canvas);
   texture.name = `clean-room-${profile.slug}-headband`;
   texture.magFilter = THREE.LinearFilter;

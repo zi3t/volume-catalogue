@@ -1410,7 +1410,7 @@ moving the accepted shelf or section projections.
 and inset at the fore edge; the previous offset did the reverse. Upper and
 lower boards expose cloth on their outer faces and a volume-specific pastedown
 on the faces toward the block. The mapped spine is a twelve-segment shallow
-curve rather than a shaded plane, with separate hinge ridges and striped
+curve rather than a shaded plane, with paired cover joints and striped
 head-and-tail bands. Seeded page-edge maps add leaf and signature rhythms per
 volume. These parts become most legible while a volume turns; they do not add a
 silhouette-changing stock mesh or move the calibrated art planes.
@@ -1457,6 +1457,97 @@ gates, route-light diagnostics, mid-return dominance, settled-flight cleanup,
 and screenshot-space/material measurements pass with zero runtime errors.
 Nothing was deployed; the deployment hold remains.
 
+## Superseded checkpoint — 2026-08-08 paired cover-side ridges
+
+This was the intermediate interpretation. Viet's next review identified the
+features as the recessed exterior joints between the spine and boards, so the
+raised implementation described below was removed.
+
+Viet clarified the placement after the first pass: the requested small raised
+parts sit on **both cover faces beside the spine**, not transversely across the
+spine itself. The erroneous spine bands were removed.
+
+Each clean-room case now carries one rounded longitudinal ridge on the front
+board and a mirrored ridge on the back board, immediately inboard of the bound
+edge. They run the height of the cover, rise above the cover plane, and create
+their own rake highlight and shoulder shadow. The spine remains uninterrupted.
+The front ridge is visible in the upright volume view; the paired back ridge is
+visible when the held book turns to expose the other cover.
+
+The five bindings use individual inset, width, and relief values rather than a
+cloned strip. Relief ranges from `.0026` to `.0035` model units. Both ridges stay
+attached through shelf, held orbit, forward flight, volume view, and return.
+
+Verification: typecheck and site builds pass; the foundation, interaction, and
+routing gates pass on Apple M1 Pro Metal with zero browser errors. Foundation
+asserts two cover hubs, zero spine hubs, positive relief, and five distinct
+profiles. The shelf, held, upright-volume, and return-flight captures were
+inspected. Chrome remained hidden throughout. Nothing deployed.
+
+## Current checkpoint — 2026-08-08 fore-edge and spine-side profile
+
+Viet supplied the specific edge-on reference that the prior binding pass still
+missed. The leaves were present, but square board boxes ended as flat slabs and
+the mapped spine was only a surface, so it disappeared into a dark line when
+viewed along the book's head or tail.
+
+The two boards are now cloth-wrapped cross-sections with a short flat edge
+between softened corners. Their specular response is deliberately rough and
+subdued; the first capture of the new normals produced bright metallic rails,
+which was rejected. The text block remains inset at the three unbound edges and
+flush at the bound edge, so the fine, volume-specific leaf/signature texture is
+the dominant side surface rather than another cover-coloured slab.
+
+The curved spine now closes at both ends with crowned cross-sections. Those
+headcap/tailcap pieces make the bound end visible from an exact quarter-turn
+instead of leaving an open plane. Immediately inside them, the existing
+two-colour headband texture now alternates along the cord's long axis; its old
+UV direction rendered as one solid dark line from this view. The result is the
+same anatomy visible in the supplied reference: rounded upper and lower board
+lips, recessed leaves, a sewn two-colour band, and a shaped outer cap.
+
+The normal hidden-GPU interaction gate now includes exact quarter-turn captures
+with the spine on each side, `desktop-dragged-spine-left.png` and
+`desktop-dragged-spine-right.png`, and asserts the rounded-board radius and both
+spine caps. The supplied reference was captured in a different viewport, so
+comparison uses the hinge region as a proportion of the fore-edge depth rather
+than false full-frame pixel equivalence.
+
+Verification: package typecheck/build, site build, Press worker contract, and
+the foundation, interaction, routing, volume, and complete-journey gates pass
+on Apple M1 Pro Metal with zero browser errors. The exact side capture, landed
+cover, return path, and thrown volume were inspected. Every Chrome instance
+remained hidden. Nothing deployed.
+
+## Current checkpoint — 2026-08-08 recessed cover joints
+
+Viet corrected the construction term and, more importantly, the form: the
+small longitudinal features beside the spine are the exterior cover joints or
+hinge grooves. They sit down into the case where the front and back boards
+meet the spine. They are not raised bands, hubs, or strips on either cover.
+
+The separate convex meshes were removed. Each board body and its outer cover
+skin now follow the same smooth concave cross-section beside the spine. This is
+a structural recess: the substrate no longer stays rectangular beneath the
+cloth and visually fills the joint back in. The front and back joints share the
+same bound-edge position and mirror through the case, leaving a constant cloth
+offset while the rake light reveals a narrow shoulder and shadowed centre.
+Per-volume inset, width, and depth remain distinct; depth ranges from `.0036` to
+`.0045` model units, pressed inward rather than added as the former raised
+relief. A second close side reference corrected the first width estimate: the
+transition spans `.038` to `.042` model units, approximately 4.7–5.4% of each
+fore-edge depth, and its straight clearance from the spine covering is only
+`.0045` to `.0065`. The cover skin also sits `.00045` above the board rather
+than the earlier `.0015`, so the cloth reads as adhered to the recessed board
+instead of floating over it. The depth remains large enough to preserve a real
+silhouette change rather than collapsing into a one-pixel lighting seam.
+
+The runtime diagnostics and gates use `coverJoint*` terminology. Foundation
+requires two recessed cover joints and zero spine hubs; the hidden hardware
+interaction gate checks the joint model in both exact quarter-turn binding
+captures. The recessed leaves, striped head/tail bands, and closed spine caps
+are unchanged.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:
@@ -1473,10 +1564,11 @@ the experiment that settles it. Committed readings live in `docs/reference/`.
 Read the plan before resuming item 1, 2 or 3.
 
 1. **Incremental cover refinement:** the purpose-built case now has a curved
-   spine, hinges, head/tail bands, correct text-block inset, pastedowns, and
-   volume-specific binding treatments. Original cover art remains authored
-   SVG. The next low-risk visual work is a design pass on those five covers; do
-   not import a fixed stock mesh unless the calibrated parametric route/section
+   and end-capped spine, rounded cloth-wrapped boards, paired recessed cover joints,
+   visible striped head/tail bands, correct text-block inset, pastedowns, and
+   volume-specific binding treatments. Original cover art remains authored SVG.
+   The next low-risk visual work is a design pass on those five covers; do not
+   import a fixed stock mesh unless the calibrated parametric route/section
    poses are deliberately reworked.
 2. **Source-proportion silhouette:** the canonical held lower edge and some extreme-angle right-edge slopes remain a few to a few-dozen pixels different from the Poor Charlie references because the genuine ZI3T book is wider and thicker. Do not distort the original artwork merely to erase that difference.
 3. **Real-GPU lighting nuance:** the resting, four-direction, extended-orbit,
@@ -1504,6 +1596,7 @@ Before claiming completion:
 - Inspect `desktop-stack-evacuating` and `desktop-route-stack-clearing`; verify that neighboring volumes move away from the selected index and never intersect its route-flight silhouette.
 - Inspect the four directional drag captures; resting and dragged Re-fly and note captures; and the Arm, Telemetry, and Resume route captures when material, lighting, or detail continuity changes.
 - Inspect `desktop-drag-orbit-up` and `desktop-drag-orbit-reverse` whenever pointer mapping, geometry visibility, or held lighting changes.
+- Inspect `desktop-dragged-spine-left` and `desktop-dragged-spine-right` whenever board, cover-joint, page-block, endband, or spine-cap geometry changes.
 - Inspect the signature and closing terminal captures after scroll choreography changes.
 - Record first load in real time when entry order or delays change; do not infer its smoothness from blocking screenshot calls.
 - Verify focus-visible navigation manually.

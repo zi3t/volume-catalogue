@@ -214,6 +214,85 @@ try {
   );
   await cdp.screenshot(`${screenshotDirectory}/desktop-release-settled.png`);
 
+  // A quarter-turn is the binding-structure view: it should expose the page
+  // block between both boards, the striped endband, the closed spine cap, and
+  // the two cover joints as recesses rather than raised strips. Capture both
+  // rotations so the mirrored spine-side shoulders cannot diverge while
+  // front-cover screenshots continue to pass.
+  await dispatchMouse("mouseMoved", target.x, target.y, { button: "none", buttons: 0 });
+  await dispatchMouse("mousePressed", target.x, target.y, {
+    button: "left",
+    buttons: 1,
+    clickCount: 1
+  });
+  const spineRightPoint = { x: target.x + 524, y: target.y };
+  await dispatchMouse("mouseMoved", spineRightPoint.x, spineRightPoint.y, {
+    button: "none",
+    buttons: 1
+  });
+  const spineRightVisible = await cdp.waitFor(`(() => {
+    const debug = window.__pressCleanRoomDebug?.();
+    const book = debug?.books?.[0];
+    return debug?.state.dragging === true
+      && debug.state.presentation > .85
+      && Math.abs(book.rotation[1] - Math.PI / 2) < .04;
+  })()`, 4_000);
+  const spineRightState = await state();
+  check(
+    "both boards reach the inspectable spine-right binding profile",
+    spineRightVisible
+      && spineRightState?.books?.[0]?.binding?.boardCornerRadius > 0.004
+      && spineRightState.books[0].binding.spineEndCapCount === 2
+      && spineRightState.books[0].binding.coverJointCount === 2
+      && spineRightState.books[0].binding.coverJointDepth > 0
+      && spineRightState.books[0].binding.coverSkinOffset < 0.0006,
+    spineRightState?.books?.[0]
+  );
+  await cdp.screenshot(`${screenshotDirectory}/desktop-dragged-spine-right.png`);
+  await dispatchMouse("mouseReleased", spineRightPoint.x, spineRightPoint.y, {
+    button: "left",
+    buttons: 0,
+    clickCount: 1
+  });
+  await dispatchMouse("mouseMoved", 10, 10, { button: "none", buttons: 0 });
+  await cdp.waitFor(`window.__pressCleanRoomDebug?.().state.returningIndex === -1`, 4_000);
+
+  await dispatchMouse("mouseMoved", target.x, target.y, { button: "none", buttons: 0 });
+  await dispatchMouse("mousePressed", target.x, target.y, {
+    button: "left",
+    buttons: 1,
+    clickCount: 1
+  });
+  const spineLeftPoint = { x: target.x - 524, y: target.y };
+  await dispatchMouse("mouseMoved", spineLeftPoint.x, spineLeftPoint.y, {
+    button: "none",
+    buttons: 1
+  });
+  const spineLeftVisible = await cdp.waitFor(`(() => {
+    const debug = window.__pressCleanRoomDebug?.();
+    const book = debug?.books?.[0];
+    return debug?.state.dragging === true
+      && debug.state.presentation > .85
+      && Math.abs(book.rotation[1] + Math.PI / 2) < .04;
+  })()`, 4_000);
+  const spineLeftState = await state();
+  check(
+    "both boards reach the mirrored spine-left binding profile",
+    spineLeftVisible
+      && spineLeftState?.books?.[0]?.binding?.coverJointCount === 2
+      && spineLeftState.books[0].binding.coverJointInset < 0.007
+      && spineLeftState.books[0].binding.coverJointWidth >= 0.038,
+    spineLeftState?.books?.[0]
+  );
+  await cdp.screenshot(`${screenshotDirectory}/desktop-dragged-spine-left.png`);
+  await dispatchMouse("mouseReleased", spineLeftPoint.x, spineLeftPoint.y, {
+    button: "left",
+    buttons: 0,
+    clickCount: 1
+  });
+  await dispatchMouse("mouseMoved", 10, 10, { button: "none", buttons: 0 });
+  await cdp.waitFor(`window.__pressCleanRoomDebug?.().state.returningIndex === -1`, 4_000);
+
   const flank = { x: 1320, y: target.rowY };
   await dispatchMouse("mouseMoved", flank.x, flank.y, { button: "none", buttons: 0 });
   await dispatchMouse("mousePressed", flank.x, flank.y, {

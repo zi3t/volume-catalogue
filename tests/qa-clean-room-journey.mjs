@@ -133,7 +133,13 @@ try {
 
   const basePitch = desktopBase.books[0].rotation[0];
   await cdp.evaluate("window.scrollTo({ top: innerHeight * .213 * 2, behavior: 'instant' })");
-  await cdp.sleep(32);
+  // A fixed millisecond sleep can observe the scroll listener before hidden
+  // Chrome has presented the corresponding WebGL frame. Wait for two real
+  // animation frames so this samples the fan impulse after the renderer has
+  // consumed it, independent of background-window scheduling.
+  await cdp.evaluate(`new Promise((resolve) => requestAnimationFrame(() => {
+    requestAnimationFrame(resolve);
+  }))`);
   const fan = await state();
   const railIndex = await cdp.evaluate(`Array.from(document.querySelectorAll('.press-rail-item'))
     .findIndex((button) => button.getAttribute('aria-current') === 'true')`);

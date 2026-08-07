@@ -120,6 +120,20 @@ interface CleanRoomDebugSnapshot {
       readonly textureTransform: CleanRoomVolumeProfile["material"]["texture"]["cover"];
       readonly responseSignature: string;
     };
+    readonly binding: {
+      readonly spineSegments: number;
+      readonly coverJointCount: 2;
+      readonly spineHubCount: 0;
+      readonly coverJointInset: number;
+      readonly coverJointWidth: number;
+      readonly coverJointDepth: number;
+      readonly coverSkinOffset: number;
+      readonly boardCornerRadius: number;
+      readonly pageBlockInset: number;
+      readonly spineEndCapCount: 2;
+      readonly spineEndCapDepth: number;
+      readonly headbandCount: 2;
+    };
   }[];
   readonly render: {
     readonly calls: number;
@@ -1239,6 +1253,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
           textureFamily: book.materialModel.cover.textureFamily,
           textureTransform: book.materialModel.cover.textureTransform,
           responseSignature: book.materialModel.cover.responseSignature
+        },
+        binding: {
+          spineSegments: book.bindingModel.spineSegments,
+          coverJointCount: book.bindingModel.coverJointCount,
+          spineHubCount: book.bindingModel.spineHubCount,
+          coverJointInset: book.bindingModel.coverJointInset,
+          coverJointWidth: book.bindingModel.coverJointWidth,
+          coverJointDepth: book.bindingModel.coverJointDepth,
+          coverSkinOffset: book.bindingModel.coverSkinOffset,
+          boardCornerRadius: book.bindingModel.boardCornerRadius,
+          pageBlockInset: book.bindingModel.pageBlockInset,
+          spineEndCapCount: book.bindingModel.spineEndCapCount,
+          spineEndCapDepth: book.bindingModel.spineEndCapDepth,
+          headbandCount: book.bindingModel.headbandCount
         }
       })),
       render: {
