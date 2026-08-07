@@ -28,7 +28,10 @@ const SOFTWARE_RENDERERS = ["swiftshader", "llvmpipe", "softwarerasterizer"];
  * Attaches to a Chrome instance already listening with remote debugging, and
  * opens its own page target so a probe never disturbs a tab someone else is on.
  */
-export async function connect(port = "9226", { width = 1568, height = 894 } = {}) {
+export async function connect(
+  port = "9226",
+  { width = 1568, height = 894, background = true } = {}
+) {
   const version = await fetch(`http://127.0.0.1:${port}/json/version`).then((response) => response.json());
   const socket = new WebSocket(version.webSocketDebuggerUrl);
   await new Promise((resolve, reject) => {
@@ -59,7 +62,15 @@ export async function connect(port = "9226", { width = 1568, height = 894 } = {}
     return new Promise((resolve, reject) => pending.set(id, { resolve, reject, method }));
   };
 
-  const { targetId } = await call("Target.createTarget", { url: "about:blank" });
+  // A foreground target makes every gate pull Chrome over the developer's
+  // current workspace. Keep probe tabs in the background by default; focus
+  // emulation below still gives requestAnimationFrame the deterministic timing
+  // the scene gates need. Callers can opt into a foreground target only when a
+  // person explicitly wants to watch the run.
+  const { targetId } = await call("Target.createTarget", {
+    url: "about:blank",
+    background
+  });
   const { sessionId } = await call("Target.attachToTarget", { targetId, flatten: true });
   const send = (method, params) => call(method, params, sessionId);
 

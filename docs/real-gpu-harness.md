@@ -13,22 +13,52 @@ Everything here is plain shell plus Deno so it runs under any agent harness.
 Every lighting, material, sheen, depth and smoothness observation taken there
 describes SwiftShader, not the scene a visitor sees.
 
-A **headful** window gets the real device. That is the whole fix.
+A **headful** browser gets the real device. The window does not need to become
+frontmost: the clean-room gates launch Chrome hidden, keep their CDP targets in
+the background, and disable background-frame throttling so animation timing
+still describes the scene.
 
 Do not iterate headless GPU flags looking for a combination that works. On macOS
-that search does not converge, and each round costs a review cycle. Go headful.
+that search does not converge, and each round costs a review cycle. Use a
+hidden headful browser for automation and a visible headful browser for manual
+review.
 
 This trap is expensive because it is silent: the page renders, the screenshots
 look plausible, the gate passes, and the conclusions are void.
 
-## Launch
+## Routine clean-room gates
+
+Start the assembled Worker site, then run any package gate directly:
+
+```bash
+npx wrangler dev --port 4173 --ip 127.0.0.1
+
+npm run qa:clean-room
+npm run qa:clean-room:interaction
+npm run qa:clean-room:routing
+npm run qa:clean-room:volume
+npm run qa:clean-room:journey
+```
+
+`tests/run-quiet-gpu-gate.mjs` creates a temporary Chrome profile and random
+debugging port, launches the app with macOS `open -gjn`, and verifies the GL
+renderer before starting the gate. `-j` keeps the app hidden and `-g` avoids
+activation. Background timer, renderer, and occluded-window throttling are
+disabled so requestAnimationFrame remains measurable. The browser and profile
+are removed after the run, including failure paths.
+
+The targets created by `tests/cdp.mjs` use `background: true`, so repeated QA
+runs do not steal keyboard focus or interrupt another application. This is
+still headful Chrome and still real Metal; it is not headless mode.
+
+## Visible manual review
 
 ```bash
 # 1. The site. wrangler is required, not optional: the volume sections are
 #    assembled by the worker, so a plain static server serves an empty document.
 npx wrangler dev --port 4173 --ip 127.0.0.1
 
-# 2. Headful Chrome with remote debugging on its own profile.
+# 2. Visible headful Chrome with remote debugging on its own profile.
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --remote-debugging-port=9226 \
   --user-data-dir=/tmp/zi3t-chrome-gpu \
@@ -37,8 +67,9 @@ npx wrangler dev --port 4173 --ip 127.0.0.1
   about:blank
 ```
 
-The window is visible. That is expected and useful — the person you are working
-for can watch the same frames you are measuring.
+Use this visible instance only when a person wants to watch the frames under
+review or run an exploratory probe. Routine package gates should use the quiet
+launcher above.
 
 `--user-data-dir` keeps this instance separate from the browser someone is
 actually using, so cleanup never closes their tabs. Kill only your own:
@@ -77,6 +108,7 @@ so a run cannot quietly report the wrong thing.
 | 4173 | `npx wrangler dev` | Worker assembles sections; a static server will not do |
 | 9225 | gate Chrome | used by `qa-press-scene.mjs` — **also headful** |
 | 9226 | review Chrome | headful, real GPU |
+| random loopback port | `qa:clean-room*` | hidden headful Chrome, allocated and closed per gate |
 | 8080 | **the user's own server** | never start, stop or assume anything about it |
 
 ## The gate needs the real GPU too

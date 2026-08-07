@@ -20,6 +20,11 @@ npm run typecheck
 npm run build
 npm run check
 npm run build:site
+npm run qa:clean-room
+npm run qa:clean-room:interaction
+npm run qa:clean-room:routing
+npm run qa:clean-room:volume
+npm run qa:clean-room:journey
 ```
 
 - `build` creates a self-contained ES-module library in `dist/`.
@@ -28,6 +33,11 @@ npm run build:site
   `public/press-assets/` in a sibling `zi3t` repository. Set
   `ZI3T_SITE_ROOT=/absolute/path/to/zi3t` when the repositories are not
   siblings.
+- The `qa:clean-room*` commands launch a dedicated hidden, headful Chrome,
+  verify that it is using hardware WebGL, run their gate in a background
+  target, and close it again. They do not activate Chrome or reuse a person's
+  browser profile. The assembled Worker site must already be available at
+  `http://127.0.0.1:4173`.
 - `tests/qa-press-scene.mjs` is the behavioural gate. Run it only through the
   documented [real-GPU harness](docs/real-gpu-harness.md); SwiftShader
   invalidates both rendering and the WebGL assertions.
