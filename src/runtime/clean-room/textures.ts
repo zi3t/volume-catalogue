@@ -16,6 +16,7 @@ export interface CleanRoomSharedTextures {
   readonly clothBump: THREE.Texture;
   readonly glitter: THREE.DataTexture;
   readonly paper: THREE.Texture;
+  readonly paperEdge: THREE.CanvasTexture;
 }
 
 export interface CleanRoomMaterialMaps {
@@ -130,6 +131,42 @@ const createGlitterTexture = (renderer: THREE.WebGLRenderer): THREE.DataTexture 
   return texture;
 };
 
+const createPaperEdgeTexture = (renderer: THREE.WebGLRenderer): THREE.CanvasTexture => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("2D canvas is unavailable for the paper edge");
+  context.fillStyle = "#eee8d3";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  const random = createRandom(0x1eafed9e);
+  for (let y = 2; y < canvas.height; y += 2.5 + random() * 3.5) {
+    context.strokeStyle = random() > 0.76
+      ? "rgba(255,255,250,.48)"
+      : "rgba(116,105,82,.24)";
+    context.lineWidth = random() > 0.9 ? 1.15 : 0.55;
+    context.beginPath();
+    context.moveTo(0, y);
+    context.bezierCurveTo(
+      canvas.width * 0.28,
+      y + (random() - 0.5) * 1.2,
+      canvas.width * 0.72,
+      y + (random() - 0.5) * 1.2,
+      canvas.width,
+      y + (random() - 0.5) * 0.8
+    );
+    context.stroke();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.name = "clean-room-paper-edge";
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  configureTexture(texture, renderer);
+  texture.needsUpdate = true;
+  return texture;
+};
+
 export const createSharedTextures = (
   renderer: THREE.WebGLRenderer,
   invalidate: () => void
@@ -151,7 +188,8 @@ export const createSharedTextures = (
     clothDiffuse,
     clothBump,
     glitter: createGlitterTexture(renderer),
-    paper
+    paper,
+    paperEdge: createPaperEdgeTexture(renderer)
   };
 };
 
@@ -209,9 +247,9 @@ const paintCoverTypography = (
   context.textAlign = "left";
   context.textBaseline = "alphabetic";
   context.globalAlpha = opacity;
-  context.font = `600 ${31 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
+  context.font = `600 ${38 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
   context.fillText(metadata.title, 82 * scale, 142 * scale, width - 164 * scale);
-  context.font = `600 ${15 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+  context.font = `600 ${17 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
   context.globalAlpha = opacity * 0.66;
   context.fillText(metadata.eyebrow.toUpperCase(), 84 * scale, 93 * scale, width - 168 * scale);
   context.globalAlpha = 1;
@@ -243,7 +281,16 @@ const paintCover = (
   resetCanvas(diffuse, canvases.diffuse, profile.cloth);
   withCoverSpace(diffuse, canvases.diffuse, (width, height) => {
     paintCloth(diffuse, width, height, profile.cloth, metadata.serial.charCodeAt(0) * 97);
-    if (artwork) diffuse.drawImage(artwork, 0, 0, width, height);
+    if (artwork) {
+      diffuse.drawImage(artwork, 0, 0, width, height);
+      // The reference holds printed linework through both the route-scale
+      // light rake and the shallow shelf angle. A second translucent pass
+      // gives the original ZI3T drawings the same graphic density without
+      // importing any reference artwork.
+      diffuse.globalAlpha = 0.72;
+      diffuse.drawImage(artwork, 0, 0, width, height);
+      diffuse.globalAlpha = 1;
+    }
     paintCoverTypography(diffuse, metadata, profile.ink);
   });
 
@@ -288,6 +335,7 @@ const paintCover = (
 const paintSpineTypography = (
   context: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
+  profile: CleanRoomVolumeProfile,
   metadata: CleanRoomMetadata,
   color: string,
   opacity = 1
@@ -296,15 +344,26 @@ const paintSpineTypography = (
   context.fillStyle = color;
   context.textBaseline = "middle";
   context.textAlign = "left";
-  context.font = `700 ${22 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+  context.font = `700 ${25 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
   context.globalAlpha = opacity * 0.7;
   context.fillText(metadata.eyebrow.toUpperCase(), 62 * scale, canvas.height / 2);
   context.globalAlpha = opacity;
   context.textAlign = "center";
-  context.font = `500 ${47 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
-  context.fillText(metadata.title, canvas.width * 0.52, canvas.height / 2, canvas.width * 0.56);
+  context.font = `600 ${54 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
+  context.fillText(
+    metadata.title,
+    canvas.width * (profile.spineNote ? 0.46 : 0.52),
+    canvas.height / 2,
+    canvas.width * (profile.spineNote ? 0.4 : 0.56)
+  );
+  if (profile.spineNote) {
+    context.textAlign = "center";
+    context.font = `italic 600 ${29 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
+    context.globalAlpha = opacity * 0.82;
+    context.fillText(profile.spineNote, canvas.width * 0.76, canvas.height / 2);
+  }
   context.textAlign = "right";
-  context.font = `700 ${23 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+  context.font = `700 ${21 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
   context.globalAlpha = opacity * 0.72;
   context.fillText(metadata.serial, canvas.width - 64 * scale, canvas.height / 2);
   context.globalAlpha = 1;
@@ -324,7 +383,7 @@ const paintSpine = (
     profile.cloth,
     metadata.serial.charCodeAt(0) * 131
   );
-  paintSpineTypography(diffuse, canvases.diffuse, metadata, profile.ink);
+  paintSpineTypography(diffuse, canvases.diffuse, profile, metadata, profile.ink);
   const edge = diffuse.createLinearGradient(0, 0, 0, canvases.diffuse.height);
   edge.addColorStop(0, "rgba(255,255,255,.16)");
   edge.addColorStop(0.12, "rgba(255,255,255,0)");
@@ -339,8 +398,8 @@ const paintSpine = (
   resetCanvas(bump, canvases.customBump, "#000000");
   resetCanvas(foil, canvases.foil, "#000000");
   resetCanvas(gloss, canvases.gloss, "#000000");
-  paintSpineTypography(bump, canvases.customBump, metadata, "#ffffff", 0.9);
-  paintSpineTypography(foil, canvases.foil, metadata, "#ffffff", 0.82);
+  paintSpineTypography(bump, canvases.customBump, profile, metadata, "#ffffff", 0.9);
+  paintSpineTypography(foil, canvases.foil, profile, metadata, "#ffffff", 0.3);
   const glossField = gloss.createLinearGradient(0, 0, 0, canvases.gloss.height);
   glossField.addColorStop(0, "#060606");
   glossField.addColorStop(0.5, "#505050");

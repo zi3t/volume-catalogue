@@ -231,7 +231,10 @@ export const createCleanRoomLayeredMaterial = (
     // multiplied it a second time, which was easy to miss on the shelf but
     // made route-scale straw and ochre covers dissolve into their section.
     diffuse: { value: new THREE.Color(0xffffff) },
-    emissive: { value: new THREE.Color(0x000000) },
+    emissive: {
+      value: new THREE.Color(profile.specular)
+        .lerp(new THREE.Color(0x000000), surface === "spine" ? 0.94 : 0.975)
+    },
     specular: { value: new THREE.Color(profile.specular) },
     shininess: { value: profile.shininess },
     opacity: { value: 1 },

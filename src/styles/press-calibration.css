@@ -81,7 +81,7 @@
     transform 420ms var(--press-spring-smooth);
 }
 
-.press-catalog.is-book-dragging .press-hold-caption {
+.press-catalog.is-book-held .press-hold-caption {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition-duration: 220ms, 420ms;
@@ -98,11 +98,11 @@
   transition: opacity 180ms var(--press-ease-shift);
 }
 
-.home-page.press-book-dragging .home-masthead .brand-name {
+.home-page.press-book-held .home-masthead .brand-name {
   opacity: 0;
 }
 
-.home-page.press-book-dragging .home-masthead .brand-mark::before {
+.home-page.press-book-held .home-masthead .brand-mark::before {
   box-shadow:
     inset 3px 0 0 var(--press-held-background),
     inset -3px 0 0 var(--press-held-background),

@@ -44,6 +44,16 @@
   display: block;
 }
 
+/* Displaying the route document replaces the collapsed catalogue hero. Chrome
+   must not compensate that mode switch by choosing the newly visible detail
+   column as a scroll anchor; the route controller owns the selected section's
+   exact scroll position. */
+html[data-press-renderer="clean-room"].press-volumes-open,
+html[data-press-renderer="clean-room"].press-volumes-open body,
+html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
+  overflow-anchor: none;
+}
+
 /* The hero is one viewport of in-flow height the volumes document has no use
    for — it only stays in the DOM, pinned, because it holds the canvas that
    draws the volumes. Taking its height away starts volume one at offset 0, the
@@ -285,6 +295,127 @@
   opacity: 0.82;
 }
 
+.press-volume-kicker,
+.press-volume-actions,
+.press-volume-meta {
+  display: none;
+}
+
+/* The clean-room route uses the selected cover's authored cloth as one
+   continuous surface. These values are scoped so the accepted renderer and
+   the no-WebGL document retain their established palette. */
+html[data-press-renderer="clean-room"] .press-volume-section--refly {
+  --press-volume-bg: #c1b676;
+  --press-volume-ink: #18185e;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-section--arm {
+  --press-volume-bg: #d9d1ae;
+  --press-volume-ink: #29435c;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-section--telemetry {
+  --press-volume-bg: #243447;
+  --press-volume-ink: #e7e7df;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-section--practice {
+  --press-volume-bg: #6d2949;
+  --press-volume-ink: #f0dfb4;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-section--field-notes {
+  --press-volume-bg: #ad763b;
+  --press-volume-ink: #26333d;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-kicker {
+  display: block;
+  margin: 0 0 0.75rem;
+  font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-actions {
+  display: flex;
+  margin: 1.1rem 0 0;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-actions a {
+  display: inline-block;
+  padding: 0.62rem 0.9rem 0.58rem;
+  border: 1px solid currentColor;
+  color: inherit;
+  font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-actions a:hover,
+html[data-press-renderer="clean-room"] .press-volume-actions a:focus-visible {
+  color: var(--press-volume-bg);
+  background: var(--press-volume-ink);
+}
+
+html[data-press-renderer="clean-room"] .press-volume-meta {
+  display: grid;
+  max-width: 27rem;
+  margin: clamp(1.75rem, 4vh, 2.75rem) 0 0;
+  border-top: 1px solid currentColor;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-meta div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid currentColor;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
+  margin: 0;
+  font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 901px) {
+  html[data-press-renderer="clean-room"] .press-volume-stage {
+    grid-template-columns: minmax(0, 1.23fr) minmax(0, 1fr);
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-figure {
+    align-self: center;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-detail {
+    align-self: start;
+    padding-top: 3.1svh;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-kicker {
+    display: none;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-title {
+    max-width: 17ch;
+    font-size: clamp(30px, 2.45vw, 38px);
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-summary {
+    max-width: 31ch;
+    margin-top: 0.45em;
+    font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+    font-size: clamp(16px, 1.25vw, 19px);
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.35;
+    opacity: 1;
+  }
+}
+
 /* The genuine page's own content, given the section's colours. */
 .press-volume-content {
   max-width: 62rem;
@@ -400,5 +531,24 @@
 
   .press-volume-section {
     padding-bottom: 24svh;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-detail {
+    padding-top: 0;
+    padding-inline: 30px;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-title {
+    font-size: clamp(30px, 10vw, 40px);
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-summary {
+    margin-top: 0.45em;
+    font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+    font-size: 17px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.4;
+    opacity: 1;
   }
 }

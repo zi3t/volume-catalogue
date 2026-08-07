@@ -15,6 +15,9 @@ const check = (name, passed, details = undefined) => {
 };
 
 const state = () => cdp.evaluate("window.__pressCleanRoomDebug?.()");
+const within = (actual, expected, tolerance) => (
+  Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance
+);
 const dispatchMouse = (type, x, y, options = {}) => cdp.send("Input.dispatchMouseEvent", {
   type,
   x,
@@ -47,15 +50,20 @@ try {
     Math.abs(book.position[2] - book.homePosition[2]) < .02
   ))`, 4_000);
   const base = await state();
+  const baseBounds = base?.books?.[0]?.screenBounds;
   check(
-    "all five books park on their semantic homes after entry",
+    "all five books settle on the calibrated shelf after entry",
     base?.books?.length === 5 && base.books.every((book) => (
-      Math.abs(book.position[1] - book.homePosition[1]) < 0.02
+      Math.abs(book.position[0] - book.homePosition[0]) < 0.02
       && Math.abs(book.position[2] - book.homePosition[2]) < 0.02
       && Math.abs(book.scale - book.homeScale) < 0.02
       && book.opacity > 0.999
-    )),
-    base?.books
+    ))
+      && within(baseBounds?.left, 394, 8)
+      && within(baseBounds?.top, 332, 8)
+      && within(baseBounds?.width, 780, 8)
+      && within(baseBounds?.height, 128, 8),
+    { books: base?.books, referenceBounds: { left: 394, top: 332, width: 780, height: 128 } }
   );
   await cdp.screenshot(`${screenshotDirectory}/desktop-base.png`);
 
@@ -115,7 +123,9 @@ try {
     belowThreshold?.state
   );
 
-  const dragPoint = { x: target.x + 180, y: target.y - 150 };
+  // This is the matched live-reference gesture used for the canonical held
+  // silhouette capture. Keep the pointer delta coupled to that evidence.
+  const dragPoint = { x: target.x + 140, y: target.y - 62 };
   await dispatchMouse("mouseMoved", dragPoint.x, dragPoint.y, {
     button: "none",
     buttons: 1
@@ -126,10 +136,11 @@ try {
     return debug?.state.dragging === true
       && debug.state.presentation > .85
       && debug.state.backdrop > .9
-      && rotation[0] < -.35
-      && rotation[1] > .42;
+      && rotation[0] < -.15
+      && rotation[1] > .38;
   })()`, 4_000);
   const dragState = await state();
+  const dragBounds = dragState?.books?.[0]?.screenBounds;
   const dragDom = await cdp.evaluate(`(() => ({
     path: location.pathname + location.search,
     stage: document.querySelector('.press-catalog').classList.contains('is-book-dragging'),
@@ -138,8 +149,18 @@ try {
   }))()`);
   check(
     "drag maps pointer travel into the held orbit and presentation backdrop",
-    dragged && dragDom.stage && dragDom.body,
-    { state: dragState?.state, rotation: dragState?.books?.[0]?.rotation, dom: dragDom }
+    dragged && dragDom.stage && dragDom.body
+      && within(dragBounds?.left, 345, 10)
+      && within(dragBounds?.top, 284, 10)
+      && within(dragBounds?.width, 906, 10)
+      && within(dragBounds?.height, 213, 10),
+    {
+      state: dragState?.state,
+      rotation: dragState?.books?.[0]?.rotation,
+      screenBounds: dragBounds,
+      referenceBounds: { left: 340, top: 285, width: 904, height: 214 },
+      dom: dragDom
+    }
   );
   check(
     "the held caption occupies the presentation and the catalogue URL stays put",
@@ -168,6 +189,7 @@ try {
     { state: releaseEarly?.state, rotation: releaseEarly?.books?.[0]?.rotation }
   );
 
+  await dispatchMouse("mouseMoved", 10, 10, { button: "none", buttons: 0 });
   const returned = await cdp.waitFor(`(() => {
     const debug = window.__pressCleanRoomDebug?.();
     const book = debug?.books?.[0];
@@ -175,13 +197,18 @@ try {
       && debug.state.isolation < .01
       && debug.state.presentation < .01
       && debug.state.backdrop < .01
-      && Math.abs(book.rotation[0] - .052) < .015
+      && debug.state.focusIndex === 0
+      && Math.abs(book.rotation[0] + .005) < .015
       && Math.abs(book.rotation[1]) < .015
-      && Math.abs(book.position[1] - book.homePosition[1]) < .03;
+      && Math.abs((book.position[2] - book.homePosition[2]) - 3.2) < .05
+      && Math.abs(book.screenBounds.left - 380) < 8
+      && Math.abs(book.screenBounds.top - 337) < 8
+      && Math.abs(book.screenBounds.width - 808) < 8
+      && Math.abs(book.screenBounds.height - 133) < 8;
   })()`, 4_000);
   const returnedState = await state();
   check(
-    "release reverses rotation and stack evacuation to the shelf",
+    "release reverses rotation and stack evacuation to the focused shelf pose",
     returned,
     returnedState?.books?.[0]
   );

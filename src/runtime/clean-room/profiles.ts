@@ -42,6 +42,7 @@ export interface CleanRoomVolumeProfile {
   readonly depthRatio: number;
   readonly shelfPitch: number;
   readonly shelfRoll: number;
+  readonly spineNote?: string;
   readonly drag: {
     readonly revealPitch: number;
     readonly verticalResponse: number;
@@ -94,6 +95,7 @@ export const cleanRoomProfiles = [
     depthRatio: 0.815,
     shelfPitch: 0.048,
     shelfRoll: -0.001,
+    spineNote: "Field guide",
     drag: { revealPitch: 0.04, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 2.6,
@@ -122,6 +124,7 @@ export const cleanRoomProfiles = [
     depthRatio: 0.826,
     shelfPitch: 0.046,
     shelfRoll: 0.001,
+    spineNote: "Run 04",
     drag: { revealPitch: 0.035, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 3.8,
@@ -150,6 +153,7 @@ export const cleanRoomProfiles = [
     depthRatio: 0.803,
     shelfPitch: 0.051,
     shelfRoll: -0.0015,
+    spineNote: "Methods",
     drag: { revealPitch: 0.045, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 5.4,
@@ -178,6 +182,7 @@ export const cleanRoomProfiles = [
     depthRatio: 0.78,
     shelfPitch: 0.053,
     shelfRoll: 0.001,
+    spineNote: "Revised",
     drag: { revealPitch: 0.05, verticalResponse: 1.3, yawResponse: 1 },
     material: {
       shininess: 2.2,

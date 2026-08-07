@@ -314,6 +314,7 @@ try {
   await setViewport(390, 844);
   const compactReady = await loadCatalogue();
   const compactBase = await state();
+  const compactBounds = compactBase?.books?.[0]?.screenBounds;
   const compactDom = await cdp.evaluate(`(() => {
     const link = document.querySelector('.press-volume');
     link.dispatchEvent(new PointerEvent('pointerdown', {
@@ -344,13 +345,20 @@ try {
       && Math.abs(compactDom.mainHeight - 1604) <= 2
       && compactDom.firstTop >= 270 && compactDom.firstTop <= 292
       && compactDom.secondTop >= 468 && compactDom.secondTop <= 490
+      && Math.abs(compactBounds?.top - 278) <= 8
+      && Math.abs(compactBounds?.width - 432) <= 10
+      && Math.abs(compactBounds?.height - 180) <= 8
       && compactDom.visibleBooks === 3
       && !compactDom.held
       && !compactDom.dragging
       && compactDom.railDisplay === "none"
       && compactDom.captionDisplay === "none"
       && compactDom.terminalDisplay === "none",
-    compactDom
+    {
+      ...compactDom,
+      screenBounds: compactBounds,
+      referenceVisibleBounds: { left: 0, top: 277, width: 390, height: 182 }
+    }
   );
   const compactFramesBefore = compactBase.render.presentedFrames;
   await cdp.sleep(600);
@@ -396,13 +404,23 @@ try {
       columns: getComputedStyle(document.querySelector('.press-volume-stage')).gridTemplateColumns
     };
   })()`);
+  const compactVolumeState = await state();
+  const compactVolumeBounds = compactVolumeState?.books?.[0]?.screenBounds;
   check(
-    "a compact pick opens the same single-column live-volume document",
+    "a compact pick opens the matched single-column live-volume document",
     compactVolumeReady
       && Math.abs(compactVolume.sectionTop) <= 2
       && compactVolume.figureWidth >= 340
-      && compactVolume.columns.split(" ").length === 1,
-    compactVolume
+      && compactVolume.columns.split(" ").length === 1
+      && Math.abs(compactVolumeBounds?.left - 35) <= 8
+      && Math.abs(compactVolumeBounds?.top - 89) <= 8
+      && Math.abs(compactVolumeBounds?.width - 323) <= 10
+      && Math.abs(compactVolumeBounds?.height - 408) <= 10,
+    {
+      ...compactVolume,
+      screenBounds: compactVolumeBounds,
+      referenceBounds: { left: 35, top: 89, width: 323, height: 408 }
+    }
   );
   await cdp.screenshot(`${screenshotDirectory}/compact-volume.png`);
 

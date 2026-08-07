@@ -30,7 +30,7 @@ export const createCleanRoomBook = (
   const square = 0.014;
 
   const clothMaterial = new THREE.MeshPhongMaterial({
-    color: new THREE.Color(profile.cloth).multiplyScalar(0.82),
+    color: new THREE.Color(profile.cloth).multiplyScalar(0.96),
     bumpMap: shared.clothBump,
     bumpScale: profile.material.bump.base * 0.3,
     specular: new THREE.Color(profile.material.specular),
@@ -50,12 +50,24 @@ export const createCleanRoomBook = (
     map: shared.paper,
     color: 0xe8e2ca,
     specular: 0x181818,
-    shininess: 4
+    shininess: 4,
+    emissive: 0x14120c
+  });
+  const pageEdgeMaterial = new THREE.MeshPhongMaterial({
+    map: shared.paperEdge,
+    bumpMap: shared.paperEdge,
+    bumpScale: 0.0025,
+    color: 0xffffff,
+    specular: 0x26231c,
+    shininess: 2,
+    emissive: 0x16140e
   });
   const endpaperMaterial = new THREE.MeshPhongMaterial({
-    color: new THREE.Color(profile.cloth).lerp(new THREE.Color(profile.ink), 0.18),
-    specular: 0x101010,
-    shininess: 3
+    map: surfaces.cover.customDiffuse,
+    color: 0xd8d3bc,
+    emissive: new THREE.Color(profile.cloth).multiplyScalar(0.2),
+    specular: new THREE.Color(profile.material.specular).multiplyScalar(0.28),
+    shininess: Math.max(2, profile.material.shininess * 0.65)
   });
 
   const pageGeometry = new THREE.BoxGeometry(
@@ -67,7 +79,14 @@ export const createCleanRoomBook = (
   const coverGeometry = new THREE.PlaneGeometry(width, depth);
   const spineGeometry = new THREE.PlaneGeometry(width, thickness);
 
-  const pages = new THREE.Mesh(pageGeometry, pageMaterial);
+  const pages = new THREE.Mesh(pageGeometry, [
+    pageEdgeMaterial,
+    pageEdgeMaterial,
+    pageMaterial,
+    pageMaterial,
+    pageEdgeMaterial,
+    pageEdgeMaterial
+  ]);
   pages.position.z = -square * 0.5;
 
   const upperBoard = new THREE.Mesh(boardGeometry, clothMaterial);
@@ -98,6 +117,7 @@ export const createCleanRoomBook = (
     coverLayer.material,
     spineLayer.material,
     pageMaterial,
+    pageEdgeMaterial,
     endpaperMaterial
   ];
   materials.forEach((material) => {

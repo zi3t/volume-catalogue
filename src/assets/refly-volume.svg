@@ -5,6 +5,17 @@
        its height. No background: the scene paints the volume's cloth and threads
        underneath, and a filled rect here would cover them. -->
   <g fill="none" stroke="#292a74" stroke-linecap="round">
+    <!-- Dense recorder field: the cover reads as a full instrument rather than
+         one diagram floating in its centre. The irregular spans are seeded,
+         authored event intervals—not a borrowed image. -->
+    <g opacity=".22" stroke-width="1.8">
+      <path d="M112 198V898M142 228V864M172 182V912M202 246V842M232 206V884M262 174V920M292 236V856M322 194V900M352 218V874M382 180V914M412 244V846M442 204V890M472 172V922M502 232V860M532 190V904M562 220V878M592 184V916M622 240V850M652 202V892M682 176V918"/>
+      <path d="M96 254H704M96 302H704M96 350H704M96 750H704M96 834H704M96 882H704" stroke-dasharray="3 7"/>
+    </g>
+    <g opacity=".28" stroke-width="3.2">
+      <path d="M96 286C152 248 196 326 252 286S354 246 410 286 512 328 568 286 648 250 704 286"/>
+      <path d="M96 844C158 808 202 874 264 844S370 808 432 844 536 878 598 844 666 822 704 844"/>
+    </g>
     <g opacity=".24" stroke-width="1.4">
       <path d="M96 402H704M96 502H704M96 602H704M96 702H704"/>
       <path d="M200 372V732M320 372V732M440 372V732M560 372V732"/>

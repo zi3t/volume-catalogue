@@ -48,8 +48,14 @@ export const renderVolumeSection = (
   <div class="press-volume-stage">
     <div class="press-volume-figure" aria-hidden="true"></div>
     <div class="press-volume-detail">
+      <p class="press-volume-kicker">${escapeHtml(volume.spine.eyebrow)}</p>
       <h2 class="press-volume-title" id="volume-${escapeHtml(volume.slug)}-title">${escapeHtml(volume.title)}</h2>
       <p class="press-volume-summary">${escapeHtml(volume.description)}</p>
+      <p class="press-volume-actions"><a href="${escapeHtml(volume.contentPath)}">Open ${escapeHtml(volume.routeMode)} page</a></p>
+      <dl class="press-volume-meta">
+        <div><dt>Volume</dt><dd>${escapeHtml(volume.spine.serial)}</dd></div>
+        <div><dt>Format</dt><dd>${escapeHtml(volume.routeMode)}</dd></div>
+      </dl>
     </div>
   </div>
   <div class="press-volume-content">${content}</div>

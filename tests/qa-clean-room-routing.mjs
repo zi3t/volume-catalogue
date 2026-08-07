@@ -101,7 +101,30 @@ try {
       && Math.abs(book.rotation[1] - expectedYaw) < .015;
   })()`, 5_000);
   const landedState = await state();
-  check("the picked book lands in its live figure column", landed, landedState?.books?.[0]);
+  const landedLayout = await cdp.evaluate(`(() => {
+    const figure = document.querySelector('.press-volume-figure').getBoundingClientRect();
+    const detail = document.querySelector('.press-volume-detail').getBoundingClientRect();
+    return {
+      figure: { left: figure.left, top: figure.top, width: figure.width, height: figure.height },
+      detail: { left: detail.left, top: detail.top, width: detail.width, height: detail.height }
+    };
+  })()`);
+  const landedBounds = landedState?.books?.[0]?.screenBounds;
+  check(
+    "the picked book lands in the matched live figure column",
+    landed
+      && Math.abs(landedBounds?.left - 296) <= 10
+      && Math.abs(landedBounds?.top - 167) <= 10
+      && Math.abs(landedBounds?.width - 447) <= 10
+      && Math.abs(landedBounds?.height - 554) <= 10
+      && Math.abs(landedLayout.detail.left - 886) <= 12,
+    {
+      book: landedState?.books?.[0],
+      layout: landedLayout,
+      referenceBounds: { left: 295, top: 167, width: 447, height: 554 },
+      referenceDetailLeft: 886
+    }
+  );
   await cdp.screenshot(`${screenshotDirectory}/route-landed-refly.png`);
 
   const sectionGeometry = await cdp.evaluate(`Array.from(
@@ -182,7 +205,7 @@ try {
       && debug?.state.mode === "catalogue"
       && Math.abs(scrollY - 180) <= 1
       && debug.books.every((book, index) => (
-        Math.abs(book.position[1] - book.homePosition[1]) < .04
+        Math.abs((book.position[1] - book.homePosition[1]) - .2422) < .04
         && (
           index === debug.state.hoverIndex
           || Math.abs(book.position[2] - book.homePosition[2]) < .04
@@ -194,7 +217,9 @@ try {
   check(
     "browser Back restores the catalogue offset and shelf pose",
     backHome
-      && homeState?.books?.every((book) => Math.abs(book.position[1] - book.homePosition[1]) < .04),
+      && homeState?.books?.every((book) => (
+        Math.abs((book.position[1] - book.homePosition[1]) - .2422) < .04
+      )),
     {
       address: await cdp.evaluate("location.pathname + location.search"),
       scrollY: await cdp.evaluate("scrollY"),
