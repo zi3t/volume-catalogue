@@ -1,0 +1,70 @@
+{
+  "measuredAt": "2026-08-08",
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+  "software": false,
+  "build": "post section-6 retune (43a9f79 feat(press): crown the spine and re-level the cloth overlay)",
+  "note": "Screenshot-space book silhouettes come from differencing canvas-shown against canvas-hidden captures, so a book edge that shades toward the ground colour drops out of the mask. Projected bounds come from projectedBookBounds via __pressCleanRoomDebug and are pure geometry, unaffected by material.",
+
+  "compactRoute": {
+    "purpose": "Handoff item 4 — the last unverified parity row. compact.standing existed as a state in measure-visual-parity.mjs but had no entry in RECORDED.",
+    "viewport": [390, 844],
+    "referencePath": "/boom",
+    "candidatePath": "/press/refly/",
+    "reference": {
+      "book": { "left": 50, "top": 89, "width": 308, "height": 407, "pixels": 99165 },
+      "content": { "left": 18, "top": 339, "width": 340, "height": 505, "pixels": 13218 },
+      "ground": "rgb(77, 26, 40)"
+    },
+    "candidate": {
+      "book": { "left": 57, "top": 92, "width": 277, "height": 405, "pixels": 77147 },
+      "content": { "left": 31, "top": 343, "width": 305, "height": 500, "pixels": 11360 },
+      "ground": "rgb(193, 182, 118)"
+    },
+    "delta": { "left": 7, "top": 3, "width": -31, "height": -2 },
+    "verdicts": {
+      "bookBottomEdge": "REFUTES audit:150. Reference book bottom lands at y=496 (89+407); ours at y=497 (92+405). The audit claimed the reference finishes near y=498 while ours begins lower. Vertical placement is at parity within 3px.",
+      "headlineCollision": "REFUTES audit:104 as a defect. Content block starts at y=343 against the reference's y=339, a 4px difference. Both sides overlap the book's vertical span in bounding-box terms because the left rail runs alongside the book; that is the reference's own composition, not a clean-room fault.",
+      "width": "OPEN — see the standingSilhouetteRegression block. Our measured width is 31px narrow, but the same measurement collapsed on desktop between the pre-retune and post-retune builds, so this number is contaminated and is not yet evidence of a pose error."
+    }
+  },
+
+  "standingSilhouetteRegression": {
+    "finding": "The section 6 retune shrank the measured standing-route silhouette. The previous session scored only the rest case and never re-ran the parity harness, so this was not visible to it.",
+    "desktopStanding": {
+      "reference": { "left": 305, "top": 166, "width": 437, "height": 555 },
+      "preRetune": { "left": 296, "top": 167, "width": 449, "height": 555, "pixels": 224809, "source": "screenshot-parity-readings-20260807.json, 2026-08-07T00:54Z", "delta": { "left": -9, "top": 1, "width": 12, "height": 0 } },
+      "postRetune": { "left": 320, "top": 175, "width": 386, "height": 547, "pixels": 139651, "delta": { "left": 15, "top": 9, "width": -51, "height": -8 } },
+      "pixelLoss": "224809 -> 139651, a 37.9% loss of detected silhouette"
+    },
+    "desktopFirstRestBook": {
+      "preRetune": { "pixels": 97946 },
+      "postRetune": { "pixels": 97946, "maskFill": 0.9785 },
+      "note": "Unchanged. The collapse is specific to the standing route, where the cover faces the camera, and does not appear on the rest case, which is ~85% spine."
+    },
+    "geometryIsUnchanged": {
+      "compactRouteProjectedBounds": { "left": 27.44, "top": 89.15, "width": 340.31, "height": 408 },
+      "note": "Identical to the figure the previous session recorded at scene-contract.md:1387, and projected bounds are pure geometry. The pose did not move; the shading at the silhouette edge did."
+    },
+    "reproducibility": {
+      "postRetune": [[386, 547, 139641], [364, 549, 123421], [373, 550, 126191]],
+      "preRetuneRebuilt": [[449, 555, 224809], [432, 557, 216630], [449, 555, 224809]],
+      "note": "Width and height in px, then pixel count. The harness is noisy at +/-22px on width because the reference-side idle pause makes route capture a race, and one run in six returned book: null. The retune gap is several times that noise on width and roughly 40% on pixel count, so the regression is not capture variance. The pre-retune figures are a fresh rebuild-and-measure on today's server, not a re-read of the 2026-08-07 file, and they reproduce it exactly."
+    },
+    "bisect": {
+      "method": "Single-lever reverts against the committed retune, each with the full build pair (package build:site, then the root Astro build) and three measurement runs.",
+      "results": [
+        { "config": "pre-retune: cover crown 0.12x, old baseDiffuseStrength", "width": 449, "pixels": 224809 },
+        { "config": "committed retune: both new", "width": 375, "pixels": 130000, "note": "mean of three noisy runs" },
+        { "config": "A — cover crown set to 0, retuned diffuse kept", "width": 424, "pixels": 148712 },
+        { "config": "B — cover crown kept at 0.12x, baseDiffuseStrength reverted", "width": 385, "pixels": 149266 }
+      ],
+      "conclusion": "Neither lever owns the regression alone. The cover crown owns most of the width loss (A recovers 375 -> 424 of a 449 baseline); both levers recover pixel count only to ~149k against a 224k baseline, so they interact. The mask is losing both its outer edge and interior area.",
+      "cause": "The retune was authored and scored entirely against desktop.firstRestBook, which the previous session established is ~85% spine. Its cover-side consequences were never measured. The cover carries 12% of a crown whose shape was derived for a round spine, and an overlay contrast authored to raise spine weave. On the standing route the cover is the dominant surface, so both land at full strength on a surface neither was tuned for."
+    },
+    "notARegressionIn": {
+      "desktopFirstRestBook": "px 97946 before and after, mask fill 0.9785",
+      "geometry": "projected bounds unchanged at 340.31 wide on the compact route",
+      "gates": "all five clean-room gates return the same verdicts as the previous session recorded"
+    }
+  }
+}
