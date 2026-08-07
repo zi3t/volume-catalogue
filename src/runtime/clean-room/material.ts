@@ -25,6 +25,14 @@ export interface CleanRoomLayeredMaterial {
   readonly diagnostics: CleanRoomMaterialDiagnostics;
 }
 
+/**
+ * Mean luminance of the shared cloth scan, measured off the asset
+ * (`polyhaven-book-pattern-colour-1k.jpg`, mean 60.4/255, sd 18.0). The overlay
+ * re-level is mean-neutral only while this matches the map it levels, so it
+ * moves if that asset is ever replaced.
+ */
+const BASE_DIFFUSE_LEVEL = 0.237;
+
 const MAP_NAMES = [
   "base-diffuse",
   "custom-diffuse",
@@ -47,9 +55,12 @@ uniform sampler2D glitterMap;
 uniform vec2 baseMapScale;
 uniform vec2 glitterMapScale;
 uniform float baseDiffuseStrength;
+uniform float baseDiffuseLevel;
+uniform float baseDiffuseContrast;
 uniform float bumpScaleBase;
 uniform float bumpScaleCustom;
 uniform float effectReliefSuppression;
+uniform float surfaceCurvature;
 uniform float reflectiveness;
 
 uniform vec3 foilColorA;
@@ -120,12 +131,32 @@ const CUSTOM_DIFFUSE = /* glsl */`
 vec3 baseDiffuseSample = texture2D( diffuseMapBase, vMapUv * baseMapScale ).rgb;
 vec4 customDiffuseSample = texture2D( diffuseMapCustom, vMapUv );
 float baseLuminance = dot( baseDiffuseSample, vec3( 0.2126, 0.7152, 0.0722 ) );
-float diffuseDetail = clamp(
-  1.0 + ( baseLuminance - 0.5 ) * 2.0 * baseDiffuseStrength,
-  0.62,
-  1.38
+
+// Re-level the scan to mid grey before blending. The cloth scan means 0.237,
+// so a raw overlay would take the base<0.5 branch almost everywhere and halve
+// every cover — the same failure the 2026-07-29 pass fixed for the legacy
+// renderer's canvas composite ("a luminosity composite pulls the cloth's
+// brightness toward the scan's darker mean"). This is the shader-side form:
+// additive, so it preserves the scan's absolute variation, with
+// baseDiffuseContrast as the authored gain on it.
+float leveledBase = clamp(
+  0.5 + ( baseLuminance - baseDiffuseLevel ) * baseDiffuseContrast,
+  0.0,
+  1.0
 );
-diffuseColor *= vec4( customDiffuseSample.rgb * diffuseDetail, customDiffuseSample.a );
+
+// Overlay curve, scalar scan against the authored RGB. The base stays a scalar
+// on purpose: the scan carries a colour cast, and blending it per channel
+// turns every volume olive regardless of its own cloth hue.
+vec3 overlaid = mix(
+  2.0 * leveledBase * customDiffuseSample.rgb,
+  1.0 - 2.0 * ( 1.0 - leveledBase ) * ( 1.0 - customDiffuseSample.rgb ),
+  step( 0.5, leveledBase )
+);
+diffuseColor *= vec4(
+  mix( customDiffuseSample.rgb, overlaid, baseDiffuseStrength ),
+  customDiffuseSample.a
+);
 
 float foilCoverage = cleanRoomMask( foilMap, vMapUv );
 float glossCoverage = cleanRoomMask( glossMap, vMapUv );
@@ -163,6 +194,21 @@ normal = normalize( mix(
   nonPerturbedNormal,
   clamp( finishedCoverage * effectReliefSuppression, 0.0, 0.72 )
 ) );
+
+// A bound spine is round. The reference's spine reads bright along its crown and
+// falls away at both edges because it is a curved surface; ours is a plane, and
+// a plane under fixed lights shades uniformly — which is most of why our case
+// has half the reference's tonal spread. Bend the shading normal across the
+// short axis through the same derivative frame the relief uses, so it stays
+// correct as the volume rotates and leaves geometry and silhouette untouched.
+// Applied after the suppression mix on purpose: this is the shape of the board
+// under the cloth, so a foil or gloss mask must not flatten it.
+normal = cleanRoomPerturbNormal(
+  -vViewPosition,
+  normal,
+  vec2( 0.0, surfaceCurvature * ( 0.5 - vMapUv.y ) ),
+  faceDirection
+);
 
 vec3 viewDirection = normalize( vViewPosition );
 float foilSweep = 0.5 + 0.5 * sin(
@@ -253,9 +299,18 @@ export const createCleanRoomLayeredMaterial = (
       value: surface === "cover" ? new THREE.Vector2(2.4, 2.8) : new THREE.Vector2(6.4, 1.2)
     },
     baseDiffuseStrength: { value: profile.baseDiffuseStrength },
+    // Measured mean luminance of polyhaven-book-pattern-colour-1k.jpg
+    // (60.4/255). The re-level is only mean-neutral if this tracks the map, so
+    // it belongs here rather than as a literal in the blend.
+    baseDiffuseLevel: { value: BASE_DIFFUSE_LEVEL },
+    baseDiffuseContrast: { value: profile.baseDiffuseContrast },
     bumpScaleBase: { value: profile.bump.base },
     bumpScaleCustom: { value: profile.bump.custom },
     effectReliefSuppression: { value: 0.68 },
+    // The spine carries the crown; the cover is genuinely flat between its
+    // boards, so it gets only enough to keep the board edge from reading as a
+    // printed sheet.
+    surfaceCurvature: { value: surface === "spine" ? profile.spineCrown : profile.spineCrown * 0.12 },
     reflectiveness: { value: profile.reflectiveness },
     foilColorA: { value: new THREE.Color(profile.foil.colors[0]) },
     foilColorB: { value: new THREE.Color(profile.foil.colors[1]) },
@@ -305,7 +360,12 @@ export const createCleanRoomLayeredMaterial = (
         profile.bump.custom,
         profile.foil.opacity,
         profile.gloss.opacity,
-        profile.glitter.opacity
+        profile.glitter.opacity,
+        // The overlay made these two authored per volume, so they belong in the
+        // signature the foundation gate counts — a behaviour change earns the
+        // assertion rather than riding on the old fields staying distinct.
+        profile.baseDiffuseStrength,
+        profile.baseDiffuseContrast
       ].join("/")
     }
   };

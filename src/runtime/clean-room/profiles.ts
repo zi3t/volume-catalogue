@@ -8,7 +8,12 @@ export interface CleanRoomMaterialProfile {
   readonly shininess: number;
   readonly specular: string;
   readonly reflectiveness: number;
+  /** Mix weight toward the cloth-overlaid diffuse, 0 = authored art only. */
   readonly baseDiffuseStrength: number;
+  /** Authored gain on the re-levelled cloth scan before the overlay. */
+  readonly baseDiffuseContrast: number;
+  /** Shading-normal crown across the spine's short axis; a bound spine is round. */
+  readonly spineCrown: number;
   readonly bump: {
     readonly base: number;
     readonly custom: number;
@@ -69,10 +74,12 @@ export const cleanRoomProfiles = [
     shelfRoll: 0.0015,
     drag: { revealPitch: 0.03, verticalResponse: 1.3, yawResponse: 1 },
     material: {
-      shininess: 4.2,
+      shininess: 17,
       specular: "#ffffff",
-      reflectiveness: 0.16,
-      baseDiffuseStrength: 0.24,
+      reflectiveness: 0.32,
+      baseDiffuseStrength: 0.64,
+      baseDiffuseContrast: 4.4,
+      spineCrown: 0.89,
       bump: { base: 0.014, custom: 0.022 },
       foil: {
         colors: ["#7775c5", "#d7c568"],
@@ -98,10 +105,12 @@ export const cleanRoomProfiles = [
     spineNote: "Field guide",
     drag: { revealPitch: 0.04, verticalResponse: 1.3, yawResponse: 1 },
     material: {
-      shininess: 2.6,
+      shininess: 11,
       specular: "#dfe5e4",
-      reflectiveness: 0.08,
-      baseDiffuseStrength: 0.3,
+      reflectiveness: 0.16,
+      baseDiffuseStrength: 0.74,
+      baseDiffuseContrast: 4.8,
+      spineCrown: 0.99,
       bump: { base: 0.018, custom: 0.016 },
       foil: {
         colors: ["#718ca2", "#dfe7df"],
@@ -127,10 +136,12 @@ export const cleanRoomProfiles = [
     spineNote: "Run 04",
     drag: { revealPitch: 0.035, verticalResponse: 1.3, yawResponse: 1 },
     material: {
-      shininess: 3.8,
+      shininess: 15,
       specular: "#f2ead0",
-      reflectiveness: 0.24,
-      baseDiffuseStrength: 0.2,
+      reflectiveness: 0.49,
+      baseDiffuseStrength: 0.58,
+      baseDiffuseContrast: 3.6,
+      spineCrown: 0.81,
       bump: { base: 0.011, custom: 0.026 },
       foil: {
         colors: ["#d6b86b", "#f5f0d8"],
@@ -156,10 +167,12 @@ export const cleanRoomProfiles = [
     spineNote: "Methods",
     drag: { revealPitch: 0.045, verticalResponse: 1.3, yawResponse: 1 },
     material: {
-      shininess: 5.4,
+      shininess: 22,
       specular: "#f4e2ae",
-      reflectiveness: 0.31,
-      baseDiffuseStrength: 0.22,
+      reflectiveness: 0.62,
+      baseDiffuseStrength: 0.61,
+      baseDiffuseContrast: 4.5,
+      spineCrown: 0.96,
       bump: { base: 0.014, custom: 0.019 },
       foil: {
         colors: ["#f0dfb4", "#d59ac0"],
@@ -185,10 +198,12 @@ export const cleanRoomProfiles = [
     spineNote: "Revised",
     drag: { revealPitch: 0.05, verticalResponse: 1.3, yawResponse: 1 },
     material: {
-      shininess: 2.2,
+      shininess: 9,
       specular: "#e6e2d8",
-      reflectiveness: 0.12,
-      baseDiffuseStrength: 0.34,
+      reflectiveness: 0.24,
+      baseDiffuseStrength: 0.82,
+      baseDiffuseContrast: 5.2,
+      spineCrown: 1.09,
       bump: { base: 0.02, custom: 0.014 },
       foil: {
         colors: ["#27343e", "#ead7b5"],
