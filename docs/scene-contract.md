@@ -1202,17 +1202,80 @@ target. Primary evidence is `/tmp/zi3t-clean-room-journey-pass3` and
 `/tmp/zi3t-clean-room-functional-accepted-gate`; the other clean-room evidence
 paths are recorded in `option-b-checkpoints.md`.
 
-The aligned five-route comparison at section top plus 200px is
-`/tmp/zi3t-clean-room-visual-sections` against
-`/tmp/zi3t-clean-room-routing-accepted-gate`. Shelf and section silhouettes,
-compact composition, and both terminal surfaces are credibly aligned, but the
-clean-room custom Phong route highlight remains softer than the accepted
-patched physical response, most visibly on Re-fly and Arm. Field Notes is no
-longer a unique outlier in the aligned set. A global material lift was rejected
-because it overexposes the closer Practice and Field Notes covers.
+That visual comparison used the accepted ZI3T renderer, not the live Stripe
+scene. It was therefore a regression comparison, not a clone-fidelity gate.
+User review rejected the completion claim on 2026-08-07.
 
-Option B is complete as an independently gated opt-in renderer. Default
-promotion is a separate user decision. Nothing was pushed or deployed.
+The corrected matched live audit is
+[`clean-room-live-visual-audit.md`](clean-room-live-visual-audit.md), with
+durable numeric evidence in
+[`reference/live-visual-readings-20260807.json`](reference/live-visual-readings-20260807.json).
+It fails the desktop route grid, compact shelf, held silhouette, typography,
+and physical surface response. Option B remains incomplete and opt-in. Nothing
+was pushed or deployed.
+
+## Current checkpoint — 2026-08-07 clean-room GL measurement, and a corrected claim
+
+The first GL capture taken **of the clean-room renderer itself**. Every prior
+zi3t capture — including the committed
+`reference/gl-draw-readings-zi3t-20260807.json` — was taken from
+`http://127.0.0.1:4173/press/` with no `?press-renderer=clean-room` query, so it
+measured the **default** renderer. The gap analysis's rank-1 material row
+therefore never compared the clean room to the reference at all.
+
+Two stable runs on Apple M1 Pro Metal (`software: false`, `sawRealTexture:
+true`, identical uniform sets across runs). Derived readings holding ZI3T values
+only are committed at
+[`reference/gl-draw-readings-cleanroom-20260807.json`](reference/gl-draw-readings-cleanroom-20260807.json);
+raw captures stay untracked under `tmp/`.
+
+**The seven-map architecture is confirmed.** The clean-room cover program
+uploads `diffuseMapBase`/`diffuseMapCustom`, `bumpMapBase`/`bumpMapCustom` with
+independent `bumpScaleBase`/`bumpScaleCustom`, and all three finish channels —
+`foil*`, `gloss*`, `glitter*` — each with map, opacity, specular, and emissive,
+plus `reflectiveness`, `shininess`, and `specular`. Against the reference's
+cover program the architectural difference is two uniforms: the reference also
+carries `diffuseBaseColor` and `thickness`; we additionally carry
+`glitterMapScale`. Rank 1's *architecture* is closed.
+
+Neither missing uniform is a capability gap. `thickness` is geometry here, not a
+shader input — `profile.thicknessRatio` drives board, spine, and page-block
+placement in `clean-room/geometry.ts`, and book thickness is a binding Reject
+(rank 12) in any case. `diffuseBaseColor` has no direct equivalent: our base
+cloth colour arrives through the `diffuseMapBase` sample and is then mixed in
+`clean-room/material.ts`, with no per-volume base tint scalar. Adding one is an
+option for the retune below, not a defect to repair.
+
+**But the 2026-08-07 seven-map checkpoint's claim that "all five books own
+distinct response signatures" is false at the scalar level.** Measured at rest,
+the reference resolves 19 books to **19 distinct** scalar profiles — one per
+book. The clean room resolves 5 volumes to **1**. All five volumes share a
+single rest profile. The masks *are* per-volume — registered to each project's
+own SVG art — so the claim holds for texture identity and fails for scalar
+response.
+
+Scope this claim to the rest state. Our scalars do also change between rest,
+hover, and held-drag, but `interactionIndices` samples only two volumes in the
+non-rest states, so those rows cannot establish whether hover and held-drag vary
+per volume. The rest-state comparison is 5-of-5 against 19-of-19 and is the only
+one carried here — it is sufficient on its own. Separating per-volume from
+per-interaction variation is exactly what `reference-extraction-plan.md` warned
+the earlier runs could not do; widening `interactionIndices` would settle the
+non-rest states.
+
+This is the measured cause of two standing audit FAILs: §5 "one parametric
+template with modest ratio changes" and §6 "cloth reads muddy and uniform." Our
+single profile also sits at the bottom of its own authored ranges for foil,
+gloss, shininess, and reflectiveness, which matches §6's "broad, dim response
+leaves the case flat."
+
+Remaining rank-1 work is therefore **not** an architecture build. It is: author
+five genuinely distinct per-volume scalar profiles, lift the finish response off
+the floor of its range, and decide whether a base diffuse tint is needed. Reject
+13 stays binding — translate the *shape* of the response, never the reference's
+constants, whose equations and artwork differ.
+
+Nothing was deployed; the clean-room renderer remains opt-in.
 
 ## Remaining fidelity work
 
