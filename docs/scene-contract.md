@@ -1295,6 +1295,109 @@ drag-independent quantity such as the resting-to-held area ratio.
 
 Nothing was deployed; the clean-room renderer remains opt-in.
 
+## Current checkpoint — 2026-08-07 §6 surface response: the spine was a flat plane
+
+The §6 retune, measured on Apple M1 Pro Metal at 1568×894 over the first rest
+case. Readings are committed at
+[`reference/surface-response-{reference,cleanroom}-20260807-retune.json`](reference/).
+Full-mask numbers, against a freshly re-measured reference:
+
+| Metric | Reference | Before | After |
+|---|---|---|---|
+| Tonal spread σ | 40.53 | 19.11 | **40.02** |
+| Weave, mean \|Laplacian\| | 14.59 | 5.43 | **12.43** |
+| Rake peak (p99) | 249.66 | 187.80 | **243.81** |
+| Rake highlight area | 0.015 | 0.059 | **0.010** |
+| Median luminance | 173.22 | 139.38 | **162.30** |
+| Ink contrast | 2.608 | 1.154 | **1.555** |
+
+**The case rect is ~85% spine, not cover.** The book lies flat and is seen
+nearly edge-on, so the 782×128 rect is dominated by the spine face; the cover is
+a sliver along the top. Every §6 statistic is therefore mostly a statement about
+the spine, and `baseMapScale` for the spine — not the cover — is the one that
+governs the measured weave. Earlier reasoning about cover foreshortening was
+aimed at the wrong surface.
+
+**The dominant cause of the flatness was geometry, not scalars.** The spine is a
+`PlaneGeometry` with a constant normal, and a flat plane under fixed lights
+shades uniformly. A reference crop shows its spine bright along the crown and
+falling into shadow at the bottom edge, because a bound spine is round. Ours had
+no gradient at all, which is most of the missing σ. The fix is a shading-normal
+crown — `surfaceCurvature` in `clean-room/material.ts`, authored per volume as
+`profile.spineCrown` — applied through the same derivative frame the relief
+uses, so it stays correct as the volume rotates and changes no geometry and no
+silhouette. It is applied *after* the `effectReliefSuppression` mix on purpose:
+the crown is the shape of the board under the cloth, so a foil or gloss mask
+must not flatten it. Its sign matters — the first version ran bright-at-bottom,
+the inverse of the reference.
+
+**σ and Laplacian want different frequencies.** The diffuse combine is now a
+mean-neutral overlay: the cloth scan's luminance is re-levelled to 0.5 (it means
+0.237, so a raw overlay takes the `base<0.5` branch nearly everywhere and halves
+every cover) and then overlaid against the authored RGB, mixed at
+`baseDiffuseStrength` with `baseDiffuseContrast` as the gain. The base stays a
+*scalar* — a per-channel overlay against a colour-cast scan turns every volume
+olive, which is the regression the 2026-07-29 re-level fixed for the legacy
+renderer. That lever moved Laplacian 4.62 → 12.4 but barely touched σ: the scan's
+variation is high-frequency, which raises per-pixel differences cheaply and
+distribution width hardly at all. σ needed the crown. Do not expect one lever to
+serve both.
+
+**A high Phong exponent alone removes the rake rather than concentrating it.**
+Raising `shininess` 2.2–5.4 → 9–22 on a flat plane drove `highlightArea` to
+exactly 0 with p99 unmoved: the specular peak sits ~34° off the flat normal and
+nothing reached it. It only became a rake once the crown swept the normal
+through the peak. Exponent and normal variation are one coupled lever here.
+
+**`highlightArea` is a distribution-shape statistic, not an area target.** It is
+`P(L > mean + 2σ)`, so widening σ moves its own threshold. It fell from 0.059 to
+0 to 0.010 across the pass without ever being tuned directly.
+
+Three instrument corrections, all in `tests/measure-surface-response.mjs`:
+
+1. **`--scroll` now defaults to 0, not 900.** `measure-visual-parity.mjs` gives
+   `desktop.firstRestBook` no scroll and no prepare step, and scroll 0
+   reproduces the recorded 2026-08-07 reading exactly (97946 px, σ 19.11, ink
+   1.154). Scroll 900 lands mid-journey behind a dark scrim and scores a
+   different scene state — it is not the shelf.
+2. **The reference does not render at idle, so capture is a race.** Per §7 its
+   loop pauses 1200 ms after the last scroll or pointer movement. After a long
+   settle its canvas is blank and the rect scores as pure ground: two parity runs
+   minutes apart returned 98786 px and then `book: null` on the same URL. The
+   script now nudges scroll and pointer and captures inside that window,
+   retrying only while the rect comes back empty — a rect that draws but scores
+   under the floor is a real collapse and is not retried away.
+3. **Pixel-count floor, `--ground=r,g,b`, per-row profiles, a 3px-eroded pass and
+   a 32-bin histogram.** The floor gates the un-eroded mask only. Erosion settles
+   whether a dark tail is surface or masking: reference σ moves 40.53 → 36.91 and
+   p05 65.81 → 74.59, so the recorded targets stand and were not re-baselined.
+
+**The ink row is capped by deferred cover art, and is reported short rather than
+closed.** The reference's dark rows (y342–348, near-full pixel counts) are its
+*cover artwork* showing in the top sliver — a dark navy case. Ours is pale line
+work on pale cloth by authored decision, so p05 cannot reach 75 without dark
+cover art. Ink contrast improved 1.154 → 1.555 against a 2.608 reference on
+material grounds alone (the crown's shadow side and the specular rebalance). The
+remainder is not a material defect and was not chased. Cover art stays deferred.
+
+Gates: `qa:clean-room`, `:routing` and `:volume` pass. Two failures are
+**pre-existing and were verified against a stashed baseline, not relaxed**:
+`:journey`'s "a compact pick opens the matched single-column live-volume
+document" fails identically on baseline and retuned builds (screen left 27.44 /
+width 340.31 against 35 / 323 — a DOM figure measurement, `columns: "342px"`,
+independent of material); and `:interaction`'s "hover uses the accepted
+projected-depth pop" is flaky on both (1 of 3 baseline runs, 2 of 3 retuned,
+same values each time — `position[2]` −2.9999 against a `homePosition[2] + 2.7`
+threshold, a motion quantity the fragment shader cannot reach). Both want a
+session of their own.
+
+One measurement caveat: the crown darkens the spine's bottom edge close enough
+to the ground colour that mask fill sits at ~0.96 against the reference's 0.99,
+and an earlier, stronger crown made it unstable run to run (0.979 vs 0.953). The
+shipped value is stable across consecutive runs to three decimals.
+
+Nothing was deployed. The deployment hold stands.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:
