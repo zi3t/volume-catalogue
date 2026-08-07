@@ -89,6 +89,17 @@ try {
     new Set(materialModels.map((material) => material.responseSignature)).size === 5,
     materialModels.map((material) => material.responseSignature)
   );
+  check(
+    "each volume owns a visibly distinct cloth family and sampling transform",
+    new Set(materialModels.map((material) => material.textureFamily)).size === 5
+      && new Set(materialModels.map((material) => (
+        JSON.stringify(material.textureTransform)
+      ))).size === 5,
+    materialModels.map((material) => ({
+      family: material.textureFamily,
+      transform: material.textureTransform
+    }))
+  );
   check("the runtime reports no browser errors", cdp.errors.length === 0, cdp.errors);
 
   if (screenshotPath) await cdp.screenshot(screenshotPath);

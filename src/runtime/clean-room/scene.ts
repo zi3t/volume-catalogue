@@ -62,6 +62,14 @@ interface CleanRoomEntry {
   initialized: boolean;
 }
 
+interface CleanRoomFlight {
+  readonly index: number;
+  readonly direction: "to-volume" | "to-catalogue";
+  speed: number;
+  approach: number;
+  progress: number;
+}
+
 interface CleanRoomDebugSnapshot {
   readonly renderer: "clean-room";
   readonly state: {
@@ -77,6 +85,8 @@ interface CleanRoomDebugSnapshot {
     readonly mode: CleanRoomPressMode;
     readonly currentIndex: number;
     readonly flightIndex: number;
+    readonly flightDirection: CleanRoomFlight["direction"] | null;
+    readonly flightProgress: number;
     readonly pendingDeepLinkIndex: number;
     readonly coverRotation: readonly [number, number];
     readonly coverDragging: boolean;
@@ -106,6 +116,8 @@ interface CleanRoomDebugSnapshot {
       readonly spineMaps: 7;
       readonly coverDiffuseSize: readonly [number, number];
       readonly coverMaskSize: readonly [number, number];
+      readonly textureFamily: CleanRoomVolumeProfile["material"]["texture"]["family"];
+      readonly textureTransform: CleanRoomVolumeProfile["material"]["texture"]["cover"];
       readonly responseSignature: string;
     };
   }[];
@@ -117,6 +129,11 @@ interface CleanRoomDebugSnapshot {
     readonly presentedFrames: number;
     readonly idlePaused: boolean;
     readonly preserveDrawingBuffer: boolean;
+  };
+  readonly light: {
+    readonly rakeTarget: readonly [number, number, number];
+    readonly rakeIntensity: number;
+    readonly backColor: string;
   };
   readonly scroll: {
     readonly y: number;
@@ -311,7 +328,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   ));
   let routeFrames = 0;
   let returningRouteIndex = -1;
-  let flight: { index: number; speed: number; approach: number } | null = null;
+  let flight: CleanRoomFlight | null = null;
   let requestRelayout = (): void => undefined;
   let resetVolumeInput = (): void => undefined;
   let interactionSnapshot: CleanRoomInteractionSnapshot = {
@@ -430,15 +447,32 @@ export const mountCleanRoomCatalogue = (): boolean => {
       resetVolumeInput();
       flight = reducedMotion.matches || compact.matches || source === "deep-link"
         ? null
-        : { index, speed: 0, approach: 0 };
+        : {
+          index,
+          direction: "to-volume",
+          speed: 0,
+          approach: 0,
+          progress: 0
+        };
     },
     onBeforeCatalogue: (index) => {
-      flight = null;
       resetVolumeInput();
       returningRouteIndex = index;
-      entries.forEach((entry) => {
-        if (entry.index !== index) snapToShelf(entry);
-      });
+      const animateReturn = !reducedMotion.matches && !compact.matches;
+      flight = animateReturn
+        ? {
+          index,
+          direction: "to-catalogue",
+          speed: 0,
+          approach: 0,
+          progress: 0
+        }
+        : null;
+      // Compact and reduced-motion routes intentionally cut directly to their
+      // destination. Desktop keeps the selected route pose intact so the same
+      // universal recurrence that opened it can carry it home; neighbours stay
+      // absent until the latter half of that return.
+      if (!animateReturn) entries.forEach(snapToShelf);
     },
     onModeChange: (mode) => {
       pressMode = mode;
@@ -572,7 +606,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     // apply the accepted pixel-world cancellation twice and blank the shelf.
     camera.position.y = 6.5;
     camera.updateMatrixWorld(true);
-    lights.updateCameraY(camera.position.y);
+    lights.update(camera.position.y, pressMode === "volumes" ? 1 : holdPresentation);
 
     entries.forEach((entry, index) => {
       const rect = entry.target.getBoundingClientRect();
@@ -718,13 +752,22 @@ export const mountCleanRoomCatalogue = (): boolean => {
     );
 
     const activeFlight = flight;
-    if (activeFlight && pressMode === "volumes") {
+    const flightMatchesMode = activeFlight && (
+      (activeFlight.direction === "to-volume" && pressMode === "volumes")
+      || (activeFlight.direction === "to-catalogue" && pressMode === "catalogue")
+    );
+    if (activeFlight && flightMatchesMode) {
       const frames = clamp(deltaSeconds * 60, 0.25, 4);
       activeFlight.speed = Math.min(
         CLEAN_ROOM_MOTION.flightEaseCeiling,
         activeFlight.speed + CLEAN_ROOM_MOTION.flightEaseStep * frames
       );
       activeFlight.approach = 1 - Math.pow(1 - activeFlight.speed, frames);
+      activeFlight.progress = 1 - (
+        (1 - activeFlight.progress) * Math.pow(1 - activeFlight.speed, frames)
+      );
+    } else if (activeFlight && !flightMatchesMode) {
+      flight = null;
     }
 
     let allEntryCurvesComplete = true;
@@ -758,7 +801,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         const targetObjectRotationX = Math.PI / 2
           - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall
           + (live ? volumePose.rotationX : 0);
-        if (activeFlight?.index === index) {
+        if (activeFlight?.direction === "to-volume" && activeFlight.index === index) {
           const approach = activeFlight.approach;
           entry.book.root.position.lerp(entry.sectionPosition, approach);
           const nextScale = mix(entry.book.root.scale.x, entry.sectionScale, approach);
@@ -801,6 +844,86 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.object.scale.y = objectThicknessScaleY();
         }
         setBookOpacity(entry, entry.sectionVisible ? 1 : 0);
+        return;
+      }
+
+      const returnFlight = activeFlight?.direction === "to-catalogue"
+        ? activeFlight
+        : null;
+      if (returnFlight) {
+        const shelfY = entry.homePosition.y + catalogueRestLift() * unitsPerPixel;
+        const targetPitch = shelfPitch(entry);
+        if (index === returnFlight.index) {
+          const approach = returnFlight.approach;
+          entry.book.root.position.x = mix(
+            entry.book.root.position.x,
+            entry.homePosition.x,
+            approach
+          );
+          entry.book.root.position.y = mix(entry.book.root.position.y, shelfY, approach);
+          entry.book.root.position.z = mix(
+            entry.book.root.position.z,
+            entry.homePosition.z,
+            approach
+          );
+          const nextScale = mix(entry.book.root.scale.x, entry.homeScale, approach);
+          entry.book.root.scale.setScalar(nextScale);
+          entry.book.root.rotation.x = mix(entry.book.root.rotation.x, 0, approach);
+          entry.book.root.rotation.y = mix(entry.book.root.rotation.y, 0, approach);
+          entry.book.root.rotation.z = mix(entry.book.root.rotation.z, 0, approach);
+          entry.book.object.rotation.x = mix(
+            entry.book.object.rotation.x,
+            targetPitch,
+            approach
+          );
+          entry.book.object.scale.x = mix(entry.book.object.scale.x, 1, approach);
+          entry.book.object.scale.y = mix(
+            entry.book.object.scale.y,
+            objectThicknessScaleY(),
+            approach
+          );
+          setBookOpacity(entry, 1);
+        } else {
+          const settled = returnFlight.progress >= CLEAN_ROOM_MOTION.returnFlightSettleProgress;
+          const stackProgress = settled ? 1 : smooth(clamp(
+            (returnFlight.progress - CLEAN_ROOM_MOTION.returnStackStart)
+              / (1 - CLEAN_ROOM_MOTION.returnStackStart),
+            0,
+            1
+          ));
+          const stackOpacity = settled ? 1 : smooth(clamp(
+            (returnFlight.progress - CLEAN_ROOM_MOTION.returnStackFadeStart)
+              / (1 - CLEAN_ROOM_MOTION.returnStackFadeStart),
+            0,
+            1
+          ));
+          const evacuation = (returnFlight.index - index)
+            * viewportHeight
+            * CLEAN_ROOM_MOTION.stackEvictionViewports
+            * unitsPerPixel;
+          entry.book.root.position.set(
+            entry.homePosition.x,
+            mix(shelfY + evacuation, shelfY, stackProgress),
+            entry.homePosition.z
+          );
+          entry.book.root.scale.setScalar(entry.homeScale);
+          entry.book.root.rotation.set(0, 0, 0);
+          entry.book.object.rotation.x = targetPitch;
+          entry.book.object.scale.x = 1;
+          entry.book.object.scale.y = objectThicknessScaleY();
+          setBookOpacity(entry, stackOpacity);
+        }
+        entryResidual = Math.max(
+          entryResidual,
+          Math.abs(entry.book.root.position.x - entry.homePosition.x),
+          Math.abs(entry.book.root.position.y - shelfY),
+          Math.abs(entry.book.root.position.z - entry.homePosition.z),
+          Math.abs(entry.book.root.scale.x - entry.homeScale) * 20,
+          Math.abs(entry.book.root.rotation.y) * 10,
+          Math.abs(entry.book.root.rotation.z) * 10,
+          Math.abs(entry.book.object.rotation.x - targetPitch) * 10,
+          Math.abs(entry.opacity - 1) * 10
+        );
         return;
       }
 
@@ -930,8 +1053,16 @@ export const mountCleanRoomCatalogue = (): boolean => {
     });
 
     if (
+      activeFlight?.direction === "to-catalogue"
+      && activeFlight.progress >= CLEAN_ROOM_MOTION.returnFlightSettleProgress
+      && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+      && flight === activeFlight
+    ) flight = null;
+
+    if (
       pressMode === "catalogue"
       && returningRouteIndex >= 0
+      && !flight
       && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
     ) returningRouteIndex = -1;
 
@@ -949,6 +1080,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
     renderer.setClearColor(backdropColor, holdBackdrop);
     const routePresentation = pressMode === "volumes" ? 1 : holdPresentation;
+    lights.update(camera.position.y, routePresentation);
     const activeEntry = pressMode === "volumes"
       ? entries[currentRouteIndex]
       : activeIndex >= 0 ? entries[activeIndex] : undefined;
@@ -1046,6 +1178,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
         mode: pressMode,
         currentIndex: currentRouteIndex,
         flightIndex: flight?.index ?? -1,
+        flightDirection: flight?.direction ?? null,
+        flightProgress: Number((flight?.progress ?? 0).toFixed(4)),
         pendingDeepLinkIndex: routing.snapshot().pendingDeepLinkIndex,
         coverRotation: [
           Number(volume.rotationX.toFixed(4)),
@@ -1102,6 +1236,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
           spineMaps: book.materialModel.spine.mapCount,
           coverDiffuseSize: book.materialModel.cover.diffuseSize,
           coverMaskSize: book.materialModel.cover.maskSize,
+          textureFamily: book.materialModel.cover.textureFamily,
+          textureTransform: book.materialModel.cover.textureTransform,
           responseSignature: book.materialModel.cover.responseSignature
         }
       })),
@@ -1113,6 +1249,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
         presentedFrames,
         idlePaused,
         preserveDrawingBuffer
+      },
+      light: {
+        rakeTarget: [
+          Number(lights.rakeTarget.position.x.toFixed(4)),
+          Number(lights.rakeTarget.position.y.toFixed(4)),
+          Number(lights.rakeTarget.position.z.toFixed(4))
+        ],
+        rakeIntensity: Number(lights.rake.intensity.toFixed(4)),
+        backColor: `#${lights.back.color.getHexString()}`
       },
       scroll: {
         y: window.scrollY,

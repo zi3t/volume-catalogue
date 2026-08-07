@@ -125,6 +125,14 @@ try {
       referenceDetailLeft: 886
     }
   );
+  check(
+    "book view moves the rake source onto the active-volume target",
+    Math.abs(landedState?.light?.rakeTarget?.[0] - -14.3) < 0.05
+      && Math.abs(landedState?.light?.rakeTarget?.[1]) < 0.05
+      && Math.abs(landedState?.light?.rakeTarget?.[2] - -61) < 0.05
+      && Math.abs(landedState?.light?.rakeIntensity - Math.PI * 0.05) < 0.02,
+    landedState?.light
+  );
   await cdp.screenshot(`${screenshotDirectory}/route-landed-refly.png`);
 
   const sectionGeometry = await cdp.evaluate(`Array.from(
@@ -199,10 +207,40 @@ try {
   check("browser Back restores the previous volume within the same shell", backVolume);
 
   await cdp.evaluate("history.back()");
+  const returnStarted = await cdp.waitFor(`(() => {
+    const debug = window.__pressCleanRoomDebug?.();
+    return debug?.state.mode === "catalogue"
+      && debug.state.flightIndex === 2
+      && debug.state.flightDirection === "to-catalogue";
+  })()`, 1_500);
+  await cdp.sleep(80);
+  const returnState = await state();
+  const returningBook = returnState?.books?.[2];
+  const returningNeighbours = returnState?.books?.filter((_, index) => index !== 2) ?? [];
+  check(
+    "Back carries the selected book home before rebuilding the rail stack",
+    returnStarted
+      && returnState?.state?.flightProgress > 0
+      && returnState.state.flightProgress < 0.9
+      && returningBook?.opacity > 0.99
+      && Math.abs(returningBook?.rotation?.[1] ?? 0) > 0.01
+      && returningNeighbours.every((book) => book.opacity < 0.08),
+    {
+      state: returnState?.state,
+      selected: returningBook,
+      neighbours: returningNeighbours.map((book) => ({
+        slug: book.slug,
+        position: book.position,
+        opacity: book.opacity
+      }))
+    }
+  );
+  await cdp.screenshot(`${screenshotDirectory}/route-return-flight.png`);
   const backHome = await cdp.waitFor(`(() => {
     const debug = window.__pressCleanRoomDebug?.();
     return location.pathname + location.search === "/press/?press-renderer=clean-room"
       && debug?.state.mode === "catalogue"
+      && debug.state.flightIndex === -1
       && Math.abs(scrollY - 180) <= 1
       && debug.books.every((book, index) => (
         Math.abs((book.position[1] - book.homePosition[1]) - .2422) < .04

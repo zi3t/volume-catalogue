@@ -1398,6 +1398,65 @@ shipped value is stable across consecutive runs to three decimals.
 
 Nothing was deployed. The deployment hold stands.
 
+## Current checkpoint — 2026-08-08 bound-book detail and matched return flight
+
+Viet's review identified four related tells: the shelf cases still read as
+slabs, every volume appeared to share one texture treatment, Back rebuilt the
+rail before the selected book had returned, and the route light did not follow
+the reference's active target. This pass changes those mechanisms without
+moving the accepted shelf or section projections.
+
+**The case is now visibly bound.** The text block is flush at the bound edge
+and inset at the fore edge; the previous offset did the reverse. Upper and
+lower boards expose cloth on their outer faces and a volume-specific pastedown
+on the faces toward the block. The mapped spine is a twelve-segment shallow
+curve rather than a shaded plane, with separate hinge ridges and striped
+head-and-tail bands. Seeded page-edge maps add leaf and signature rhythms per
+volume. These parts become most legible while a volume turns; they do not add a
+silhouette-changing stock mesh or move the calibrated art planes.
+
+**Five bindings no longer sample one piece of cloth identically.** Re-fly,
+Arm, Telemetry, Practice, and Field Notes use authored fine-linen, buckram,
+coated-cloth, sateen, and canvas treatments. Each has its own scale, offset,
+and grain rotation on cover, spine, and wrapped board, alongside the existing
+per-volume bump, diffuse, sheen, and crown response. The licensed CC0 scan is
+still the common source; the implementation does not invent provenance for
+five separate scans. Paper tone, endpaper, headband colours, leaf density, and
+signature interval are also volume-specific. The hardware capture now makes
+the distinction visible at shelf distance instead of only in profile scalars.
+
+**Route lighting and Back now share the reference state change.** The rake
+target interpolates from `(-6, 0, -6.5)` on the shelf to
+`(-14.3, 0, -61)` in book view while its intensity moves from `.75π` to
+`.05π`; the selected cloth still owns the route ground. Forward and return
+both advance through the extracted `.006` → `.15` recurrence. On Back the
+detail surface leaves first, the selected volume remains opaque and dominant,
+the neighboring stack begins rebuilding at 38% of the return and begins
+fading at 50%, and the flight is not cleared until its pose is genuinely
+settled. Compact and reduced-motion routes remain immediate.
+
+**Routine hardware gates no longer take over the desktop.** Clean-room npm
+gates now create a background CDP target inside a dedicated Chrome launched
+hidden with `open -gjn`. Background timer, renderer, and occlusion throttling
+are disabled so the hidden headful browser retains the intended frame
+recurrences. The launcher refuses software GL, reports the renderer, closes
+the browser, and removes its temporary profile on every exit path. A run on
+Apple M1 Pro reported Metal while the user's frontmost application remained
+unchanged.
+
+Measured at 1568×894 on Apple M1 Pro Metal, the first shelf case remains
+`393,332 · 782×128` against the reference `394,332 · 780×128`. Its current
+full-mask surface response is σ `41.32`, mean |Laplacian| `14.92`, p99
+`249.82`, and highlight fraction `0.0191`, against the recorded reference
+`40.53`, `14.59`, `249.66`, and `0.015`. The landed Re-fly silhouette is
+`320,167 · 425×555` against `305,166 · 437×555`; its accepted DOM projection
+remains `295.65,166.84 · 448.76×555.05`.
+
+Verification: package typecheck/build, site build, the five clean-room hardware
+gates, route-light diagnostics, mid-return dominance, settled-flight cleanup,
+and screenshot-space/material measurements pass with zero runtime errors.
+Nothing was deployed; the deployment hold remains.
+
 ## Remaining fidelity work
 
 Prioritize these only when the user asks to continue:
@@ -1413,7 +1472,12 @@ runs did not scroll to the same place. `docs/reference-extraction-plan.md` names
 the experiment that settles it. Committed readings live in `docs/reference/`.
 Read the plan before resuming item 1, 2 or 3.
 
-1. **Incremental case/cover refinement:** CC0 cloth and paper scans now supply the primary surface detail while original cover art remains authored SVG. A generic rounded-board extrusion was measured and rejected because it flattened the extreme-orbit interior; any later board bevel needs a purpose-built layered mesh that preserves that view. The next low-risk visual work is a design pass on the five original covers. Do not import a fixed stock mesh unless the calibrated parametric route/section poses are deliberately reworked.
+1. **Incremental cover refinement:** the purpose-built case now has a curved
+   spine, hinges, head/tail bands, correct text-block inset, pastedowns, and
+   volume-specific binding treatments. Original cover art remains authored
+   SVG. The next low-risk visual work is a design pass on those five covers; do
+   not import a fixed stock mesh unless the calibrated parametric route/section
+   poses are deliberately reworked.
 2. **Source-proportion silhouette:** the canonical held lower edge and some extreme-angle right-edge slopes remain a few to a few-dozen pixels different from the Poor Charlie references because the genuine ZI3T book is wider and thicker. Do not distort the original artwork merely to erase that difference.
 3. **Real-GPU lighting nuance:** the resting, four-direction, extended-orbit,
    and five section sets now verify the four-light key/rake placement and
@@ -1425,7 +1489,11 @@ Read the plan before resuming item 1, 2 or 3.
 6. **Browser/device profiling:** done 2026-08-05 on real Apple M1 GPU hardware — Safari Back/Forward lifecycle, Firefox WebGL2, touch input, GPU/heap accounting, idle power, sustained frame time, and a first-load recording are captured above. Keep a literal physical Safari trackpad swipe as a manual pre-deploy gesture check; software-GL screenshots remain inadmissible evidence.
 7. **Logo geometry:** the ZI3T mark is intentionally original; its held-background knockout can be refined without imitating Stripe's mark.
 8. **Scroll-feel calibration from the extracted pipeline:** done 2026-07-28 — the `.003`/`.4` velocity fan and the 1200ms idle pause (with `preserveDrawingBuffer`) are adopted; the `.0222/.027` camera ratios were evaluated and rejected as the DOM-anchored follow is their translation.
-9. **Animation-rig calibration from the extracted rig:** done 2026-07-28 — hover spine-z `.1`/frame adopted; twirl and cover-follow were already in; the universal-ease reset is present at activation (flight) and deliberately absent at release, whose 80/880ms profile is measured.
+9. **Animation-rig calibration from the extracted rig:** done 2026-08-08 —
+   hover spine-z `.1`/frame, twirl, and cover-follow were already in; route
+   opening and Back now share the extracted universal recurrence, with the
+   return stack staged behind its selected volume. Pointer release keeps its
+   separately measured 80/880ms profile.
 
 ## Quality gate
 

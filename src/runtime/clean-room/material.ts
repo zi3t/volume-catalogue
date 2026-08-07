@@ -17,6 +17,12 @@ export interface CleanRoomMaterialDiagnostics {
   ];
   readonly diffuseSize: readonly [number, number];
   readonly maskSize: readonly [number, number];
+  readonly textureFamily: CleanRoomMaterialProfile["texture"]["family"];
+  readonly textureTransform: {
+    readonly scale: readonly [number, number];
+    readonly offset: readonly [number, number];
+    readonly rotation: number;
+  };
   readonly responseSignature: string;
 }
 
@@ -53,6 +59,8 @@ uniform sampler2D glossMap;
 uniform sampler2D glitterMap;
 
 uniform vec2 baseMapScale;
+uniform vec2 baseMapOffset;
+uniform float baseMapRotation;
 uniform vec2 glitterMapScale;
 uniform float baseDiffuseStrength;
 uniform float baseDiffuseLevel;
@@ -77,6 +85,15 @@ uniform float glossEmissive;
 uniform float glitterOpacity;
 uniform float glitterSpecular;
 uniform float glitterEmissive;
+
+vec2 cleanRoomBaseUv( vec2 uv ) {
+  vec2 positioned = ( uv - 0.5 ) * baseMapScale;
+  float sine = sin( baseMapRotation );
+  float cosine = cos( baseMapRotation );
+  return mat2( cosine, sine, -sine, cosine ) * positioned
+    + 0.5
+    + baseMapOffset;
+}
 `;
 
 const CUSTOM_RELIEF = /* glsl */`
@@ -95,7 +112,7 @@ float cleanRoomHeight( vec2 uv ) {
       glitterCoverageAtUv * glitterOpacity
     )
   );
-  float relief = texture2D( bumpMapBase, uv * baseMapScale ).r * bumpScaleBase;
+  float relief = texture2D( bumpMapBase, cleanRoomBaseUv( uv ) ).r * bumpScaleBase;
   relief += texture2D( bumpMapCustom, uv ).r * bumpScaleCustom;
   return relief * ( 1.0 - clamp( finishedCoverage * effectReliefSuppression, 0.0, 0.82 ) );
 }
@@ -128,7 +145,7 @@ vec3 cleanRoomPerturbNormal(
 `;
 
 const CUSTOM_DIFFUSE = /* glsl */`
-vec3 baseDiffuseSample = texture2D( diffuseMapBase, vMapUv * baseMapScale ).rgb;
+vec3 baseDiffuseSample = texture2D( diffuseMapBase, cleanRoomBaseUv( vMapUv ) ).rgb;
 vec4 customDiffuseSample = texture2D( diffuseMapCustom, vMapUv );
 float baseLuminance = dot( baseDiffuseSample, vec3( 0.2126, 0.7152, 0.0722 ) );
 
@@ -271,6 +288,7 @@ export const createCleanRoomLayeredMaterial = (
   maps: CleanRoomMaterialMaps,
   surface: "cover" | "spine"
 ): CleanRoomLayeredMaterial => {
+  const textureTransform = profile.texture[surface];
   const uniforms = THREE.UniformsUtils.clone(THREE.ShaderLib.phong.uniforms);
   Object.assign(uniforms, {
     // The authored custom diffuse owns the surface colour. A grey Phong base
@@ -293,8 +311,10 @@ export const createCleanRoomLayeredMaterial = (
     glossMap: { value: maps.gloss },
     glitterMap: { value: maps.glitter },
     baseMapScale: {
-      value: surface === "cover" ? new THREE.Vector2(3.2, 3.8) : new THREE.Vector2(5.6, 1.25)
+      value: new THREE.Vector2(...textureTransform.scale)
     },
+    baseMapOffset: { value: new THREE.Vector2(...textureTransform.offset) },
+    baseMapRotation: { value: textureTransform.rotation },
     glitterMapScale: {
       value: surface === "cover" ? new THREE.Vector2(2.4, 2.8) : new THREE.Vector2(6.4, 1.2)
     },
@@ -357,6 +377,8 @@ export const createCleanRoomLayeredMaterial = (
       mapNames: MAP_NAMES,
       diffuseSize: maps.dimensions.diffuse,
       maskSize: maps.dimensions.masks,
+      textureFamily: profile.texture.family,
+      textureTransform,
       responseSignature: [
         profile.shininess,
         profile.reflectiveness,
@@ -369,7 +391,11 @@ export const createCleanRoomLayeredMaterial = (
         // signature the foundation gate counts — a behaviour change earns the
         // assertion rather than riding on the old fields staying distinct.
         profile.baseDiffuseStrength,
-        profile.baseDiffuseContrast
+        profile.baseDiffuseContrast,
+        profile.texture.family,
+        ...textureTransform.scale,
+        ...textureTransform.offset,
+        textureTransform.rotation
       ].join("/")
     }
   };

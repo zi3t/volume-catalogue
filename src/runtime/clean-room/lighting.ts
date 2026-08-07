@@ -7,7 +7,8 @@ export interface CleanRoomLightRig {
   readonly key: THREE.DirectionalLight;
   readonly back: THREE.DirectionalLight;
   readonly rake: THREE.SpotLight;
-  updateCameraY(cameraY: number): void;
+  readonly rakeTarget: THREE.Object3D;
+  update(cameraY: number, presentation: number): void;
 }
 
 /** Four-light rig recovered from the durable numeric capture. */
@@ -39,11 +40,20 @@ export const createCleanRoomLightRig = (scene: THREE.Scene): CleanRoomLightRig =
   rake.target = rakeTarget;
   scene.add(rake, rakeTarget);
 
-  const updateCameraY = (cameraY: number): void => {
+  const update = (cameraY: number, presentation: number): void => {
+    const active = THREE.MathUtils.clamp(presentation, 0, 1);
     rake.position.set(24, cameraY, 1);
-    rakeTarget.position.set(-6, cameraY - 6.5, -6.5);
+    // The active reference does not merely dim the rake. Its aim travels from
+    // the shelf spine plane to the standing book, changing the direction of the
+    // highlight as the case turns. Keeping the rest target while only lowering
+    // intensity made the route cover look lit from the catalogue behind it.
+    rakeTarget.position.set(
+      THREE.MathUtils.lerp(-6, -14.3, active),
+      cameraY - 6.5,
+      THREE.MathUtils.lerp(-6.5, -61, active)
+    );
   };
-  updateCameraY(6.5);
+  update(6.5, 0);
 
-  return { ambient, key, back, rake, updateCameraY };
+  return { ambient, key, back, rake, rakeTarget, update };
 };

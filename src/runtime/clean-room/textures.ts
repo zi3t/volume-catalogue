@@ -16,7 +16,6 @@ export interface CleanRoomSharedTextures {
   readonly clothBump: THREE.Texture;
   readonly glitter: THREE.DataTexture;
   readonly paper: THREE.Texture;
-  readonly paperEdge: THREE.CanvasTexture;
 }
 
 export interface CleanRoomMaterialMaps {
@@ -36,6 +35,8 @@ export interface CleanRoomMaterialMaps {
 export interface CleanRoomSurfaceTextures {
   readonly cover: CleanRoomMaterialMaps;
   readonly spine: CleanRoomMaterialMaps;
+  readonly pageEdge: THREE.CanvasTexture;
+  readonly headband: THREE.CanvasTexture;
 }
 
 interface SurfaceCanvases {
@@ -131,20 +132,32 @@ const createGlitterTexture = (renderer: THREE.WebGLRenderer): THREE.DataTexture 
   return texture;
 };
 
-const createPaperEdgeTexture = (renderer: THREE.WebGLRenderer): THREE.CanvasTexture => {
+const seedFor = (value: string): number => [...value].reduce(
+  (seed, character) => Math.imul(seed ^ character.charCodeAt(0), 16777619) >>> 0,
+  2166136261
+);
+
+const createPaperEdgeTexture = (
+  renderer: THREE.WebGLRenderer,
+  profile: CleanRoomVolumeProfile
+): THREE.CanvasTexture => {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 256;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("2D canvas is unavailable for the paper edge");
-  context.fillStyle = "#eee8d3";
+  context.fillStyle = profile.binding.paper;
   context.fillRect(0, 0, canvas.width, canvas.height);
-  const random = createRandom(0x1eafed9e);
-  for (let y = 2; y < canvas.height; y += 2.5 + random() * 3.5) {
-    context.strokeStyle = random() > 0.76
-      ? "rgba(255,255,250,.48)"
-      : "rgba(116,105,82,.24)";
-    context.lineWidth = random() > 0.9 ? 1.15 : 0.55;
+  const random = createRandom(seedFor(profile.slug));
+  const density = profile.binding.leafDensity;
+  let leaf = 0;
+  for (let y = 1.5; y < canvas.height; y += (2.4 + random() * 3.2) / density) {
+    const signature = leaf % profile.binding.signatureEvery === 0;
+    context.strokeStyle = signature || random() < 0.74
+      ? profile.binding.paperEdge
+      : "rgba(255,255,248,.56)";
+    context.globalAlpha = signature ? 0.42 : 0.18 + random() * 0.24;
+    context.lineWidth = signature ? 1.2 : random() > 0.9 ? 0.9 : 0.48;
     context.beginPath();
     context.moveTo(0, y);
     context.bezierCurveTo(
@@ -156,13 +169,41 @@ const createPaperEdgeTexture = (renderer: THREE.WebGLRenderer): THREE.CanvasText
       y + (random() - 0.5) * 0.8
     );
     context.stroke();
+    leaf += 1;
   }
+  context.globalAlpha = 1;
   const texture = new THREE.CanvasTexture(canvas);
-  texture.name = "clean-room-paper-edge";
+  texture.name = `clean-room-${profile.slug}-paper-edge`;
   texture.magFilter = THREE.LinearFilter;
   texture.minFilter = THREE.LinearMipmapLinearFilter;
   texture.generateMipmaps = true;
   configureTexture(texture, renderer);
+  texture.needsUpdate = true;
+  return texture;
+};
+
+const createHeadbandTexture = (
+  renderer: THREE.WebGLRenderer,
+  profile: CleanRoomVolumeProfile
+): THREE.CanvasTexture => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 32;
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) throw new Error("2D canvas is unavailable for the headband");
+  const [first, second] = profile.binding.headband;
+  for (let x = 0; x < canvas.width; x += 4) {
+    context.fillStyle = Math.floor(x / 4) % 2 ? first : second;
+    context.fillRect(x, 0, 4, canvas.height);
+  }
+  context.fillStyle = "rgba(0,0,0,.14)";
+  for (let y = 3; y < canvas.height; y += 7) context.fillRect(0, y, canvas.width, 1);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.name = `clean-room-${profile.slug}-headband`;
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  configureTexture(texture, renderer, 2.2, 1);
   texture.needsUpdate = true;
   return texture;
 };
@@ -188,8 +229,7 @@ export const createSharedTextures = (
     clothDiffuse,
     clothBump,
     glitter: createGlitterTexture(renderer),
-    paper,
-    paperEdge: createPaperEdgeTexture(renderer)
+    paper
   };
 };
 
@@ -490,5 +530,10 @@ export const createSurfaceTextures = (
   }, { once: true });
   artwork.src = profile.artworkUrl;
 
-  return { cover, spine };
+  return {
+    cover,
+    spine,
+    pageEdge: createPaperEdgeTexture(renderer, profile),
+    headband: createHeadbandTexture(renderer, profile)
+  };
 };

@@ -32,6 +32,18 @@ export interface CleanRoomMaterialProfile {
     readonly diffuseStrength: number;
     readonly diffuseContrast: number;
   };
+  /**
+   * The licensed cloth scan is shared source material, not a shared finish.
+   * Each binding samples it with its own density, grain direction and phase so
+   * five differently authored cases do not read as one texture recoloured five
+   * times.
+   */
+  readonly texture: {
+    readonly family: "fine-linen" | "buckram" | "coated-cloth" | "sateen" | "canvas";
+    readonly cover: CleanRoomTextureTransform;
+    readonly spine: CleanRoomTextureTransform;
+    readonly board: CleanRoomTextureTransform;
+  };
   readonly bump: {
     readonly base: number;
     readonly custom: number;
@@ -55,6 +67,12 @@ export interface CleanRoomMaterialProfile {
   };
 }
 
+export interface CleanRoomTextureTransform {
+  readonly scale: readonly [number, number];
+  readonly offset: readonly [number, number];
+  readonly rotation: number;
+}
+
 export interface CleanRoomVolumeProfile {
   readonly slug: string;
   readonly cloth: string;
@@ -70,6 +88,14 @@ export interface CleanRoomVolumeProfile {
     readonly revealPitch: number;
     readonly verticalResponse: number;
     readonly yawResponse: number;
+  };
+  readonly binding: {
+    readonly paper: string;
+    readonly paperEdge: string;
+    readonly endpaper: string;
+    readonly headband: readonly [string, string];
+    readonly leafDensity: number;
+    readonly signatureEvery: number;
   };
   readonly material: CleanRoomMaterialProfile;
 }
@@ -91,6 +117,14 @@ export const cleanRoomProfiles = [
     shelfPitch: 0.052,
     shelfRoll: 0.0015,
     drag: { revealPitch: 0.03, verticalResponse: 1.3, yawResponse: 1 },
+    binding: {
+      paper: "#e9e1c5",
+      paperEdge: "#8e866d",
+      endpaper: "#a49b61",
+      headband: ["#18185e", "#d7c568"],
+      leafDensity: 1,
+      signatureEvery: 9
+    },
     material: {
       shininess: 17,
       specular: "#ffffff",
@@ -99,6 +133,12 @@ export const cleanRoomProfiles = [
       baseDiffuseContrast: 4.4,
       spineCrown: 0.89,
       cover: { crown: 0, diffuseStrength: 0.24, diffuseContrast: 2 },
+      texture: {
+        family: "fine-linen",
+        cover: { scale: [3.2, 3.8], offset: [0, 0], rotation: 0 },
+        spine: { scale: [5.6, 1.25], offset: [0, 0], rotation: 0 },
+        board: { scale: [3.1, 3.6], offset: [0.08, 0.14], rotation: 0.018 }
+      },
       bump: { base: 0.014, custom: 0.022 },
       foil: {
         colors: ["#7775c5", "#d7c568"],
@@ -123,6 +163,14 @@ export const cleanRoomProfiles = [
     shelfRoll: -0.001,
     spineNote: "Field guide",
     drag: { revealPitch: 0.04, verticalResponse: 1.3, yawResponse: 1 },
+    binding: {
+      paper: "#eee8d5",
+      paperEdge: "#777266",
+      endpaper: "#b6ad8d",
+      headband: ["#29435c", "#d9d1ae"],
+      leafDensity: 0.78,
+      signatureEvery: 7
+    },
     material: {
       shininess: 11,
       specular: "#dfe5e4",
@@ -131,6 +179,12 @@ export const cleanRoomProfiles = [
       baseDiffuseContrast: 4.8,
       spineCrown: 0.99,
       cover: { crown: 0, diffuseStrength: 0.3, diffuseContrast: 2 },
+      texture: {
+        family: "buckram",
+        cover: { scale: [2.45, 2.9], offset: [0.22, 0.07], rotation: -0.042 },
+        spine: { scale: [4.1, 0.92], offset: [0.17, 0.31], rotation: -0.026 },
+        board: { scale: [2.2, 2.7], offset: [0.3, 0.11], rotation: -0.052 }
+      },
       bump: { base: 0.018, custom: 0.016 },
       foil: {
         colors: ["#718ca2", "#dfe7df"],
@@ -155,6 +209,14 @@ export const cleanRoomProfiles = [
     shelfRoll: 0.001,
     spineNote: "Run 04",
     drag: { revealPitch: 0.035, verticalResponse: 1.3, yawResponse: 1 },
+    binding: {
+      paper: "#d9d5c4",
+      paperEdge: "#66675f",
+      endpaper: "#172737",
+      headband: ["#d6b86b", "#243447"],
+      leafDensity: 1.24,
+      signatureEvery: 12
+    },
     material: {
       shininess: 15,
       specular: "#f2ead0",
@@ -163,6 +225,12 @@ export const cleanRoomProfiles = [
       baseDiffuseContrast: 3.6,
       spineCrown: 0.81,
       cover: { crown: 0, diffuseStrength: 0.2, diffuseContrast: 2 },
+      texture: {
+        family: "coated-cloth",
+        cover: { scale: [5.5, 4.2], offset: [0.41, 0.18], rotation: 0.014 },
+        spine: { scale: [7.2, 1.5], offset: [0.36, 0.08], rotation: 0.009 },
+        board: { scale: [5, 4], offset: [0.48, 0.2], rotation: 0.02 }
+      },
       bump: { base: 0.011, custom: 0.026 },
       foil: {
         colors: ["#d6b86b", "#f5f0d8"],
@@ -187,6 +255,14 @@ export const cleanRoomProfiles = [
     shelfRoll: -0.0015,
     spineNote: "Methods",
     drag: { revealPitch: 0.045, verticalResponse: 1.3, yawResponse: 1 },
+    binding: {
+      paper: "#eadbc2",
+      paperEdge: "#856f61",
+      endpaper: "#4c1b33",
+      headband: ["#f0dfb4", "#6d2949"],
+      leafDensity: 0.9,
+      signatureEvery: 8
+    },
     material: {
       shininess: 22,
       specular: "#f4e2ae",
@@ -195,6 +271,12 @@ export const cleanRoomProfiles = [
       baseDiffuseContrast: 4.5,
       spineCrown: 0.96,
       cover: { crown: 0, diffuseStrength: 0.22, diffuseContrast: 2 },
+      texture: {
+        family: "sateen",
+        cover: { scale: [3.4, 5.7], offset: [0.12, 0.44], rotation: 0.082 },
+        spine: { scale: [5.9, 1.8], offset: [0.06, 0.39], rotation: 0.048 },
+        board: { scale: [3.2, 5.1], offset: [0.2, 0.52], rotation: 0.074 }
+      },
       bump: { base: 0.014, custom: 0.019 },
       foil: {
         colors: ["#f0dfb4", "#d59ac0"],
@@ -219,6 +301,14 @@ export const cleanRoomProfiles = [
     shelfRoll: 0.001,
     spineNote: "Revised",
     drag: { revealPitch: 0.05, verticalResponse: 1.3, yawResponse: 1 },
+    binding: {
+      paper: "#e2d3b8",
+      paperEdge: "#77614b",
+      endpaper: "#8a552d",
+      headband: ["#26333d", "#ad763b"],
+      leafDensity: 0.68,
+      signatureEvery: 6
+    },
     material: {
       shininess: 9,
       specular: "#e6e2d8",
@@ -227,6 +317,12 @@ export const cleanRoomProfiles = [
       baseDiffuseContrast: 5.2,
       spineCrown: 1.09,
       cover: { crown: 0, diffuseStrength: 0.28, diffuseContrast: 2 },
+      texture: {
+        family: "canvas",
+        cover: { scale: [1.9, 2.35], offset: [0.33, 0.27], rotation: -0.067 },
+        spine: { scale: [3.35, 0.78], offset: [0.43, 0.21], rotation: -0.038 },
+        board: { scale: [1.75, 2.2], offset: [0.37, 0.32], rotation: -0.061 }
+      },
       bump: { base: 0.02, custom: 0.014 },
       foil: {
         colors: ["#27343e", "#ead7b5"],
