@@ -66,12 +66,12 @@
   position: absolute;
   z-index: 30;
   top: 20.1svh;
-  left: calc(50% + 70px);
+  left: calc(50% + 177px);
   width: min(400px, calc(50vw - 108px));
   margin: 0;
   padding: 14px 24px 13px;
   background: var(--press-held-ink, #18185e);
-  color: var(--press-held-background, #c1b676);
+  color: var(--press-held-background, #b9ad6c);
   font: italic 600 16px/1.45 var(--home-serif);
   opacity: 0;
   pointer-events: none;
@@ -85,13 +85,6 @@
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition-duration: 220ms, 420ms;
-}
-
-/* Reference behavior: the caption takes the vertical half the held volume
-   does not occupy (high book → low caption and vice versa). */
-.press-hold-caption.is-low {
-  top: auto;
-  bottom: 13svh;
 }
 
 .home-masthead .brand-name {

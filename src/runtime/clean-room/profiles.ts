@@ -90,6 +90,9 @@ export interface CleanRoomVolumeProfile {
     readonly yawResponse: number;
   };
   readonly binding: {
+    /** Board and text-block thicknesses are independently reference-calibrated. */
+    readonly boardThicknessRatio: number;
+    readonly pageBlockThicknessRatio: number;
     readonly paper: string;
     readonly paperEdge: string;
     readonly endpaper: string;
@@ -107,30 +110,31 @@ export interface CleanRoomVolumeProfile {
 }
 
 /**
- * Independently authored ZI3T art direction, reduced to the inputs the new
- * renderer owns. These are deliberately not ports of the reference's scalar
- * table: the reference geometry and material equations use a different basis.
+ * Reference-calibrated volume inputs. Reproducible screenshot measurements
+ * take precedence over local silhouette and artwork preferences.
  */
 export const cleanRoomProfiles = [
   {
     slug: "refly",
-    cloth: "#c1b676",
+    cloth: "#b9ad6c",
     ink: "#18185e",
     artworkUrl: reflyArtwork,
     caption: "Re-run browser incidents frame by frame—from captured evidence to deterministic replay, with network, input, and state changes kept inspectable.",
-    thicknessRatio: 0.137,
+    thicknessRatio: 0.1672,
     depthRatio: 0.792,
     shelfPitch: 0.052,
     shelfRoll: 0.0015,
-    drag: { revealPitch: 0.03, verticalResponse: 1.3, yawResponse: 1 },
+    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
-      paper: "#e9e1c5",
-      paperEdge: "#8e866d",
+      boardThicknessRatio: 0.0105,
+      pageBlockThicknessRatio: 0.1462,
+      paper: "#f2f1eb",
+      paperEdge: "#a4a5a1",
       endpaper: "#a49b61",
-      headband: ["#18185e", "#d7c568"],
-      leafDensity: 1,
-      signatureEvery: 9,
-      coverJoints: { inset: 0.005, width: 0.04, depth: 0.0042 }
+      headband: ["#50627d", "#c8bd77"],
+      leafDensity: 0.9,
+      signatureEvery: 15,
+      coverJoints: { inset: 0.005, width: 0.04, depth: 0.0088 }
     },
     material: {
       shininess: 17,
@@ -164,20 +168,22 @@ export const cleanRoomProfiles = [
     ink: "#29435c",
     artworkUrl: armArtwork,
     caption: "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
-    thicknessRatio: 0.122,
-    depthRatio: 0.815,
+    thicknessRatio: 0.1672,
+    depthRatio: 0.792,
     shelfPitch: 0.048,
     shelfRoll: -0.001,
     spineNote: "Field guide",
-    drag: { revealPitch: 0.04, verticalResponse: 1.3, yawResponse: 1 },
+    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
-      paper: "#eee8d5",
-      paperEdge: "#777266",
+      boardThicknessRatio: 0.0105,
+      pageBlockThicknessRatio: 0.1462,
+      paper: "#faf8ee",
+      paperEdge: "#777a78",
       endpaper: "#b6ad8d",
       headband: ["#29435c", "#d9d1ae"],
-      leafDensity: 0.78,
+      leafDensity: 1.65,
       signatureEvery: 7,
-      coverJoints: { inset: 0.006, width: 0.038, depth: 0.0036 }
+      coverJoints: { inset: 0.006, width: 0.038, depth: 0.0086 }
     },
     material: {
       shininess: 11,
@@ -211,20 +217,22 @@ export const cleanRoomProfiles = [
     ink: "#e7e7df",
     artworkUrl: telemetryArtwork,
     caption: "Replay distributed-system evidence in order, without sanding away uncertainty.",
-    thicknessRatio: 0.112,
-    depthRatio: 0.826,
+    thicknessRatio: 0.1672,
+    depthRatio: 0.792,
     shelfPitch: 0.046,
     shelfRoll: 0.001,
     spineNote: "Run 04",
-    drag: { revealPitch: 0.035, verticalResponse: 1.3, yawResponse: 1 },
+    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
-      paper: "#d9d5c4",
-      paperEdge: "#66675f",
+      boardThicknessRatio: 0.0105,
+      pageBlockThicknessRatio: 0.1462,
+      paper: "#faf8ee",
+      paperEdge: "#777a78",
       endpaper: "#172737",
       headband: ["#d6b86b", "#243447"],
-      leafDensity: 1.24,
+      leafDensity: 1.65,
       signatureEvery: 12,
-      coverJoints: { inset: 0.0055, width: 0.0395, depth: 0.0038 }
+      coverJoints: { inset: 0.0055, width: 0.0395, depth: 0.0087 }
     },
     material: {
       shininess: 15,
@@ -258,20 +266,22 @@ export const cleanRoomProfiles = [
     ink: "#f0dfb4",
     artworkUrl: practiceArtwork,
     caption: "Show the boundary, the contract, and the evidence behind every engineering claim.",
-    thicknessRatio: 0.129,
-    depthRatio: 0.803,
+    thicknessRatio: 0.1672,
+    depthRatio: 0.792,
     shelfPitch: 0.051,
     shelfRoll: -0.0015,
     spineNote: "Methods",
-    drag: { revealPitch: 0.045, verticalResponse: 1.3, yawResponse: 1 },
+    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
-      paper: "#eadbc2",
-      paperEdge: "#856f61",
+      boardThicknessRatio: 0.0105,
+      pageBlockThicknessRatio: 0.1462,
+      paper: "#faf8ee",
+      paperEdge: "#777a78",
       endpaper: "#4c1b33",
       headband: ["#f0dfb4", "#6d2949"],
-      leafDensity: 0.9,
+      leafDensity: 1.65,
       signatureEvery: 8,
-      coverJoints: { inset: 0.0065, width: 0.039, depth: 0.0039 }
+      coverJoints: { inset: 0.0065, width: 0.039, depth: 0.0086 }
     },
     material: {
       shininess: 22,
@@ -305,20 +315,22 @@ export const cleanRoomProfiles = [
     ink: "#26333d",
     artworkUrl: notesArtwork,
     caption: "Working notes on replayable systems, verification, and engineering decisions that can be inspected.",
-    thicknessRatio: 0.139,
-    depthRatio: 0.78,
+    thicknessRatio: 0.1672,
+    depthRatio: 0.792,
     shelfPitch: 0.053,
     shelfRoll: 0.001,
     spineNote: "Revised",
-    drag: { revealPitch: 0.05, verticalResponse: 1.3, yawResponse: 1 },
+    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
-      paper: "#e2d3b8",
-      paperEdge: "#77614b",
+      boardThicknessRatio: 0.0105,
+      pageBlockThicknessRatio: 0.1462,
+      paper: "#faf8ee",
+      paperEdge: "#777a78",
       endpaper: "#8a552d",
       headband: ["#26333d", "#ad763b"],
-      leafDensity: 0.68,
+      leafDensity: 1.65,
       signatureEvery: 6,
-      coverJoints: { inset: 0.0045, width: 0.042, depth: 0.0045 }
+      coverJoints: { inset: 0.0045, width: 0.042, depth: 0.0089 }
     },
     material: {
       shininess: 9,

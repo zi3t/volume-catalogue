@@ -44,7 +44,7 @@ measurement fault in this document.
 | Row | Recorded here | Re-measured | Now |
 |---|---|---|---|
 | §1 Desktop first rest book | FAIL, 34px too deep | Δ `-1,0 · 2×0` | **PASS** |
-| §1 Desktop standing book | FAIL, centre 123px left | Δ `-9,1 · 12×0` | **PASS** — residual width is the rank-12 Reject |
+| §1 Desktop standing book | FAIL, centre 123px left | Δ `-9,1 · 12×0` | **OPEN** until the residual reaches screenshot-space tolerance; the former rank-12 exemption is removed |
 | §1 Compact first rest book | FAIL, half the depth | Δ `0,1 · 0×-1` | **PASS** |
 | §1 Desktop dragged silhouette | FAIL | — | **Not a valid target.** Held extent is a function of drag distance at `.003` rad/px, and no pointer travel was recorded for either side. See the scene contract. |
 | §5 Book case, §6 Cloth/Rake/Ink | FAIL, "one parametric template", "muddy and uniform" | scored | **Verdicts stand; reasoning replaced.** Both were argued from all five volumes sharing one scalar profile. They do not — all five signatures reach the GPU and match `clean-room/profiles.ts`. Measured instead, the rows hold on their own evidence. |

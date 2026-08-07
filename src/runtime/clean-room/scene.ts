@@ -214,15 +214,6 @@ const setBookOpacity = (entry: CleanRoomEntry, opacity: number): void => {
   });
 };
 
-const screenCenterY = (
-  entry: CleanRoomEntry,
-  camera: THREE.PerspectiveCamera,
-  viewportHeight: number
-): number => {
-  const projected = entry.book.root.position.clone().project(camera);
-  return (1 - projected.y) * viewportHeight * 0.5;
-};
-
 const projectedBookBounds = (
   book: CleanRoomBook,
   camera: THREE.PerspectiveCamera,
@@ -297,7 +288,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   }
 
   renderer.setClearColor(0x201819, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.domElement.className = "press-scene-canvas press-scene-canvas--clean-room";
@@ -561,10 +552,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
       if (startedDragging) {
         catalogueStage.classList.add("is-book-dragging");
         document.body.classList.add("press-book-dragging");
-        holdCaption.classList.toggle(
-          "is-low",
-          screenCenterY(entry, camera, viewportHeight) < viewportHeight * 0.5
-        );
       }
       const distance = Math.hypot(gesture.dx, gesture.dy);
       const reveal = smooth(clamp(
@@ -614,6 +601,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     catalogueScroll.update();
     renderer.setSize(viewportWidth, viewportHeight, false);
     camera.aspect = viewportWidth / viewportHeight;
+    camera.fov = compact.matches ? 15 : 12;
     camera.updateProjectionMatrix();
     // This scene uses normalized camera space and reprojects every shifted DOM
     // rect directly. Moving the camera by the CSS pixel shift as well would
@@ -649,7 +637,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
           ? figureRect.left + figureRect.width * 0.5 + 5
           : figureRect.left + figureRect.width * 0.608;
         const sectionY = figureRect.top + figureRect.height * 0.5
-          - (compact.matches ? 40 : 10);
+          + (compact.matches
+            ? CLEAN_ROOM_MOTION.sectionCompactOffsetYPixels
+            : CLEAN_ROOM_MOTION.sectionDesktopOffsetYPixels);
         entry.sectionPosition.copy(pointOnDepthPlane(
           camera,
           viewportWidth,
@@ -992,7 +982,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
       entry.book.root.position.x = damp(
         entry.book.root.position.x,
-        entry.homePosition.x,
+        entry.homePosition.x
+          + entry.hold * CLEAN_ROOM_MOTION.heldOffsetXPixels * unitsPerPixel,
         11.5,
         deltaSeconds
       );
@@ -1015,14 +1006,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
         deltaSeconds
       );
       entry.book.root.scale.setScalar(nextScale);
-      const heldForeshorten = clamp(
-        Math.abs(entry.holdRotationY) / CLEAN_ROOM_MOTION.heldForeshortenAngle,
-        0,
-        1
-      ) * entry.hold;
       entry.book.object.scale.x = damp(
         entry.book.object.scale.x,
-        mix(1, CLEAN_ROOM_MOTION.heldLongAxisForeshorten, heldForeshorten),
+        1,
         11,
         deltaSeconds
       );
@@ -1040,8 +1026,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       entry.book.root.rotation.z = damp(
         entry.book.root.rotation.z,
-        -entry.holdRotationY * entry.hold * 0.038
-          + (1 - entryDrive) * (index % 2 ? -0.008 : 0.008),
+        (1 - entryDrive) * (index % 2 ? -0.008 : 0.008),
         13,
         deltaSeconds
       );

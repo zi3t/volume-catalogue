@@ -1240,8 +1240,8 @@ carries `diffuseBaseColor` and `thickness`; we additionally carry
 
 Neither missing uniform is a capability gap. `thickness` is geometry here, not a
 shader input — `profile.thicknessRatio` drives board, spine, and page-block
-placement in `clean-room/geometry.ts`, and book thickness is a binding Reject
-(rank 12) in any case. `diffuseBaseColor` has no direct equivalent: our base
+placement in `clean-room/geometry.ts`. The former rank-12 thickness Reject was
+removed by the 2026-08-08 parity directive. `diffuseBaseColor` has no direct equivalent: our base
 cloth colour arrives through the `diffuseMapBase` sample and is then mixed in
 `clean-room/material.ts`, with no per-volume base tint scalar. Adding one is an
 option for the retune below, not a defect to repair.
@@ -1269,9 +1269,9 @@ a draw to a book by the capture's focus state.
 Rank-1 work is therefore neither an architecture build nor a scalar authoring
 pass. What remains is the retune: whether the authored spread is *wide enough*
 to read at shelf distance, and whether a base diffuse tint is worth adding.
-Reject
-13 stays binding — translate the *shape* of the response, never the reference's
-constants, whose equations and artwork differ.
+The former rank-13 Reject is also removed. Translate constants when the shader
+basis differs, but accept only the rendered response that closes the reference
+delta.
 
 **`draggedBookEdges` is not a reproducible target — do not tune pose to it.**
 The held silhouette is the one row the parity harness still reports as far off
@@ -1548,51 +1548,40 @@ interaction gate checks the joint model in both exact quarter-turn binding
 captures. The recessed leaves, striped head/tail bands, and closed spine caps
 are unchanged.
 
-## Remaining fidelity work
+## Current parity directive — 2026-08-08
 
-Prioritize these only when the user asks to continue:
+This directive supersedes every earlier visual Reject, “do not distort,”
+original-art preservation rule, stock-mesh prohibition, DPR cap, and local
+silhouette exemption in this document. The ultimate goal is pixel-perfect
+matching with the live Stripe Press reference in paired screenshot space.
 
-Item 3 now has evidence behind it. A 2026-08-07 runtime capture of the reference
-independently confirmed the extracted light rig: dividing out the r151 π
-premultiply recovers ambient `.52`, left directional `.6`, spotlight
-`0xCCEECC × .75` and cone `.36` exactly, and both directional light directions
-match the recorded positions. The light rig repeated across runs; the cover
-material scalars did not, which rules out a single global material but does not
-yet distinguish per-volume variation from per-interaction-state variation — the
-runs did not scroll to the same place. `docs/reference-extraction-plan.md` names
-the experiment that settles it. Committed readings live in `docs/reference/`.
-Read the plan before resuming item 1, 2 or 3.
-
-1. **Incremental cover refinement:** the purpose-built case now has a curved
-   and end-capped spine, rounded cloth-wrapped boards, paired recessed cover joints,
-   visible striped head/tail bands, correct text-block inset, pastedowns, and
-   volume-specific binding treatments. Original cover art remains authored SVG.
-   The next low-risk visual work is a design pass on those five covers; do not
-   import a fixed stock mesh unless the calibrated parametric route/section
-   poses are deliberately reworked.
-2. **Source-proportion silhouette:** the canonical held lower edge and some extreme-angle right-edge slopes remain a few to a few-dozen pixels different from the Poor Charlie references because the genuine ZI3T book is wider and thicker. Do not distort the original artwork merely to erase that difference.
-3. **Real-GPU lighting nuance:** the resting, four-direction, extended-orbit,
-   and five section sets now verify the four-light key/rake placement and
-   layered cloth/foil response on Apple Metal. Safari/Firefox and real-time
-   physical-GPU recordings may still justify small per-volume gloss,
-   diffuse-base, cone, or roughness adjustments.
-4. **Terminal content breadth:** the five-volume journey now resolves into an original two-surface ZI3T afterword. It intentionally does not reproduce Stripe's longer film, podcast, or publishing modules; expand it only with genuine ZI3T work.
-5. **Typography:** Iowan/Baskerville approximates the reference's Ivar family. Only change this with a properly licensed font and a fresh metric audit.
-6. **Browser/device profiling:** done 2026-08-05 on real Apple M1 GPU hardware — Safari Back/Forward lifecycle, Firefox WebGL2, touch input, GPU/heap accounting, idle power, sustained frame time, and a first-load recording are captured above. Keep a literal physical Safari trackpad swipe as a manual pre-deploy gesture check; software-GL screenshots remain inadmissible evidence.
-7. **Logo geometry:** the ZI3T mark is intentionally original; its held-background knockout can be refined without imitating Stripe's mark.
-8. **Scroll-feel calibration from the extracted pipeline:** done 2026-07-28 — the `.003`/`.4` velocity fan and the 1200ms idle pause (with `preserveDrawingBuffer`) are adopted; the `.0222/.027` camera ratios were evaluated and rejected as the DOM-anchored follow is their translation.
-9. **Animation-rig calibration from the extracted rig:** done 2026-08-08 —
-   hover spine-z `.1`/frame, twirl, and cover-follow were already in; route
-   opening and Back now share the extracted universal recurrence, with the
-   return stack staged behind its selected volume. Pointer release keeps its
-   separately measured 80/880ms profile.
+- Reproducible reference pixels are the visual contract. A local aesthetic or
+  prior calibration cannot close a non-zero delta.
+- The shared case proportion is adopted in the renderer's basis: the paired
+  quarter-turn fixes visible depth at `.792` and outer thickness at `.1672`,
+  replacing the extracted `.2121` approximation with the paired raster fit.
+  Board and page-block thickness remain independently controlled.
+- Pose calibration uses a level `-π/2` shelf roll, unsqueezed object scale, and
+  measured section offsets. Compact uses the reference 15° lens; desktop uses
+  12°. Device pixel ratio is uncapped.
+- The structural case is one continuous U-shell. Decorative skins may remain
+  separate only where they do not introduce a visible seam, broken normal, or
+  material discontinuity.
+- Cover art, texture density, colours, material response, geometry, and motion
+  may all change when a paired capture demonstrates a closer result.
+- Automated behavior gates are advisory diagnostics, not visual acceptance.
+  Paired reference/candidate captures at identical viewport, route, scroll,
+  pointer travel, DPR, and settled frame determine parity.
 
 ## Quality gate
 
 Before claiming completion:
 
-- Run the skill QA script and require `PASS`.
-- Inspect its six desktop screenshots rather than relying only on DOM assertions.
+- Capture the reference and candidate manually at identical viewport, route,
+  scroll, pointer travel, DPR, and settled frame; compare the actual pixels.
+- Do not use an automated gate verdict as evidence of visual completion.
+- Inspect the canonical desktop and compact screenshots rather than relying on
+  DOM assertions or projected geometry bounds.
 - Inspect `desktop-stack-evacuating` and `desktop-route-stack-clearing`; verify that neighboring volumes move away from the selected index and never intersect its route-flight silhouette.
 - Inspect the four directional drag captures; resting and dragged Re-fly and note captures; and the Arm, Telemetry, and Resume route captures when material, lighting, or detail continuity changes.
 - Inspect `desktop-drag-orbit-up` and `desktop-drag-orbit-reverse` whenever pointer mapping, geometry visibility, or held lighting changes.

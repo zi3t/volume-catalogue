@@ -305,7 +305,7 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
    continuous surface. These values are scoped so the accepted renderer and
    the no-WebGL document retain their established palette. */
 html[data-press-renderer="clean-room"] .press-volume-section--refly {
-  --press-volume-bg: #c1b676;
+  --press-volume-bg: #b9ad6c;
   --press-volume-ink: #18185e;
 }
 

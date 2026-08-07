@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
-  <!-- Re-fly the incident. One recorded tape, replayed, then re-run with a
-       changed controller: the same trace three times, diverging only after the
-       checkpoint where the change was made. Portrait — the cover's long axis is
-       its height. No background: the scene paints the volume's cloth and threads
-       underneath, and a filled rect here would cover them. -->
   <g fill="none" stroke="#292a74" stroke-linecap="round">
-    <!-- Dense recorder field: the cover reads as a full instrument rather than
-         one diagram floating in its centre. The irregular spans are seeded,
-         authored event intervals—not a borrowed image. -->
-    <g opacity=".22" stroke-width="1.8">
-      <path d="M112 198V898M142 228V864M172 182V912M202 246V842M232 206V884M262 174V920M292 236V856M322 194V900M352 218V874M382 180V914M412 244V846M442 204V890M472 172V922M502 232V860M532 190V904M562 220V878M592 184V916M622 240V850M652 202V892M682 176V918"/>
-      <path d="M96 254H704M96 302H704M96 350H704M96 750H704M96 834H704M96 882H704" stroke-dasharray="3 7"/>
+    <!-- Recorder field. -->
+    <g>
+      <path d="M718 0H800V1000H718Z" fill="#292a74" stroke="none"/>
+      <path d="M82 0V1000M97 0V1000M112 0V1000M127 0V1000M142 0V1000M157 0V1000M172 0V1000M187 0V1000M202 0V1000M217 0V1000M232 0V1000M247 0V1000M262 0V1000M277 0V1000M292 0V1000M307 0V1000M322 0V1000M337 0V1000M352 0V1000M367 0V1000M382 0V1000M397 0V1000M412 0V1000M427 0V1000M442 0V1000M457 0V1000M472 0V1000M487 0V1000M502 0V1000M517 0V1000M532 0V1000M547 0V1000M562 0V1000M577 0V1000M592 0V1000M607 0V1000M622 0V1000M637 0V1000M652 0V1000M667 0V1000M682 0V1000M697 0V1000M712 0V1000" opacity=".92" stroke-width="3.2"/>
+      <path d="M96 254H704M96 302H704M96 350H704M96 750H704M96 834H704M96 882H704" opacity=".22" stroke-width="1.8" stroke-dasharray="3 7"/>
     </g>
     <g opacity=".28" stroke-width="3.2">
       <path d="M96 286C152 248 196 326 252 286S354 246 410 286 512 328 568 286 648 250 704 286"/>

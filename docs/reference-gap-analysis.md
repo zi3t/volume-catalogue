@@ -7,17 +7,12 @@ environment on 2026-08-07. The reference facts come from the
 (`O-GL`). Current implementation citations point to
 [`src/runtime/catalogue.ts`](../src/runtime/catalogue.ts).
 
-Classification is binding for this analysis:
-
-- **Adopt** — translate the measured mechanism proportionally; “closed” means
-  the current implementation already does.
-- **Reject** — preserve an explicit contract decision. A Reject cannot become
-  an Adopt silently; it requires contrary evidence, the affected contract
-  entry, and a new user decision.
-- **Undecided** — evidence is sufficient, but scope or art direction still
-  belongs to the user.
-
-This extraction does not overturn an existing Reject.
+The binding objective is screenshot-space pixel parity with the live reference.
+Every reproducible visual fact is an **Adopt**. Earlier Reject, local-art,
+performance-hardening, and “do not distort” decisions are superseded wherever
+they produce a measurable pixel delta. Accessibility, valid navigation, and
+content integrity remain requirements, but they are not exemptions from visual
+parity.
 
 ## Prioritized gaps
 
@@ -29,40 +24,44 @@ engineering effort and include proportional real-GPU verification.
 |---|---|---|---|---|---|---|
 | 1 · Material | **Adopt** | Seven-map cover model and 19 texture-correlated scalar profiles: base/custom diffuse, base/custom bump, foil, gloss, glitter. | Five genuinely distinct profiles already exist, but the patched Phong path exposes only foil, sheen, and one bump map. | **High.** Reference books vary from dry cloth to wet gloss, negative bump, emissive foil, and glitter; ours varies cloth/foil but has fewer independently masked responses. | **Medium.** Add clean-room gloss/glitter and split bump masks derived from original ZI3T art; retune all five states. | [Sheet §3](reference-extraction-sheet.md#3-material-model); `O-GL` program 3; [profiles](../src/runtime/catalogue.ts#L329) |
 | 2 · Texture | **Adopt** | Most cover maps upload at 1920×1600; diffuse unit 1 is the per-volume material join key. | Procedural/original textures are commonly 500×400, 512-square, 768-wide, or 128-square; five volumes are still independently keyed. | **Medium–high** on held and route close-ups; low on the shelf. Resolution alone is not the goal—the missing independent masks are. | **Medium**, shared with rank 1. Generate route-resolution masks from original SVG/cloth sources and retain lazy loading. | [Sheet §5](reference-extraction-sheet.md#5-texture-pipeline); `O-GL` `textures`; [texture creation](../src/runtime/catalogue.ts#L767) |
-| 3 · Compact camera | **Undecided** | FOV changes from 12° to 15° below 600 px. | FOV remains 12°; compact geometry and hit regions were calibrated around that lens. | **Medium** on narrow phones: 15° adds perspective and changes apparent depth. | **Low code / high QA risk.** One constant, but every compact silhouette, route ground, and hit target must be re-baselined. | [Sheet §1](reference-extraction-sheet.md#1-scene-graph-and-camera); [camera](../src/runtime/catalogue.ts#L1505); [contract](scene-contract.md) compact checkpoints |
-| 4 · Material architecture | **Undecided** | Dedicated custom cover `ShaderMaterial`, one shared program with per-book uniforms. | `MeshPhongMaterial.onBeforeCompile` keeps Three's standard chunks and injects ZI3T foil/sheen uniforms. | Potentially **high**, but only if rank 1 cannot reproduce the reference's masked response. A program rewrite has no automatic visual value. | **High.** Clean-room equation rewrite, cache keys, transparency, all five materials, and cross-browser requalification. | [Sheet §3](reference-extraction-sheet.md#program-structure); `O-GL` programs 0–4; [shader patch](../src/runtime/catalogue.ts#L1236) |
-| 5 · Current component scope | **Undecided** | August adds film overlay/detail, menu, loader, footer/newsletter, and podcast scene around 19 books. | Five original volumes, the existing terminal character study/closing, rail, and genuine project/note content. | **High** as product scope, not as book-render fidelity. | **Very high/content-bound.** New genuine media, copy, accessibility, responsive behavior, and QA are prerequisites. | [Sheet §8](reference-extraction-sheet.md#8-content-architecture); [contract](scene-contract.md) terminal/content decisions |
+| 3 · Compact camera | **Adopt — closed** | FOV changes from 12° to 15° below 600 px. | The clean-room camera now switches to 15° below 600 px. | None in the lens rule. | Closed. | [Sheet §1](reference-extraction-sheet.md#1-scene-graph-and-camera); [camera](../src/runtime/clean-room/scene.ts) |
+| 4 · Material architecture | **Adopt** | Dedicated custom cover `ShaderMaterial`, one shared program with per-book uniforms. | The clean-room renderer exposes the seven mapped response channels in a dedicated shader material. | Remaining differences are profile and texture authoring, not permission to diverge. | Continue until cross-site pixels match. | [Sheet §3](reference-extraction-sheet.md#program-structure); [shader](../src/runtime/clean-room/material.ts) |
+| 5 · Current component scope | **Adopt when measured** | The reference includes the surrounding film, menu, loader, footer/newsletter, and podcast composition. | The local document currently carries five project volumes and its own content. | Any visible frame-level delta remains open; content substitutions must preserve accessibility and valid destinations. | Content-bound. | [Sheet §8](reference-extraction-sheet.md#8-content-architecture) |
 | 6 · Light rig | **Adopt — closed** | Ambient `.52π`; key `.6π`; back `#211815 × .5π` with palette lerp; mint rake `.75π→.05π`. | Same constants, positions translated by `camera.z/100`, palette-driven back light, and held rake dimming. `O-GL` confirms ambient, key, and back uploads. | No material visible gap established in this capture. | None unless rank 1 exposes a new interaction. | [Sheet §2](reference-extraction-sheet.md#2-light-rig); [rig](../src/runtime/catalogue.ts#L1505); [layout](../src/runtime/catalogue.ts#L2298) |
 | 7 · Colour/render pipeline | **Adopt — closed** | Color management off; linear output; no tone mapping; no environment or shadow inputs. | Same non-colour-managed linear passthrough, no tone mapping, no IBL, no shadows. | None established. | None. | [Sheet §§2–3](reference-extraction-sheet.md#2-light-rig); [pipeline](../src/runtime/catalogue.ts#L18); [renderer](../src/runtime/catalogue.ts#L1491) |
 | 8 · Flight recurrence | **Adopt — closed** | Product activation resets the universal approach, then ramps `+.006` per frame to `.15`. | Picked-volume flight uses frame-normalized `.006/.15` constants and stops when it lands. | None in the mechanism. | None. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing); [constants](../src/runtime/catalogue.ts#L80); [flight](../src/runtime/catalogue.ts#L3311) |
 | 9 · Hover z easing | **Adopt — closed** | Hovered spine z uses fixed `.1` per frame. | Same frame-normalized `.1` approach, with screen-space depth calibrated to ZI3T's thicker volumes. | No timing gap; projected size intentionally differs from the literal source z. | None. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing); [constants](../src/runtime/catalogue.ts#L37); [pose](../src/runtime/catalogue.ts#L3219) |
 | 10 · Scroll/idle | **Adopt — closed** | `delta × .003`, decay `.4` per frame, tilt inside the damped target; rendering stops 1200 ms after movement. | Same law, frame normalized and clamped to ±1 for trackpad safety; desktop buffer is preserved for idle presentation. | None established. | None. | [Sheet §7](reference-extraction-sheet.md#7-scroll-and-navigation-pipeline); [constants](../src/runtime/catalogue.ts#L96); [decay](../src/runtime/catalogue.ts#L3030) |
 | 11 · Navigation model | **Adopt — closed** | Catalogue scrolling stays on `/`; a deliberate pick pushes a book document; centered sections replace the address; Back restores list state. | Catalogue and volume modes are distinct; pick pushes, in-volume movement replaces, `popstate` restores mode/offset, and deep links settle to their volume. | None in the model. The implementations differ because ZI3T assembles genuine project/note pages. | None. | [Sheet §§7–8](reference-extraction-sheet.md#7-scroll-and-navigation-pipeline); [history](../src/runtime/catalogue.ts#L2537); [popstate](../src/runtime/catalogue.ts#L2853) |
-| 12 · Scene proportions | **Reject** | Shared OBJ ratio `.6718` width/height and thickness/width `.2121`; one triangulated case mesh. | Original volumes use per-book proportions and separately shaded cover, boards, page block, fore-edge, underside/endpaper, and headbands. They are visibly wider/thicker by design. | **High**, deliberately. Literal source proportions would distort ZI3T's cover art and erase accepted physical layering. | Not applicable. | [Sheet §4](reference-extraction-sheet.md#4-geometry-and-proportion); [geometry](../src/runtime/catalogue.ts#L1856); [contract](scene-contract.md) geometry rejections |
-| 13 · Literal material scalars | **Reject** | Some profiles use negative bump, opacity, emissive, or specular inputs specific to the reference equations. | ZI3T scalars are authored for its own masks and patched Phong equations. | Copying numbers would be visibly wrong and may invert effects. | Not applicable; translate response, not constants. | [Sheet §3 table](reference-extraction-sheet.md#per-volume-scalar-profiles); [profiles](../src/runtime/catalogue.ts#L329) |
-| 14 · Release easing | **Reject** | Drag release resets the universal speed to zero; twirl delta is ±.3 and decays `.95` per frame. | Twirl limit/decay are adopted, but the accepted reversible release profile preserves the measured early/late keyframes instead of globally restarting every channel. | **High** during release; deliberate. | Reopening requires a new timing trace and user approval. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing); [twirl](../src/runtime/catalogue.ts#L85); [contract](scene-contract.md) release decision |
-| 15 · Literal hover/held scale | **Reject** | Source hover/active z values operate on a thinner mesh and its own camera basis. | Projected scale is 1.033 hover / 1.035 hold, calibrated to the accepted ZI3T silhouette. | Literal import over-scales the thicker volumes. | Not applicable. | [Sheet §§1,4,6](reference-extraction-sheet.md#1-scene-graph-and-camera); [calibration](../src/runtime/catalogue.ts#L37); [contract](scene-contract.md) held silhouette |
-| 16 · Camera-follow ratio | **Reject** | Camera y follows source scroll through `cameraScrollRatio`. | Camera y cancels DOM shift 1:1 so each mesh remains bound to its semantic row/section. | Literal `.0222/.027`-style ratios would unpin the books from their hit areas. | Not applicable. | [Sheet §7](reference-extraction-sheet.md#7-scroll-and-navigation-pipeline); [camera placement](../src/runtime/catalogue.ts#L2144); [contract](scene-contract.md) camera-ratio rejection |
-| 17 · Entry choreography | **Reject** | Current durable evidence exposes universal recurrence but no independent trace-backed entry duration. | Entry deliberately starts after shader compile, then uses 54 ms delay, 72 ms stagger, 492 ms spring, and a measured settlement gate before rail reveal. | **High**, deliberately authored to avoid cold compilation consuming the reveal. | Reopening requires a reference entry trace plus all first-load/browser checks. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing); [entry constants](../src/runtime/catalogue.ts#L46); [contract](scene-contract.md) first-load recording |
-| 18 · Spotlight decay literal | **Reject** | Program 1 uploads default decay `2`, but distance is `0`, so falloff is inert in r151. | r171 spotlight explicitly uses decay `0`; distance is also `0`. | None; copying `2` into r171 would reintroduce physical inverse-square behavior if distance semantics change. | None. | [Sheet §2](reference-extraction-sheet.md#2-light-rig); [spotlight](../src/runtime/catalogue.ts#L1527); [contract](scene-contract.md) r151/r171 unit law |
-| 19 · Podcast scissor | **Reject** | Book and podcast scenes share one canvas with scroll-controlled scissors. | One scene is split by catalogue/volume mode; no podcast scene exists. | None until genuine podcast content exists. | High and coupled to rank 5. | [Sheet §§1,7,8](reference-extraction-sheet.md#1-scene-graph-and-camera); [mode render](../src/runtime/catalogue.ts#L2995) |
-| 20 · Pixel ratio | **Reject** | Reference uses uncapped device pixel ratio. | Renderer caps DPR at 1.75 as a performance hardening decision. | Small sharpness difference above 1.75 DPR; potentially large GPU-cost difference. | Low code / medium performance risk. | [Sheet §1](reference-extraction-sheet.md#1-scene-graph-and-camera); [DPR cap](../src/runtime/catalogue.ts#L1491); [contract](scene-contract.md) performance hardening |
+| 12 · Scene proportions | **Adopt — calibrated in clean room** | Shared OBJ ratio `.6718` width/height and thickness/width `.2121`; one continuous case silhouette. | The live quarter-turn establishes the renderer-basis depth at `.792` and outer thickness at `.1672` (`.2111` of visible depth); board and text-block thickness are independent, and one U-shell carries the structural silhouette. | Continue screenshot tuning, but no local-proportion exemption remains. | Closed architecturally. | [Sheet §4](reference-extraction-sheet.md#4-geometry-and-proportion); [geometry](../src/runtime/clean-room/geometry.ts) |
+| 13 · Material scalars | **Adopt by rendered response** | Profiles include negative bump, opacity, emissive, and specular values in the reference equation. | Scalars are translated through the local shader until the resulting pixels match. | Raw numeric equality is secondary to shader-output equality. | Per profile. | [Sheet §3 table](reference-extraction-sheet.md#per-volume-scalar-profiles); [profiles](../src/runtime/clean-room/profiles.ts) |
+| 14 · Release easing | **Adopt** | Drag release resets the universal speed to zero; twirl delta is ±.3 and decays `.95` per frame. | Any unmatched local release curve is open work. | Motion deltas are no longer accepted as art direction. | Requires a matched trace. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing) |
+| 15 · Hover/held scale | **Adopt** | Source hover/active z values determine the screenshot silhouette. | Tune in screenshot space against matched pointer travel. | No thicker-volume exemption remains. | Low after a reproducible capture. | [Sheet §§1,4,6](reference-extraction-sheet.md#1-scene-graph-and-camera) |
+| 16 · Camera-follow ratio | **Adopt** | Camera y follows source scroll through `cameraScrollRatio`. | Preserve semantic hit alignment while reproducing the same projected motion. | Any visible scroll delta remains open. | Medium. | [Sheet §7](reference-extraction-sheet.md#7-scroll-and-navigation-pipeline) |
+| 17 · Entry choreography | **Adopt** | Entry follows the reference recurrence and timing. | Local compile readiness may gate start, but not alter visible timing after the first painted frame. | Any timing delta remains open. | Requires a matched first-load trace. | [Sheet §6](reference-extraction-sheet.md#6-animation-rig-and-timing) |
+| 18 · Spotlight decay | **Adopt by rendered response** | Program 1 uploads decay `2` with distance `0`. | Equivalent inert falloff is acceptable only while its pixels remain equivalent. | None currently measured. | None until output differs. | [Sheet §2](reference-extraction-sheet.md#2-light-rig) |
+| 19 · Podcast scissor | **Adopt when that frame is in scope** | Book and podcast scenes share one canvas with scroll-controlled scissors. | Missing visible composition remains an open scope row rather than a protected divergence. | Frame-level difference when reached. | High and content-bound. | [Sheet §§1,7,8](reference-extraction-sheet.md#1-scene-graph-and-camera) |
+| 20 · Pixel ratio | **Adopt — closed in clean room** | Reference uses uncapped device pixel ratio. | Clean-room renderer uses the full device pixel ratio. | None in the DPR rule. | Closed. | [Sheet §1](reference-extraction-sheet.md#1-scene-graph-and-camera); [renderer](../src/runtime/clean-room/scene.ts) |
 
 ## What the new evidence changes
 
 The material question is no longer “does the reference vary by book?” It does:
 19 bound diffuse identities produce 19 scalar profiles in one cover program,
 and sampled PCA, BOOM, and WIP profiles remain exact across rest, hover, and
-held-drag. That supports a per-volume material pass, but not a literal number
-port. The geometry, shader equations, and original artwork differ too much for
-the raw values to be portable.
+held-drag. That supports a per-volume material pass. Scalar values may be
+translated when shader equations differ, but only the rendered reference
+response decides whether that translation is complete.
 
 The extraction does not reveal an architectural mismatch large enough to
 justify a rebuild by itself. The current scene already matches the reference's
 legacy light units, colour pipeline, camera basis, scroll law, idle behavior,
 flight recurrence, two-document history model, and per-volume authorship.
 
-## Decision memo
+## Superseded decision memo
+
+The options below are retained as history only. The 2026-08-08 parity directive
+selects whatever implementation closes the measured delta; it removes the
+independent-art and protected-divergence restrictions that separated A from B.
 
 Cost ranges below are focused engineering time assuming the existing hardware
 harness, original ZI3T assets, and 49-check QA gate remain available. They
@@ -119,9 +118,10 @@ Choose C only with named, genuine film/podcast/newsletter content.
 **Decision recorded 2026-08-07: Option B.** The clean-room implementation starts
 on `feature/press-clean-room`, stacked above `feature/reference-capture`. The
 existing scene remains the default until the replacement independently earns
-the contract and real-GPU gates. Every Reject in this analysis remains binding;
-Option B is permission to replace the implementation, not to erase prior art-
-direction or behavior decisions.
+the contract and real-GPU gates. The 2026-08-08 directive supersedes every
+former visual Reject in this analysis: Option B may replace implementation,
+geometry, textures, art direction, and motion wherever that closes a measured
+reference delta.
 
 **Checkpoint update 2026-08-07:** the opt-in clean-room renderer has earned the
 rank-1 material architecture checkpoint: seven independently derived sampler
@@ -146,8 +146,9 @@ routes. Its dedicated journey gate passes 18/18 alongside the 10/10, 12/12,
 Aligned route captures narrow the visual residual to softer clean-room
 specular/highlight response, most visibly on Re-fly and Arm. Field Notes is not
 a unique outlier when both renderers are captured at the same scroll offset.
-No Reject changed classification, and a global material gain was not adopted
-because it makes the closer covers worse. **Correction after user review:**
+At that checkpoint no Reject changed classification; that limitation is now
+superseded. A global material gain was not adopted because it makes the closer
+covers worse. **Correction after user review:**
 this comparison used the accepted ZI3T renderer rather than the live Stripe
 scene, so it cannot close Option B. The matched live audit now records FAILs
 for the desktop route grid, compact shelf, held silhouette, typography, and

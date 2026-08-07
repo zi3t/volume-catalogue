@@ -142,31 +142,39 @@ const createPaperEdgeTexture = (
   profile: CleanRoomVolumeProfile
 ): THREE.CanvasTexture => {
   const canvas = document.createElement("canvas");
-  canvas.width = 512;
+  canvas.width = 1024;
   canvas.height = 256;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("2D canvas is unavailable for the paper edge");
   context.fillStyle = profile.binding.paper;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  const edgeShade = context.createLinearGradient(0, 0, 0, canvas.height);
+  edgeShade.addColorStop(0, "rgba(70,72,72,.14)");
+  edgeShade.addColorStop(0.055, "rgba(90,92,92,.035)");
+  edgeShade.addColorStop(0.48, "rgba(255,255,255,.015)");
+  edgeShade.addColorStop(0.945, "rgba(90,92,92,.035)");
+  edgeShade.addColorStop(1, "rgba(70,72,72,.14)");
+  context.fillStyle = edgeShade;
+  context.fillRect(0, 0, canvas.width, canvas.height);
   const random = createRandom(seedFor(profile.slug));
   const density = profile.binding.leafDensity;
   let leaf = 0;
-  for (let y = 1.5; y < canvas.height; y += (2.4 + random() * 3.2) / density) {
+  for (let y = 1.5; y < canvas.height; y += (3.2 + random() * 4.4) / density) {
     const signature = leaf % profile.binding.signatureEvery === 0;
     context.strokeStyle = signature || random() < 0.74
       ? profile.binding.paperEdge
-      : "rgba(255,255,248,.56)";
-    context.globalAlpha = signature ? 0.42 : 0.18 + random() * 0.24;
-    context.lineWidth = signature ? 1.2 : random() > 0.9 ? 0.9 : 0.48;
+      : "rgba(246,246,241,.62)";
+    context.globalAlpha = signature ? 0.34 : 0.1 + random() * 0.18;
+    context.lineWidth = signature ? 0.8 : random() > 0.92 ? 0.52 : 0.34;
     context.beginPath();
     context.moveTo(0, y);
     context.bezierCurveTo(
       canvas.width * 0.28,
-      y + (random() - 0.5) * 1.2,
+      y + (random() - 0.5) * 0.75,
       canvas.width * 0.72,
-      y + (random() - 0.5) * 1.2,
+      y + (random() - 0.5) * 0.75,
       canvas.width,
-      y + (random() - 0.5) * 0.8
+      y + (random() - 0.5) * 0.5
     );
     context.stroke();
     leaf += 1;
@@ -199,14 +207,14 @@ const createHeadbandTexture = (
     context.fillStyle = Math.floor(y / 3) % 2 ? first : second;
     context.fillRect(0, y, canvas.width, 3);
   }
-  context.fillStyle = "rgba(0,0,0,.14)";
-  for (let x = 3; x < canvas.width; x += 7) context.fillRect(x, 0, 1, canvas.height);
+  context.fillStyle = "rgba(0,0,0,.08)";
+  for (let x = 4; x < canvas.width; x += 8) context.fillRect(x, 0, 1, canvas.height);
   const texture = new THREE.CanvasTexture(canvas);
   texture.name = `clean-room-${profile.slug}-headband`;
   texture.magFilter = THREE.LinearFilter;
   texture.minFilter = THREE.LinearMipmapLinearFilter;
   texture.generateMipmaps = true;
-  configureTexture(texture, renderer, 2.2, 1);
+  configureTexture(texture, renderer, 2.2, 1.25);
   texture.needsUpdate = true;
   return texture;
 };
@@ -326,13 +334,6 @@ const paintCover = (
     paintCloth(diffuse, width, height, profile.cloth, metadata.serial.charCodeAt(0) * 97);
     if (artwork) {
       diffuse.drawImage(artwork, 0, 0, width, height);
-      // The reference holds printed linework through both the route-scale
-      // light rake and the shallow shelf angle. A second translucent pass
-      // gives the original ZI3T drawings the same graphic density without
-      // importing any reference artwork.
-      diffuse.globalAlpha = 0.72;
-      diffuse.drawImage(artwork, 0, 0, width, height);
-      diffuse.globalAlpha = 1;
     }
     paintCoverTypography(diffuse, metadata, profile.ink);
   });

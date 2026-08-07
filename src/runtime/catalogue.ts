@@ -294,7 +294,7 @@ const subdueScanUnder = (context, color, x, y, width, height) => {
 
 const configurations = [
   {
-    background: "#c1b676",
+    background: "#b9ad6c",
     ink: "#18185e",
     art: reflyArt,
     routeMode: "project",

@@ -1,6 +1,6 @@
 export const CLEAN_ROOM_MOTION = {
   hoverProjectedScale: 1.033,
-  holdProjectedScale: 1.035,
+  holdProjectedScale: 1.134,
   dragThreshold: 4,
   rotationPerPixel: 0.003,
   revealDistance: 124,
@@ -17,11 +17,16 @@ export const CLEAN_ROOM_MOTION = {
   releaseBackdrop: 430,
   releaseClassDelay: 780,
   sectionCoverYaw: 0.35,
-  sectionCoverRoll: -(Math.PI / 2) + 0.04,
+  // The reference fore edge is level. The old +.04 rad residual was visible
+  // as a two-degree rise across the complete book.
+  sectionCoverRoll: -(Math.PI / 2),
   sectionCoverPitchShortfall: 0.16,
   sectionCoverViewportHeight: 0.685,
-  sectionObjectScaleX: 0.953,
-  sectionCompactObjectScaleX: 0.944,
+  // Fit the source proportions without a second long-axis squeeze.
+  sectionObjectScaleX: 1,
+  sectionCompactObjectScaleX: 1,
+  sectionDesktopOffsetYPixels: 22,
+  sectionCompactOffsetYPixels: -40,
   flightEaseStep: 0.006,
   flightEaseCeiling: 0.15,
   returnStackStart: 0.38,
@@ -40,11 +45,10 @@ export const CLEAN_ROOM_MOTION = {
   compactThicknessScale: 1.5,
   catalogueRestLiftPixels: 10,
   compactCatalogueRestLiftPixels: 6.5,
-  heldLiftPixels: 4,
+  heldLiftPixels: -15,
+  heldOffsetXPixels: -4,
   pressPickLiftPixels: 0,
   pressPickPitch: 0.008,
-  heldLongAxisForeshorten: 0.958,
-  heldForeshortenAngle: 0.42,
   terminalScrollViewports: 2.18,
   idlePauseAfter: 1200
 } as const;
