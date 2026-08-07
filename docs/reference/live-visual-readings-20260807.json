@@ -1,0 +1,112 @@
+{
+  "capturedAt": "2026-08-07",
+  "referenceUrl": "https://press.stripe.com/",
+  "candidateUrl": "http://127.0.0.1:4173/press/?press-renderer=clean-room",
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+  "method": {
+    "capture": "Fresh CDP targets at matched device metrics; scene settlement completed before screenshots.",
+    "flatGroundBounds": "ffmpeg bbox with minimum luma 40 in an object-isolating crop.",
+    "heldAndRouteBounds": "ffmpeg edge detection followed by bbox in an object-isolating crop.",
+    "note": "Reference image bytes remain untracked. Paths plus SHA-256 identify the reviewed captures."
+  },
+  "captures": {
+    "desktopBase": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-base.png",
+        "sha256": "528d71715ec71045a314b4501b5210a1e9e896c6d1c6f0d78dcb7a9658c150dd"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-base.png",
+        "sha256": "ce255d442d49156278d9ff96e1b3e8468a767ee4bdb050dfec718daf0f99edf1"
+      }
+    },
+    "desktopPressed": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-pressed.png",
+        "sha256": "afdf31dac40aa5b5a26c441e5ad04a01be53a8bba848bdbcb870ac29e5cbbd83"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-pressed.png",
+        "sha256": "bc7820775ff88ead5543172cc7d578e52075faf7732d00b805efc473c04388d9"
+      }
+    },
+    "desktopDragged": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-dragged.png",
+        "sha256": "acea8d9287e89d94752d2991e8227b498592ad060772204ac742f7489f1d4e1f"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-dragged.png",
+        "sha256": "9a1fe37e6d331c72f170e439383c13c7a1d3604128b9803859e692cc188258fa"
+      }
+    },
+    "compactBase": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-mobile.png",
+        "sha256": "f974312e67b7fa215489693c62b808b14e862e419f2164f77631e8d4596bd339"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-mobile.png",
+        "sha256": "53d49068838800ba48f5d1d2adaf9fa1e01c24a7fb7af3064be0f4570b6c1910"
+      }
+    },
+    "desktopRoute": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-route.png",
+        "sha256": "9bf56e6ae44bef7288463a2e42fe177db5c2b5cecd5b8948b3021e7141e988ac"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-route.png",
+        "sha256": "fab3a320fc9e1df2da1326ad35c7e4f4697393618a4db240e668d15313596668"
+      }
+    },
+    "compactRoute": {
+      "reference": {
+        "path": "/tmp/zi3t-live-reference-reopen/stripe-mobile-route.png",
+        "sha256": "fdfee7ef5875598a216008546c391ff9f3eda161eb101e53d15663083c0c2d9b"
+      },
+      "candidate": {
+        "path": "/tmp/zi3t-live-reference-reopen/clean-room-mobile-route.png",
+        "sha256": "2dccb21c788c470b729d070e467105e490a8d99a3eb69fed31bc2b80b96bec1e"
+      }
+    }
+  },
+  "measurements": {
+    "desktop": {
+      "viewport": [1568, 894],
+      "referenceRows": 19,
+      "candidateRows": 5,
+      "referenceDocumentHeight": 6955,
+      "candidateDocumentHeight": 3605,
+      "firstRestBook": {
+        "reference": { "left": 394, "top": 332, "width": 780, "height": 128 },
+        "candidate": { "left": 393, "top": 326, "width": 782, "height": 162 }
+      },
+      "draggedBookEdges": {
+        "reference": { "left": 340, "top": 286, "width": 904, "height": 202 },
+        "candidate": { "left": 330, "top": 318, "width": 935, "height": 178 }
+      },
+      "standingBookEdges": {
+        "reference": { "left": 305, "top": 166, "width": 437, "height": 555 },
+        "candidate": { "left": 150, "top": 174, "width": 502, "height": 563 }
+      },
+      "standingContentStartApprox": {
+        "reference": { "left": 886, "top": 188 },
+        "candidate": { "left": 815, "top": 392 }
+      }
+    },
+    "compact": {
+      "viewport": [390, 844],
+      "referenceDocumentHeight": 8292,
+      "candidateDocumentHeight": 1604,
+      "firstRestBook": {
+        "reference": { "left": 0, "top": 277, "width": 390, "height": 182 },
+        "candidate": { "left": 0, "top": 328, "width": 390, "height": 91 }
+      }
+    },
+    "sharedGround": {
+      "reference": "rgb(32, 24, 25)",
+      "candidate": "rgb(32, 24, 25)"
+    }
+  }
+}

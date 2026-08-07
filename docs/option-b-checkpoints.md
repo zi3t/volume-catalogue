@@ -169,7 +169,7 @@ mechanics, not final lighting parity. Catalogue scroll/terminal choreography,
 compact and reduced-motion parity, complete accessibility/idle behavior, and a
 final visual diff remain unclaimed.
 
-## Checkpoint 4 — complete catalogue journey and fallback contract
+## Checkpoint 4 — behavior-complete catalogue journey and fallback contract
 
 The opt-in clean-room renderer now owns the rest of the catalogue document.
 At 1568×894 the semantic main is exactly `3605px` tall (`2711px` of native
@@ -222,14 +222,10 @@ Evidence is `/tmp/zi3t-clean-room-functional-final.png`,
 set is `/tmp/zi3t-clean-room-visual-sections`, captured at the same section-top
 plus 200px offset as `/tmp/zi3t-clean-room-routing-accepted-gate`.
 
-The final visual review finds the clean-room shelf, section silhouettes,
-compact route, and terminal composition credibly aligned, but not pixel
-identical. The custom Phong response retains softer route highlights than the
-accepted patched physical material, most visibly on Re-fly and Arm; the
-aligned Field Notes frame is no longer a unique lighting outlier. A global
-gain was rejected because it would wash out the already-close Practice and
-Field Notes faces. This is an honest residual, not a failed behavior gate.
-
-Option B is complete as an independently gated, opt-in implementation. Making
-it the default renderer is a separate promotion decision. Nothing was pushed
-or deployed.
+The comparison used here was against the accepted ZI3T renderer, not the live
+Stripe reference. User review rejected that comparator on 2026-08-07. A fresh
+matched hardware capture in
+[`clean-room-live-visual-audit.md`](clean-room-live-visual-audit.md) fails the
+desktop route grid, compact shelf, held silhouette, typography, and physical
+surface rows. This checkpoint closes behavior only; it does not complete
+Option B or establish clone fidelity. Nothing was pushed or deployed.

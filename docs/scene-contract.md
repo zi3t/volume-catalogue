@@ -1167,7 +1167,7 @@ reduced-motion parity, complete accessibility/idle behavior, and the final
 visual diff remain unclaimed. The clean-room renderer remains opt-in and
 nothing was deployed.
 
-## Current checkpoint — 2026-08-07 Option B complete opt-in journey
+## Current checkpoint — 2026-08-07 Option B behavior-complete opt-in journey
 
 The clean-room replacement has now independently earned the remainder of the
 catalogue contract without changing the default renderer. At 1568×894 its

@@ -147,5 +147,9 @@ Aligned route captures narrow the visual residual to softer clean-room
 specular/highlight response, most visibly on Re-fly and Arm. Field Notes is not
 a unique outlier when both renderers are captured at the same scroll offset.
 No Reject changed classification, and a global material gain was not adopted
-because it makes the closer covers worse. Option B is complete as an opt-in
-implementation; default promotion remains a separate decision.
+because it makes the closer covers worse. **Correction after user review:**
+this comparison used the accepted ZI3T renderer rather than the live Stripe
+scene, so it cannot close Option B. The matched live audit now records FAILs
+for the desktop route grid, compact shelf, held silhouette, typography, and
+physical surface response. See
+[`clean-room-live-visual-audit.md`](clean-room-live-visual-audit.md).
