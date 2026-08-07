@@ -1246,32 +1246,30 @@ cloth colour arrives through the `diffuseMapBase` sample and is then mixed in
 `clean-room/material.ts`, with no per-volume base tint scalar. Adding one is an
 option for the retune below, not a defect to repair.
 
-**But the 2026-08-07 seven-map checkpoint's claim that "all five books own
-distinct response signatures" is false at the scalar level.** Measured at rest,
-the reference resolves 19 books to **19 distinct** scalar profiles — one per
-book. The clean room resolves 5 volumes to **1**. All five volumes share a
-single rest profile. The masks *are* per-volume — registered to each project's
-own SVG art — so the claim holds for texture identity and fails for scalar
-response.
+**The seven-map checkpoint's claim that "all five books own distinct response
+signatures" holds.** All five signatures appear in the rest draws, and each
+matches its entry in `clean-room/profiles.ts` exactly. Per-volume scalar
+variation does reach the GPU, so rank 1 needs no scalar authoring.
 
-Scope this claim to the rest state. Our scalars do also change between rest,
-hover, and held-drag, but `interactionIndices` samples only two volumes in the
-non-rest states, so those rows cannot establish whether hover and held-drag vary
-per volume. The rest-state comparison is 5-of-5 against 19-of-19 and is the only
-one carried here — it is sufficient on its own. Separating per-volume from
-per-interaction variation is exactly what `reference-extraction-plan.md` warned
-the earlier runs could not do; widening `interactionIndices` would settle the
-non-rest states.
+**A retracted claim, kept because the method that produced it is a trap.** An
+earlier pass of this checkpoint asserted the opposite — that all five volumes
+shared one profile — by grouping draw snapshots on `state.title` and reading the
+first row of each group. `state.title` is the book the capture harness was
+*focused* on, not the book a draw belongs to. Our scene draws all five volumes
+every frame, so the first draw of every segment belongs to the same volume and
+every group reports that volume's values. The reference culls to the book near
+the viewport, so the identical grouping is sound there and returns its genuine
+19 profiles. The asymmetry is what makes the wrong answer look well-evidenced on
+both sides at once.
 
-This is the measured cause of two standing audit FAILs: §5 "one parametric
-template with modest ratio changes" and §6 "cloth reads muddy and uniform." Our
-single profile also sits at the bottom of its own authored ranges for foil,
-gloss, shininess, and reflectiveness, which matches §6's "broad, dim response
-leaves the case flat."
+Group on the bound diffuse texture, as `reference-extraction-plan.md` already
+instructs, or take the distinct signature set without grouping. Never attribute
+a draw to a book by the capture's focus state.
 
-Remaining rank-1 work is therefore **not** an architecture build. It is: author
-five genuinely distinct per-volume scalar profiles, lift the finish response off
-the floor of its range, and decide whether a base diffuse tint is needed. Reject
+Rank-1 work is therefore neither an architecture build nor a scalar authoring
+pass. What remains is the retune: whether the authored spread is *wide enough*
+to read at shelf distance, and whether a base diffuse tint is worth adding.
+Reject
 13 stays binding — translate the *shape* of the response, never the reference's
 constants, whose equations and artwork differ.
 

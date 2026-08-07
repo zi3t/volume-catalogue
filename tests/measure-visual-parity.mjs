@@ -7,10 +7,15 @@
 // detail column reports x=887 in the DOM against a recorded candidate of 815.
 // Every target in that audit therefore needs measuring the way it was made.
 //
-// The book is isolated by differencing two captures of the same settled frame:
-// one normal, one with the scene canvas hidden. Whatever changed is the book.
-// That avoids picking a colour threshold that has to separate a printed case
-// from body text, which is the part a threshold gets wrong.
+// Each state is captured twice: once normally, once with the scene canvas
+// hidden. The book is not the difference between them — the canvas paints the
+// ground too, so differencing returns the whole viewport. The book is what
+// departs from the sampled ground in the first capture and is absent from the
+// second, which subtracts the DOM text a plain threshold would swallow.
+//
+// The result is then split into connected components and one is kept. A shelf
+// shows several cases at once, and a single bounding box over every scene pixel
+// spans the whole stack — reporting the correct width and twice the height.
 //
 // Usage:
 //   deno run --allow-net --allow-read --allow-write tests/measure-visual-parity.mjs \
@@ -248,17 +253,16 @@ const HOLD_DRAG = `(async () => {
   return "held";
 })()`;
 
-const cdp = await connect(PORT, DESKTOP);
+// Recorded reference readings, so a run reports a delta rather than a number
+// somebody has to look up. Sources: clean-room-live-visual-audit.md §§1,7.
+const REFERENCE = {
+  "desktop.firstRestBook": { left: 394, top: 332, width: 780, height: 128 },
+  "desktop.draggedBookEdges": { left: 340, top: 286, width: 904, height: 202 },
+  "desktop.standing": { left: 305, top: 166, width: 437, height: 555 },
+  "compact.firstRestBook": { left: 0, top: 277, width: 390, height: 182 }
+};
 
-const renderer = await cdp.rendererInfo();
-if (renderer.software) {
-  console.error("REFUSING: software renderer (" + renderer.renderer + ").");
-  console.error("Screenshot measurements taken here describe SwiftShader. Go headful.");
-  await cdp.close();
-  Deno.exit(2);
-}
-
-const states = [
+const STATES = [
   {
     name: "desktop.firstRestBook",
     path: "/press/",
@@ -278,16 +282,67 @@ const states = [
     viewport: DESKTOP,
     bookRegion: [0, 0, 0.62, 1],
     contentRegion: [0.5, 0, 1, 1]
+  },
+  {
+    name: "compact.firstRestBook",
+    path: "/press/",
+    viewport: COMPACT,
+    bookRegion: [0, 0.15, 1, 0.85],
+    mode: "topmost"
+  },
+  {
+    name: "compact.standing",
+    path: "/press/refly/",
+    viewport: COMPACT,
+    bookRegion: [0, 0, 1, 0.72],
+    contentRegion: [0, 0.4, 1, 1]
   }
 ];
 
+/**
+ * The device metrics are set once per connection, so each viewport gets its own
+ * target rather than an override applied mid-run — a resize leaves the scene
+ * mid-relayout and the first capture after it measures the transition.
+ */
 const results = [];
-for (const state of states) {
-  try {
-    results.push(await measureState(cdp, state));
-  } catch (error) {
-    results.push({ name: state.name, error: String(error) });
+let renderer = null;
+
+for (const viewport of [DESKTOP, COMPACT]) {
+  const states = STATES.filter((s) => s.viewport === viewport);
+  if (!states.length) continue;
+
+  const cdp = await connect(PORT, viewport);
+  if (!renderer) {
+    renderer = await cdp.rendererInfo();
+    if (renderer.software) {
+      console.error("REFUSING: software renderer (" + renderer.renderer + ").");
+      console.error("Screenshot measurements taken here describe SwiftShader. Go headful.");
+      await cdp.close();
+      Deno.exit(2);
+    }
   }
+
+  for (const state of states) {
+    try {
+      const measured = await measureState(cdp, state);
+      const ref = REFERENCE[state.name] ?? null;
+      const book = measured.book;
+      measured.reference = ref;
+      measured.delta = ref && book
+        ? {
+          left: book.left - ref.left,
+          top: book.top - ref.top,
+          width: book.width - ref.width,
+          height: book.height - ref.height
+        }
+        : null;
+      results.push(measured);
+    } catch (error) {
+      results.push({ name: state.name, error: String(error) });
+    }
+  }
+
+  await cdp.close();
 }
 
 const payload = {
@@ -307,4 +362,4 @@ if (OUT) {
   console.error("wrote " + OUT);
 }
 
-await cdp.close();
+
