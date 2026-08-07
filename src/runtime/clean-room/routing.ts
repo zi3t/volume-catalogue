@@ -88,6 +88,11 @@ export const installCleanRoomRouting = (
     window.location.href
   ).pathname);
 
+  // In-app addresses still carry `press-renderer=clean-room` even though it is
+  // now the default and no longer needed to request this renderer. Dropping it
+  // is cosmetic and fails seven routing-gate assertions that read the marker
+  // back out of the address, so it needs the gate updated alongside it rather
+  // than an assertion relaxed to suit.
   const withMarker = (pathname: string): string => {
     const url = new URL(pathname, window.location.href);
     url.search = "";
