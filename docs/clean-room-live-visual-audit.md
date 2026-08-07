@@ -47,7 +47,27 @@ measurement fault in this document.
 | §1 Desktop standing book | FAIL, centre 123px left | Δ `-9,1 · 12×0` | **PASS** — residual width is the rank-12 Reject |
 | §1 Compact first rest book | FAIL, half the depth | Δ `0,1 · 0×-1` | **PASS** |
 | §1 Desktop dragged silhouette | FAIL | — | **Not a valid target.** Held extent is a function of drag distance at `.003` rad/px, and no pointer travel was recorded for either side. See the scene contract. |
-| §5 Book case, §6 Cloth/Rake | FAIL, "one parametric template", "muddy and uniform" | — | **Premise retracted.** Both were argued from all five volumes sharing one scalar profile. They do not; all five signatures reach the GPU and match `clean-room/profiles.ts`. The rows may still be right, but not for the reason given. |
+| §5 Book case, §6 Cloth/Rake/Ink | FAIL, "one parametric template", "muddy and uniform" | scored | **Verdicts stand; reasoning replaced.** Both were argued from all five volumes sharing one scalar profile. They do not — all five signatures reach the GPU and match `clean-room/profiles.ts`. Measured instead, the rows hold on their own evidence. |
+
+### §6 scored, 2026-08-07
+
+Cross-site statistics over the first rest case at 1568×894, reference
+`394,332 · 780×128` against clean room `393,332 · 782×128`. Readings in
+`reference/surface-response-{reference,cleanroom}-20260807.json`.
+
+| Metric | Reference | Clean room | Row |
+|---|---|---|---|
+| Median luminance | 173.2 | 139.4 | — |
+| Tonal spread σ | 40.4 | 19.1 | Cloth: **FAIL confirmed**, half the spread |
+| Weave, mean \|Laplacian\| | 14.45 | 5.43 | Cloth: **FAIL confirmed**, a third of the detail |
+| Rake peak (p99) | 249.7 | 187.8 | Rake: **FAIL confirmed**, dimmer |
+| Rake highlight area | 0.015 | 0.059 | Rake: **FAIL confirmed**, four times broader |
+| Ink contrast | 2.57 | 1.15 | Ink: **FAIL confirmed**, under half |
+
+"Broad, dim response leaves the case flat" is now literal: our highlight covers
+four times the area at a lower peak. The fix is a retune of the authored spread
+— the architecture and per-volume variation are both already in place — not new
+scalars per volume.
 
 §2 Typography, §6 Page block / Cover art, and the compact route rows are
 unverified either way — no instrument scores them yet.
