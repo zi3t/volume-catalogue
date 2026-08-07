@@ -29,6 +29,34 @@ same broad nouns, but the rendered proportions, compact stack, route grid,
 surface response, and cover density are visibly different. This is a failed
 replication checkpoint, not a polish pass.
 
+## Correction, 2026-08-07 — most of this document is out of date
+
+Re-measured with `tests/measure-visual-parity.mjs`, which scores the same
+screenshot space this audit used. **Do not act on the rows below without
+checking them against a fresh harness run.** Four verdicts are wrong, one
+target is invalid, and two rest on a premise since retracted.
+
+The candidate column throughout describes code that no longer exists: the
+clean-room source changed materially after these captures were taken and before
+the work was committed. That is the cause of the stale layout rows, not a
+measurement fault in this document.
+
+| Row | Recorded here | Re-measured | Now |
+|---|---|---|---|
+| §1 Desktop first rest book | FAIL, 34px too deep | Δ `-1,0 · 2×0` | **PASS** |
+| §1 Desktop standing book | FAIL, centre 123px left | Δ `-9,1 · 12×0` | **PASS** — residual width is the rank-12 Reject |
+| §1 Compact first rest book | FAIL, half the depth | Δ `0,1 · 0×-1` | **PASS** |
+| §1 Desktop dragged silhouette | FAIL | — | **Not a valid target.** Held extent is a function of drag distance at `.003` rad/px, and no pointer travel was recorded for either side. See the scene contract. |
+| §5 Book case, §6 Cloth/Rake | FAIL, "one parametric template", "muddy and uniform" | — | **Premise retracted.** Both were argued from all five volumes sharing one scalar profile. They do not; all five signatures reach the GPU and match `clean-room/profiles.ts`. The rows may still be right, but not for the reason given. |
+
+§2 Typography, §6 Page block / Cover art, and the compact route rows are
+unverified either way — no instrument scores them yet.
+
+`tests/measure-surface-response.mjs` was written to settle the §6 statistics
+and scores our scene correctly, but is **not calibrated for the reference**: the
+recorded reference case rect does not locate a case in a fresh capture, so no
+cross-site §6 number exists yet. Calibrate it before reopening those rows.
+
 ## Extraction sheet
 
 Every claim below cites the matched capture set (`R-VIS`) recorded in the JSON
@@ -103,20 +131,27 @@ above. Existing behavior facts remain cited by
 
 ## Visual-diff gate
 
-| Category | Result |
-|---|---|
-| Desktop catalogue composition | **FAIL** |
-| Desktop held silhouette | **FAIL** |
-| Desktop route grid | **FAIL** |
-| Compact catalogue | **FAIL** |
-| Compact route | **FAIL** |
-| Typography hierarchy | **FAIL** |
-| Physical material/texture response | **FAIL** |
-| Exact catalogue/route grounds | **PASS** |
-| Interaction and history mechanics | **PASS separately; insufficient for visual acceptance** |
-| Original identity and genuine-content boundary | **PASS; must remain binding** |
+Superseded by the correction above. Restated against re-measured evidence:
 
-The build is blocked from any completion claim until the five visual FAIL
-states above are recaptured against the live reference. Fix order: desktop
-route grid, compact shelf projection, held silhouette, surface response, then
-richer original cover art. A behavior gate cannot close any of these rows.
+| Category | Original | Now |
+|---|---|---|
+| Desktop catalogue composition | FAIL | **PASS** (harness) |
+| Desktop route grid | FAIL | **PASS** (harness) |
+| Compact catalogue | FAIL | **PASS** (harness) |
+| Desktop held silhouette | FAIL | **No valid target** — drag travel unrecorded |
+| Physical material/texture response | FAIL | **Unresolved** — premise retracted, no reference number yet |
+| Typography hierarchy | FAIL | **Unverified** — no instrument |
+| Compact route | FAIL | **Unverified** — no instrument |
+| Exact catalogue/route grounds | PASS | PASS |
+| Interaction and history mechanics | PASS separately | unchanged |
+| Original identity and genuine-content boundary | PASS; binding | unchanged |
+
+The build remains blocked from a completion claim, but for a shorter list than
+this document originally gave. Remaining order: calibrate the surface-response
+probe against the reference, settle §6, score typography hierarchy, then the
+compact route. Cover art stays deferred by decision, which caps
+`Physical material/texture response` regardless of the other rows.
+
+Two standing cautions. A behaviour gate still cannot close a visual row. And
+this document was wrong more often than right once the code moved underneath
+it — regenerate rows from harness output rather than editing prose in place.

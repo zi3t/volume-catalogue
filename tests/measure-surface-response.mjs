@@ -89,36 +89,36 @@ const metrics = await cdp.evaluate(`(async () => {
   const d = ctx.getImageData(0, 0, w, h).data;
   const lum = (i) => 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2];
 
-  // Ground sampled from a corner; cases are whatever departs from it. Restrict
-  // to the shelf band so route copy and the rail stay out of the statistics.
-  const gi = (4*w + 4)*4;
+  // The case rect is supplied per side rather than discovered. Isolating it by
+  // departure from a corner-sampled ground worked here and failed on the
+  // reference, where the corner is page chrome — every pixel then reads as
+  // ground and the largest component is a fragment of the left index.
+  // measure-visual-parity.mjs already locates cases correctly on both sides,
+  // so its box is the input and this script only scores what is inside it.
+  const rect = ${JSON.stringify(
+    (args.get("case-rect") ?? "").split(",").map(Number).filter((n) => !Number.isNaN(n))
+  )};
+  if (rect.length !== 4) return JSON.stringify({ error: "--case-rect=left,top,width,height required" });
+  const sc = w / 1568;
+  const [rl, rt, rw, rh] = rect.map((v) => Math.round(v * sc));
+
+  // Ground sampled just above the case, inside the shelf band, so it is the
+  // surface the case sits on rather than whatever the page corner holds.
+  const gx = Math.min(w-1, Math.max(0, rl + (rw>>1)));
+  const gy = Math.max(0, rt - Math.max(6, Math.round(10*sc)));
+  const gi = (gy*w + gx)*4;
   const g = [d[gi], d[gi+1], d[gi+2]];
-  const y0 = Math.floor(h*0.18), y1 = Math.floor(h*0.78);
 
+  const best = { px: [], l: rl, t: rt, r: rl+rw-1, bt: rt+rh-1 };
   const mask = new Uint8Array(w*h);
-  for (let y=y0; y<y1; y++) for (let x=0; x<w; x++) {
-    const i=(y*w+x)*4;
-    if (Math.abs(d[i]-g[0])+Math.abs(d[i+1]-g[1])+Math.abs(d[i+2]-g[2]) > 26) mask[y*w+x]=1;
-  }
-
-  // Largest connected case, so one book is scored rather than the whole stack.
-  const seen = new Uint8Array(w*h), st = new Int32Array(w*h);
-  let best = null;
-  for (let s=0;s<w*h;s++) {
-    if (!mask[s]||seen[s]) continue;
-    let sp=0; st[sp++]=s; seen[s]=1;
-    const px=[]; let l=1e9,t=1e9,r=-1,bt=-1;
-    while(sp>0){
-      const p=st[--sp], y=(p/w)|0, x=p-y*w;
-      px.push(p); if(x<l)l=x; if(x>r)r=x; if(y<t)t=y; if(y>bt)bt=y;
-      if(x+1<w&&mask[p+1]&&!seen[p+1]){seen[p+1]=1;st[sp++]=p+1;}
-      if(x-1>=0&&mask[p-1]&&!seen[p-1]){seen[p-1]=1;st[sp++]=p-1;}
-      if(y+1<h&&mask[p+w]&&!seen[p+w]){seen[p+w]=1;st[sp++]=p+w;}
-      if(y-1>=0&&mask[p-w]&&!seen[p-w]){seen[p-w]=1;st[sp++]=p-w;}
+  for (let y=Math.max(0,rt); y<Math.min(h,rt+rh); y++) {
+    for (let x=Math.max(0,rl); x<Math.min(w,rl+rw); x++) {
+      const i=(y*w+x)*4;
+      if (Math.abs(d[i]-g[0])+Math.abs(d[i+1]-g[1])+Math.abs(d[i+2]-g[2]) <= 26) continue;
+      mask[y*w+x]=1; best.px.push(y*w+x);
     }
-    if(!best||px.length>best.px.length) best={px,l,t,r,bt};
   }
-  if(!best) return JSON.stringify({error:"no case found"});
+  if(!best.px.length) return JSON.stringify({error:"case rect holds no non-ground pixels", ground:g});
 
   const L = best.px.map((p) => lum(p*4));
   L.sort((a,b)=>a-b);
