@@ -269,12 +269,15 @@ const HOLD_DRAG = `(async () => {
 })()`;
 
 // Recorded reference readings, so a run reports a delta rather than a number
-// somebody has to look up. Sources: clean-room-live-visual-audit.md §§1,7.
+// somebody has to look up. Sources: clean-room-live-visual-audit.md §§1,7, and
+// for compact.standing a 2026-08-08 capture of press.stripe.com/boom at
+// 390x844 — see docs/reference/parity-readings-20260808.json.
 const REFERENCE = {
   "desktop.firstRestBook": { left: 394, top: 332, width: 780, height: 128 },
   "desktop.draggedBookEdges": { left: 340, top: 286, width: 904, height: 202 },
   "desktop.standing": { left: 305, top: 166, width: 437, height: 555 },
-  "compact.firstRestBook": { left: 0, top: 277, width: 390, height: 182 }
+  "compact.firstRestBook": { left: 0, top: 277, width: 390, height: 182 },
+  "compact.standing": { left: 50, top: 89, width: 308, height: 407 }
 };
 
 const STATES = [

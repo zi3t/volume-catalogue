@@ -24,7 +24,12 @@
     "verdicts": {
       "bookBottomEdge": "REFUTES audit:150. Reference book bottom lands at y=496 (89+407); ours at y=497 (92+405). The audit claimed the reference finishes near y=498 while ours begins lower. Vertical placement is at parity within 3px.",
       "headlineCollision": "REFUTES audit:104 as a defect. Content block starts at y=343 against the reference's y=339, a 4px difference. Both sides overlap the book's vertical span in bounding-box terms because the left rail runs alongside the book; that is the reference's own composition, not a clean-room fault.",
-      "width": "OPEN — see the standingSilhouetteRegression block. Our measured width is 31px narrow, but the same measurement collapsed on desktop between the pre-retune and post-retune builds, so this number is contaminated and is not yet evidence of a pose error."
+      "width": "CLOSED — PASS after the cover-side fix. The 31px shortfall was entirely the standing-silhouette regression below, not a pose error. Re-measured on the fixed build the row reads 57,89 311x408 against the reference's 50,89 308x407: width +3, top exact, height +1, stable to 2px across three runs."
+    },
+    "candidateAfterCoverFix": {
+      "book": { "left": 57, "top": 89, "width": 311, "height": 408, "pixels": 108343 },
+      "content": { "top": 343 },
+      "delta": { "left": 7, "top": 0, "width": 3, "height": 1 }
     }
   },
 
@@ -65,6 +70,14 @@
       "desktopFirstRestBook": "px 97946 before and after, mask fill 0.9785",
       "geometry": "projected bounds unchanged at 340.31 wide on the compact route",
       "gates": "all five clean-room gates return the same verdicts as the previous session recorded"
+    },
+    "fix": {
+      "change": "profiles.ts gains a per-volume `cover` block (crown, diffuseStrength, diffuseContrast) and material.ts reads it for the cover surface instead of deriving cover values from the spine's. Cover crown is 0 — a cover between boards is flat — and cover diffuse returns to the pre-retune per-volume strengths at a contrast of 2 against the spine's 3.6-5.2.",
+      "desktopStandingAfter": { "left": 320, "top": 167, "width": 424, "height": 555, "pixels": 201103, "delta": { "left": 15, "top": 1, "width": -13, "height": 0 } },
+      "stability": "201103 / 201104 / 201105 across three runs. The +/-22px swing before the fix was itself a symptom: a mask sitting on the ground-colour threshold moves run to run.",
+      "section6Held": { "sd": 40.15, "laplacian": 12.646, "p99": 243.38, "ink": 1.566, "pixels": 97946, "maskFill": 0.9785, "note": "Against sd 40.36 / lap 12.761 before the fix and a reference sd of 40.53. The rest case is ~85% spine, so authoring the cover separately left it where the retune put it." },
+      "gatesAfter": "10/10, 12/12, 15/15, 8/8, 17/18 — unchanged, with only the known pre-existing compact-pick failure.",
+      "residual": "Width is 13px under the reference where pre-retune was 12px over, and the right edge matches to 2px while the left sits 15px in. Pixel count reaches 201k against a pre-retune 224k. Lowering cover diffuseContrast to 1.2 recovers ~5k of interior pixels but moves no scored bound, so it was rejected in favour of keeping cloth character on the cover."
     }
   }
 }

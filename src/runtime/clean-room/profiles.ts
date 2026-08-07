@@ -14,6 +14,24 @@ export interface CleanRoomMaterialProfile {
   readonly baseDiffuseContrast: number;
   /** Shading-normal crown across the spine's short axis; a bound spine is round. */
   readonly spineCrown: number;
+  /**
+   * Cover-side surface response, authored independently of the spine's.
+   *
+   * The first rest case is ~85% spine, so the three scalars above are tuned
+   * against a statistic the cover barely appears in. Deriving the cover's
+   * values from them — a fixed fraction of `spineCrown`, and the spine's own
+   * diffuse gain — put a crown shaped for a round board and a contrast chosen
+   * for spine weave onto a flat surface that dominates the standing route. It
+   * cost ~40% of the measured standing silhouette: the cover's edge and its
+   * darker interior fell below the ground colour and dropped out of the
+   * difference mask. Evidence in `docs/reference/parity-readings-20260808.json`.
+   */
+  readonly cover: {
+    /** Crown across the cover. A cover between boards is far flatter than a spine. */
+    readonly crown: number;
+    readonly diffuseStrength: number;
+    readonly diffuseContrast: number;
+  };
   readonly bump: {
     readonly base: number;
     readonly custom: number;
@@ -80,6 +98,7 @@ export const cleanRoomProfiles = [
       baseDiffuseStrength: 0.64,
       baseDiffuseContrast: 4.4,
       spineCrown: 0.89,
+      cover: { crown: 0, diffuseStrength: 0.24, diffuseContrast: 2 },
       bump: { base: 0.014, custom: 0.022 },
       foil: {
         colors: ["#7775c5", "#d7c568"],
@@ -111,6 +130,7 @@ export const cleanRoomProfiles = [
       baseDiffuseStrength: 0.74,
       baseDiffuseContrast: 4.8,
       spineCrown: 0.99,
+      cover: { crown: 0, diffuseStrength: 0.3, diffuseContrast: 2 },
       bump: { base: 0.018, custom: 0.016 },
       foil: {
         colors: ["#718ca2", "#dfe7df"],
@@ -142,6 +162,7 @@ export const cleanRoomProfiles = [
       baseDiffuseStrength: 0.58,
       baseDiffuseContrast: 3.6,
       spineCrown: 0.81,
+      cover: { crown: 0, diffuseStrength: 0.2, diffuseContrast: 2 },
       bump: { base: 0.011, custom: 0.026 },
       foil: {
         colors: ["#d6b86b", "#f5f0d8"],
@@ -173,6 +194,7 @@ export const cleanRoomProfiles = [
       baseDiffuseStrength: 0.61,
       baseDiffuseContrast: 4.5,
       spineCrown: 0.96,
+      cover: { crown: 0, diffuseStrength: 0.22, diffuseContrast: 2 },
       bump: { base: 0.014, custom: 0.019 },
       foil: {
         colors: ["#f0dfb4", "#d59ac0"],
@@ -204,6 +226,7 @@ export const cleanRoomProfiles = [
       baseDiffuseStrength: 0.82,
       baseDiffuseContrast: 5.2,
       spineCrown: 1.09,
+      cover: { crown: 0, diffuseStrength: 0.28, diffuseContrast: 2 },
       bump: { base: 0.02, custom: 0.014 },
       foil: {
         colors: ["#27343e", "#ead7b5"],

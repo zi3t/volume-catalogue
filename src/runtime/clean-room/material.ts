@@ -298,19 +298,23 @@ export const createCleanRoomLayeredMaterial = (
     glitterMapScale: {
       value: surface === "cover" ? new THREE.Vector2(2.4, 2.8) : new THREE.Vector2(6.4, 1.2)
     },
-    baseDiffuseStrength: { value: profile.baseDiffuseStrength },
+    baseDiffuseStrength: {
+      value: surface === "cover" ? profile.cover.diffuseStrength : profile.baseDiffuseStrength
+    },
     // Measured mean luminance of polyhaven-book-pattern-colour-1k.jpg
     // (60.4/255). The re-level is only mean-neutral if this tracks the map, so
     // it belongs here rather than as a literal in the blend.
     baseDiffuseLevel: { value: BASE_DIFFUSE_LEVEL },
-    baseDiffuseContrast: { value: profile.baseDiffuseContrast },
+    baseDiffuseContrast: {
+      value: surface === "cover" ? profile.cover.diffuseContrast : profile.baseDiffuseContrast
+    },
     bumpScaleBase: { value: profile.bump.base },
     bumpScaleCustom: { value: profile.bump.custom },
     effectReliefSuppression: { value: 0.68 },
-    // The spine carries the crown; the cover is genuinely flat between its
-    // boards, so it gets only enough to keep the board edge from reading as a
-    // printed sheet.
-    surfaceCurvature: { value: surface === "spine" ? profile.spineCrown : profile.spineCrown * 0.12 },
+    // The spine carries the crown. The cover is authored separately rather than
+    // as a fraction of it: a cover between boards is a different shape, and the
+    // statistic the spine's value is tuned against barely contains the cover.
+    surfaceCurvature: { value: surface === "spine" ? profile.spineCrown : profile.cover.crown },
     reflectiveness: { value: profile.reflectiveness },
     foilColorA: { value: new THREE.Color(profile.foil.colors[0]) },
     foilColorB: { value: new THREE.Color(profile.foil.colors[1]) },
