@@ -1273,6 +1273,26 @@ Reject
 13 stays binding — translate the *shape* of the response, never the reference's
 constants, whose equations and artwork differ.
 
+**`draggedBookEdges` is not a reproducible target — do not tune pose to it.**
+The held silhouette is the one row the parity harness still reports as far off
+(31px low, 51px shallow against the recorded reference). It should not be
+closed. The reference figure came from a screenshot of the live site under a
+drag whose distance was never recorded: `live-visual-readings-20260807.json`
+captures the method (`ffmpeg` edge detection, object-isolating crop) and the
+image hashes, but no pointer travel. Held extent is a direct function of drag
+distance — `rotationPerPixel` is `.003` rad/px, so the harness's 108px synthetic
+drag is one arbitrary pose among many, and the reference's is another.
+
+`heldForeshortenAngle` will not close it either. It normalises how far the drag
+has rotated before squashing the long axis; it is not the pitch. Changing it to
+move a silhouette edge would rescale the whole held response to satisfy a number
+whose input is unknown — the "overfitting one held frame" risk the gap analysis
+names as Option A's main hazard.
+
+Make it reproducible before treating it as a gap: record pointer travel
+alongside the bounds and recapture both sides at a matched drag, or compare a
+drag-independent quantity such as the resting-to-held area ratio.
+
 Nothing was deployed; the clean-room renderer remains opt-in.
 
 ## Remaining fidelity work
