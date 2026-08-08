@@ -30,7 +30,6 @@
     "dist",
     "docs",
     "src",
-    "tests",
     "README.md"
   ],
   "scripts": {
@@ -38,16 +37,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "build": "vite build && node scripts/copy-volume-styles.mjs",
     "build:site": "npm run build && node scripts/sync-site.mjs",
-    "check": "npm run typecheck && npm run build",
-    "profile": "deno run --allow-net --allow-read --allow-write tests/profile-press-scene.mjs",
-    "qa:clean-room": "deno run --allow-net --allow-read --allow-write --allow-run tests/run-quiet-gpu-gate.mjs tests/qa-clean-room-foundation.mjs",
-    "qa:clean-room:interaction": "deno run --allow-net --allow-read --allow-write --allow-run tests/run-quiet-gpu-gate.mjs tests/qa-clean-room-interaction.mjs",
-    "qa:clean-room:routing": "deno run --allow-net --allow-read --allow-write --allow-run tests/run-quiet-gpu-gate.mjs tests/qa-clean-room-routing.mjs",
-    "qa:clean-room:volume": "deno run --allow-net --allow-read --allow-write --allow-run tests/run-quiet-gpu-gate.mjs tests/qa-clean-room-volume.mjs",
-    "qa:clean-room:journey": "deno run --allow-net --allow-read --allow-write --allow-run tests/run-quiet-gpu-gate.mjs tests/qa-clean-room-journey.mjs",
-    "record:first-load": "deno run --allow-net --allow-read --allow-write --allow-run=ffmpeg tests/record-press-first-load.mjs",
-    "capture:reference": "deno run --allow-net --allow-read --allow-write tests/capture-reference.mjs",
-    "capture:glframe": "deno run --allow-net --allow-read --allow-write tests/capture-glframe.mjs"
+    "check": "npm run typecheck && npm run build"
   },
   "dependencies": {
     "three": "0.171.0"

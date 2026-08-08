@@ -88,24 +88,18 @@ export const installCleanRoomRouting = (
     window.location.href
   ).pathname);
 
-  // In-app addresses still carry `press-renderer=clean-room` even though it is
-  // now the default and no longer needed to request this renderer. Dropping it
-  // is cosmetic and fails seven routing-gate assertions that read the marker
-  // back out of the address, so it needs the gate updated alongside it rather
-  // than an assertion relaxed to suit.
-  const withMarker = (pathname: string): string => {
+  const cleanAddress = (pathname: string): string => {
     const url = new URL(pathname, window.location.href);
     url.search = "";
-    url.searchParams.set("press-renderer", "clean-room");
     return `${url.pathname}${url.search}${url.hash}`;
   };
-  const volumeAddress = (index: number): string => withMarker(routePaths[index] ?? cataloguePath);
-  const catalogueAddress = withMarker(cataloguePath);
+  const volumeAddress = (index: number): string => cleanAddress(routePaths[index] ?? cataloguePath);
+  const catalogueAddress = cleanAddress(cataloguePath);
   const pathIndex = (): number => routePaths.indexOf(window.location.pathname);
   const deepLinkIndex = pathIndex();
   let mode: CleanRoomPressMode = deepLinkIndex >= 0 ? "volumes" : "catalogue";
   let currentIndex = Math.max(0, deepLinkIndex);
-  let currentAddress = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  let currentAddress = cleanAddress(`${window.location.pathname}${window.location.hash}`);
   let pendingDeepLinkIndex = deepLinkIndex;
   let catalogueScrollY = Number(history.state?.pressScrollY) || window.scrollY;
 
@@ -307,7 +301,7 @@ export const installCleanRoomRouting = (
   if (available) {
     history.scrollRestoration = "manual";
     if (deepLinkIndex >= 0) {
-      history.replaceState({ pressVolume: deepLinkIndex }, "", window.location.href);
+      history.replaceState({ pressVolume: deepLinkIndex }, "", currentAddress);
       callbacks.onBeforeVolume(deepLinkIndex, "deep-link");
       setCurrentIndex(deepLinkIndex, "deep-link");
       setMode("volumes", "deep-link");
@@ -315,7 +309,7 @@ export const installCleanRoomRouting = (
       history.replaceState(
         { ...(history.state ?? {}), pressHome: true, pressScrollY: catalogueScrollY },
         "",
-        window.location.href
+        currentAddress
       );
       pendingDeepLinkIndex = -1;
       setCurrentIndex(0, "deep-link");

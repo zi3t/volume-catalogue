@@ -7,6 +7,8 @@ export type {
   VolumeDefinition,
   VolumeRouteMode
 } from "./content/volumes";
-export { mountVolumeCatalogue } from "./runtime/catalogue";
-export { mountCleanRoomCatalogue } from "./runtime/clean-room";
+export {
+  mountCleanRoomCatalogue,
+  mountCleanRoomCatalogue as mountVolumeCatalogue
+} from "./runtime/clean-room";
 export { initializeRevealMotion } from "./runtime/reveal";
