@@ -1,10 +1,40 @@
+const REFERENCE_MODEL_WIDTH = 23.67794;
+
+/** Values read from the current Stripe Press camera and shared book scene. */
+export const CLEAN_ROOM_REFERENCE = {
+  canvasMaxWidth: 2000,
+  canvasReferenceHeight: 1018,
+  canvasOverscan: 1.1,
+  positionReferenceWidth: 1792,
+  cameraBaseZ: 100,
+  cameraY: 6.5,
+  cameraPitch: -0.06,
+  modelWidth: REFERENCE_MODEL_WIDTH,
+  shelfRootZ: -3,
+  // Stripe pulls the hovered root toward z=6, then its ordinary shelf
+  // transform simultaneously pulls it back toward z=-3. Their observed
+  // equilibrium is ~z=1.5; using that effective target avoids inventing a
+  // second feedback loop while preserving the same projected motion.
+  shelfHoverZ: 1.5,
+  shelfCoverOffsetX: 11 / REFERENCE_MODEL_WIDTH,
+  shelfRootRotationX: -(Math.PI / 2),
+  shelfRootRotationZ: Math.PI / 2,
+  coverBaseRotationY: -(Math.PI / 2),
+  activeX: -13,
+  activeY: -4,
+  activeZ: -56,
+  inactiveZ: -50,
+  activeRotationX: -0.5,
+  activeRotationY: 0.35,
+  activeRotationZ: 0.15,
+  compactActiveX: 0,
+  compactActiveY: 3,
+  compactActiveZ: -90,
+  narrowActivePitchOffset: 0.16
+} as const;
+
 export const CLEAN_ROOM_MOTION = {
-  hoverProjectedScale: 1.033,
-  holdProjectedScale: 1.134,
   dragThreshold: 4,
-  rotationPerPixel: 0.003,
-  revealDistance: 124,
-  orbitLimit: Math.PI,
   entryDelay: 54,
   entryStagger: 72,
   entryDuration: 492,
@@ -16,17 +46,6 @@ export const CLEAN_ROOM_MOTION = {
   releasePresentation: 110,
   releaseBackdrop: 430,
   releaseClassDelay: 780,
-  sectionCoverYaw: 0.35,
-  // The reference fore edge is level. The old +.04 rad residual was visible
-  // as a two-degree rise across the complete book.
-  sectionCoverRoll: -(Math.PI / 2),
-  sectionCoverPitchShortfall: 0.16,
-  sectionCoverViewportHeight: 0.685,
-  // Fit the source proportions without a second long-axis squeeze.
-  sectionObjectScaleX: 1,
-  sectionCompactObjectScaleX: 1,
-  sectionDesktopOffsetYPixels: 22,
-  sectionCompactOffsetYPixels: -40,
   flightEaseStep: 0.006,
   flightEaseCeiling: 0.15,
   returnStackStart: 0.38,
@@ -40,15 +59,9 @@ export const CLEAN_ROOM_MOTION = {
   scrollVelocityPerPixel: 0.003,
   scrollVelocityDecay: 0.4,
   scrollVelocityLimit: 1,
-  desktopShelfPitchOffset: -0.057,
-  compactShelfPitchOffset: 0.184,
-  compactThicknessScale: 1.5,
   catalogueRestLiftPixels: 10,
   compactCatalogueRestLiftPixels: 6.5,
-  heldLiftPixels: -15,
-  heldOffsetXPixels: -4,
-  pressPickLiftPixels: 0,
-  pressPickPitch: 0.008,
+  heldLiftPixels: 0,
   terminalScrollViewports: 2.18,
   idlePauseAfter: 1200
 } as const;
@@ -91,8 +104,4 @@ export const spring = (progress: number): number => {
   return raw / end;
 };
 
-export const heldOrbitAngle = (pixels: number, response = 1): number => clamp(
-  pixels * CLEAN_ROOM_MOTION.rotationPerPixel * response,
-  -CLEAN_ROOM_MOTION.orbitLimit,
-  CLEAN_ROOM_MOTION.orbitLimit
-);
+export const wrapRotation = (radians: number): number => radians % (Math.PI * 2);

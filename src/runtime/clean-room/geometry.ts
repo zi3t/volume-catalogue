@@ -8,7 +8,13 @@ import type { CleanRoomVolumeProfile } from "./profiles";
 import type { CleanRoomSharedTextures, CleanRoomSurfaceTextures } from "./textures";
 
 export interface CleanRoomBook {
+  /** Reference outer pose: shelf/list placement or active-volume placement. */
   readonly root: THREE.Group;
+  /** Centered interactive cover pivot; pointer motion rotates only this node. */
+  readonly cover: THREE.Group;
+  /** Maps the local X-width/Y-thickness model into the reference model axes. */
+  readonly axisAdapter: THREE.Group;
+  /** Authored geometry and per-volume dimensional correction. */
   readonly object: THREE.Group;
   readonly materials: readonly THREE.Material[];
   readonly geometries: readonly THREE.BufferGeometry[];
@@ -694,7 +700,6 @@ export const createCleanRoomBook = (
   headbandTail.position.set(-headbandX, 0, headbandZ);
 
   const object = new THREE.Group();
-  object.rotation.set(profile.shelfPitch, 0, profile.shelfRoll);
   object.add(
     pages,
     caseShell,
@@ -713,8 +718,19 @@ export const createCleanRoomBook = (
     headbandTail
   );
 
+  // Stripe's shared book mesh is X-thickness, Y-width, Z-depth. This clean-room
+  // mesh is X-width, Y-thickness, Z-depth, so one fixed adapter makes the
+  // reference's outer/cover Euler hierarchy applicable without distributing
+  // interactive rotation across unrelated nodes.
+  const axisAdapter = new THREE.Group();
+  axisAdapter.rotation.z = -Math.PI / 2;
+  axisAdapter.add(object);
+
+  const cover = new THREE.Group();
+  cover.add(axisAdapter);
+
   const root = new THREE.Group();
-  root.add(object);
+  root.add(cover);
 
   const materials = [
     clothMaterial,
@@ -733,6 +749,8 @@ export const createCleanRoomBook = (
 
   return {
     root,
+    cover,
+    axisAdapter,
     object,
     materials,
     geometries: [

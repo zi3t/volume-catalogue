@@ -66,7 +66,7 @@
   position: absolute;
   z-index: 30;
   top: 20.1svh;
-  left: calc(50% + 177px);
+  left: calc(80vw - 400px);
   width: min(400px, calc(50vw - 108px));
   margin: 0;
   padding: 14px 24px 13px;

@@ -1,4 +1,4 @@
-import { CLEAN_ROOM_MOTION, clamp } from "./motion";
+import { CLEAN_ROOM_MOTION, clamp, wrapRotation } from "./motion";
 
 export interface CleanRoomVolumeInteractionSnapshot {
   readonly rotationX: number;
@@ -53,6 +53,7 @@ export const installCleanRoomVolumeInteraction = (
   let captureTarget: HTMLElement | null = null;
   let twirlX = 0;
   let twirlY = 0;
+  let horizontalDirection = 1;
 
   const point = (event: PointerEvent): { x: number; y: number } => ({
     x: event.clientX - window.innerWidth * 0.5,
@@ -73,6 +74,7 @@ export const installCleanRoomVolumeInteraction = (
     captureTarget = null;
     twirlX = 0;
     twirlY = 0;
+    horizontalDirection = 1;
     document.body.classList.remove("press-cover-dragging");
   };
 
@@ -95,6 +97,11 @@ export const installCleanRoomVolumeInteraction = (
     lastY = rotationY;
     twirlX = 0;
     twirlY = 0;
+    const absoluteX = Math.abs(wrapRotation(rotationX));
+    horizontalDirection = absoluteX > Math.PI / 2
+      && absoluteX < Math.PI * 1.5
+      ? -1
+      : 1;
     try {
       captureTarget?.setPointerCapture(pointerId);
     } catch {
@@ -113,8 +120,10 @@ export const installCleanRoomVolumeInteraction = (
       : CLEAN_ROOM_MOTION.volumeFollowRate;
     lastX = rotationX;
     lastY = rotationY;
-    rotationX = (current.y - anchorY) * rate + baseX;
-    rotationY = (current.x - anchorX) * rate + baseY;
+    rotationX = wrapRotation((current.y - anchorY) * rate + baseX);
+    rotationY = wrapRotation(
+      (current.x - anchorX) * rate * horizontalDirection + baseY
+    );
     callbacks.onWake(500);
   };
 
@@ -164,8 +173,8 @@ export const installCleanRoomVolumeInteraction = (
       frameCount
     );
     const advance = (1 - decay) / (1 - CLEAN_ROOM_MOTION.volumeTwirlDecay);
-    rotationX += twirlX * advance;
-    rotationY += twirlY * advance;
+    rotationX = wrapRotation(rotationX + twirlX * advance);
+    rotationY = wrapRotation(rotationY + twirlY * advance);
     baseX = rotationX;
     baseY = rotationY;
     twirlX *= decay;

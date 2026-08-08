@@ -10,13 +10,14 @@ import {
 import { createCleanRoomLightRig } from "./lighting";
 import {
   CLEAN_ROOM_MOTION,
+  CLEAN_ROOM_REFERENCE,
   clamp,
   damp,
   frameApproach,
-  heldOrbitAngle,
   mix,
   smooth,
-  spring
+  spring,
+  wrapRotation
 } from "./motion";
 import { cleanRoomProfiles, type CleanRoomVolumeProfile } from "./profiles";
 import {
@@ -55,10 +56,6 @@ interface CleanRoomEntry {
   opacity: number;
   hover: number;
   hold: number;
-  holdRotationX: number;
-  holdRotationY: number;
-  holdTargetRotationX: number;
-  holdTargetRotationY: number;
   initialized: boolean;
 }
 
@@ -99,6 +96,8 @@ interface CleanRoomDebugSnapshot {
     readonly scale: number;
     readonly homeScale: number;
     readonly rotation: readonly [number, number, number];
+    readonly coverPosition: readonly [number, number, number];
+    readonly coverRotation: readonly [number, number, number];
     readonly opacity: number;
     readonly sectionPosition: readonly [number, number, number];
     readonly sectionScale: number;
@@ -275,6 +274,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   THREE.ColorManagement.enabled = false;
 
   const compact = window.matchMedia("(max-width: 899px)");
+  const narrow = window.matchMedia("(max-width: 599px)");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const preserveDrawingBuffer = !compact.matches;
   let renderer: THREE.WebGLRenderer;
@@ -305,8 +305,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(12, 1, 1, 650);
-  camera.position.set(0, 6.5, 100);
-  camera.rotation.x = -0.06;
+  camera.position.set(
+    0,
+    CLEAN_ROOM_REFERENCE.cameraY,
+    CLEAN_ROOM_REFERENCE.cameraBaseZ
+  );
+  camera.rotation.x = CLEAN_ROOM_REFERENCE.cameraPitch;
   const lights = createCleanRoomLightRig(scene);
 
   let frameRequest = 0;
@@ -347,30 +351,49 @@ export const mountCleanRoomCatalogue = (): boolean => {
   const backdropColor = new THREE.Color(0x201819);
   const backLightTarget = new THREE.Color(0x211815);
 
-  const shelfPitch = (entry: CleanRoomEntry): number => (
-    entry.profile.shelfPitch
-      + (compact.matches
-        ? CLEAN_ROOM_MOTION.compactShelfPitchOffset
-        : CLEAN_ROOM_MOTION.desktopShelfPitchOffset)
-  );
-  const sectionObjectScaleX = (): number => (
-    compact.matches
-      ? CLEAN_ROOM_MOTION.sectionCompactObjectScaleX
-      : CLEAN_ROOM_MOTION.sectionObjectScaleX
-  );
-  const shelfThicknessScaleY = (entry: CleanRoomEntry): number => (
-    compact.matches
-      ? CLEAN_ROOM_MOTION.compactThicknessScale
-      : entry.profile.shelfThicknessScale
-  );
-  const presentationThicknessScaleY = (): number => (
-    compact.matches ? CLEAN_ROOM_MOTION.compactThicknessScale : 1
+  const thicknessScaleY = (entry: CleanRoomEntry): number => (
+    entry.profile.thicknessScale
   );
   const catalogueRestLift = (): number => (
     compact.matches
       ? CLEAN_ROOM_MOTION.compactCatalogueRestLiftPixels
       : CLEAN_ROOM_MOTION.catalogueRestLiftPixels
   );
+
+  const shelfCoverOffset = (): number => CLEAN_ROOM_REFERENCE.shelfCoverOffsetX;
+
+  const setShelfEulerOrders = (book: CleanRoomBook): void => {
+    if (book.root.rotation.order !== "XYZ") book.root.rotation.reorder("XYZ");
+    if (book.cover.rotation.order !== "ZYX") book.cover.rotation.reorder("ZYX");
+  };
+
+  const setActiveEulerOrders = (book: CleanRoomBook): void => {
+    if (book.root.rotation.order !== "XYZ") book.root.rotation.reorder("XYZ");
+    if (book.cover.rotation.order !== "XYZ") book.cover.rotation.reorder("XYZ");
+  };
+
+  const activePosition = (): THREE.Vector3 => {
+    if (compact.matches) {
+      return new THREE.Vector3(
+        CLEAN_ROOM_REFERENCE.compactActiveX,
+        CLEAN_ROOM_REFERENCE.compactActiveY,
+        CLEAN_ROOM_REFERENCE.compactActiveZ
+      );
+    }
+    const canvasWidth = Math.min(
+      CLEAN_ROOM_REFERENCE.canvasMaxWidth,
+      viewportWidth
+    );
+    const ratio = canvasWidth / CLEAN_ROOM_REFERENCE.positionReferenceWidth;
+    return new THREE.Vector3(
+      Math.max(
+        CLEAN_ROOM_REFERENCE.activeX,
+        CLEAN_ROOM_REFERENCE.activeX * ratio
+      ),
+      CLEAN_ROOM_REFERENCE.activeY,
+      CLEAN_ROOM_REFERENCE.activeZ
+    );
+  };
 
   const renderOnce = (): void => {
     renderer.render(scene, camera);
@@ -410,10 +433,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
       opacity: 0,
       hover: 0,
       hold: 0,
-      holdRotationX: 0,
-      holdRotationY: 0,
-      holdTargetRotationX: 0,
-      holdTargetRotationY: 0,
       initialized: false
     };
     setBookOpacity(entry, entryComplete ? 1 : 0);
@@ -437,12 +456,23 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   const snapToShelf = (entry: CleanRoomEntry): void => {
     if (!entry.initialized) return;
+    setShelfEulerOrders(entry.book);
     entry.book.root.position.copy(entry.homePosition);
     entry.book.root.scale.setScalar(entry.homeScale);
-    entry.book.root.rotation.set(0, 0, 0);
-    entry.book.object.rotation.x = shelfPitch(entry);
+    entry.book.root.rotation.set(
+      CLEAN_ROOM_REFERENCE.shelfRootRotationX,
+      0,
+      CLEAN_ROOM_REFERENCE.shelfRootRotationZ
+    );
+    entry.book.cover.position.set(shelfCoverOffset(), 0, 0);
+    entry.book.cover.rotation.set(
+      0,
+      CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+      0
+    );
+    entry.book.object.rotation.set(0, 0, 0);
     entry.book.object.scale.x = 1;
-    entry.book.object.scale.y = shelfThicknessScaleY(entry);
+    entry.book.object.scale.y = thicknessScaleY(entry);
     entry.sectionWeight = 0;
     entry.sectionVisible = false;
     setBookOpacity(entry, 1);
@@ -543,10 +573,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
       releasedFromDrag = false;
       const entry = entries[gesture.index];
       if (!entry) return;
-      entry.holdRotationX = 0;
-      entry.holdRotationY = 0;
-      entry.holdTargetRotationX = 0;
-      entry.holdTargetRotationY = 0;
       backdropColor.set(entry.profile.cloth);
       document.body.style.setProperty("--press-held-background", entry.profile.cloth);
       document.body.style.setProperty("--press-held-ink", entry.profile.ink);
@@ -556,34 +582,11 @@ export const mountCleanRoomCatalogue = (): boolean => {
     },
     onMove: (gesture, startedDragging) => {
       const entry = entries[gesture.index];
-      if (!entry || !gesture.moved) return;
+      if (!entry) return;
       if (startedDragging) {
         catalogueStage.classList.add("is-book-dragging");
         document.body.classList.add("press-book-dragging");
       }
-      const distance = Math.hypot(gesture.dx, gesture.dy);
-      const reveal = smooth(clamp(
-        (distance - CLEAN_ROOM_MOTION.dragThreshold)
-          / (CLEAN_ROOM_MOTION.revealDistance - CLEAN_ROOM_MOTION.dragThreshold),
-        0,
-        1
-      ));
-      const directionalPitch = heldOrbitAngle(
-        gesture.dy,
-        entry.profile.drag.verticalResponse
-      );
-      const revealPitch = gesture.dy > 0
-        ? entry.profile.drag.revealPitch * 0.16
-        : entry.profile.drag.revealPitch;
-      entry.holdTargetRotationX = clamp(
-        reveal * revealPitch + directionalPitch,
-        -CLEAN_ROOM_MOTION.orbitLimit,
-        CLEAN_ROOM_MOTION.orbitLimit
-      );
-      entry.holdTargetRotationY = heldOrbitAngle(
-        gesture.dx,
-        entry.profile.drag.yawResponse
-      );
     },
     onFinish: (gesture) => {
       returningIndex = gesture.index;
@@ -609,64 +612,52 @@ export const mountCleanRoomCatalogue = (): boolean => {
     catalogueScroll.update();
     renderer.setSize(viewportWidth, viewportHeight, false);
     camera.aspect = viewportWidth / viewportHeight;
-    camera.fov = compact.matches ? 15 : 12;
+    camera.fov = narrow.matches ? 15 : 12;
+    const canvasWidth = Math.min(
+      CLEAN_ROOM_REFERENCE.canvasMaxWidth,
+      viewportWidth
+    );
+    const canvasScale = narrow.matches
+      ? 1
+      : Math.max(
+        1,
+        viewportHeight
+          * (CLEAN_ROOM_REFERENCE.canvasMaxWidth
+            / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
+          / canvasWidth
+          * CLEAN_ROOM_REFERENCE.canvasOverscan
+      );
+    camera.position.z = CLEAN_ROOM_REFERENCE.cameraBaseZ * canvasScale;
     camera.updateProjectionMatrix();
-    // This scene uses normalized camera space and reprojects every shifted DOM
-    // rect directly. Moving the camera by the CSS pixel shift as well would
-    // apply the accepted pixel-world cancellation twice and blank the shelf.
-    camera.position.y = 6.5;
+    camera.position.y = CLEAN_ROOM_REFERENCE.cameraY;
     camera.updateMatrixWorld(true);
     lights.update(camera.position.y, pressMode === "volumes" ? 1 : holdPresentation);
 
+    const sectionTarget = activePosition();
+    const shelfCenterDepth = CLEAN_ROOM_REFERENCE.shelfRootZ - 11;
     entries.forEach((entry, index) => {
       const rect = entry.target.getBoundingClientRect();
-      const depth = -3 - index * 0.012;
       const center = pointOnDepthPlane(
         camera,
         viewportWidth,
         viewportHeight,
         rect.left + rect.width * 0.5,
         rect.top + rect.height * 0.5,
-        depth
+        shelfCenterDepth
       );
-      const scale = rect.width
-        * worldUnitsPerPixel(camera, viewportHeight, depth)
-        * (compact.matches ? 0.985 : 1);
       entry.homePosition.copy(center);
-      entry.homePosition.z = depth;
-      entry.homeScale = scale;
+      entry.homePosition.z = CLEAN_ROOM_REFERENCE.shelfRootZ;
+      entry.homeScale = CLEAN_ROOM_REFERENCE.modelWidth;
 
       const figureRect = entry.figure?.getBoundingClientRect() ?? null;
       const sectionEligible = pressMode === "volumes"
-        && !reducedMotion.matches
         && Boolean(figureRect);
       if (figureRect) {
-        const sectionX = compact.matches
-          ? figureRect.left + figureRect.width * 0.5 + 5
-          : figureRect.left + figureRect.width * 0.608;
-        const sectionY = figureRect.top + figureRect.height * 0.5
-          + (compact.matches
-            ? CLEAN_ROOM_MOTION.sectionCompactOffsetYPixels
-            : CLEAN_ROOM_MOTION.sectionDesktopOffsetYPixels);
-        entry.sectionPosition.copy(pointOnDepthPlane(
-          camera,
-          viewportWidth,
-          viewportHeight,
-          sectionX,
-          sectionY,
-          depth
-        ));
-        entry.sectionPosition.z = depth;
-        const sectionUnits = worldUnitsPerPixel(camera, viewportHeight, depth);
-        const heightLimited = viewportHeight
-          * CLEAN_ROOM_MOTION.sectionCoverViewportHeight
-          * sectionUnits;
-        const widthLimited = figureRect.width
-          * 0.95
-          * sectionUnits
-          / entry.profile.depthRatio;
-        entry.sectionScale = Math.min(heightLimited, widthLimited)
-          * (compact.matches ? 1 : 0.897);
+        entry.sectionPosition.copy(sectionTarget);
+        if (index !== currentRouteIndex && !compact.matches) {
+          entry.sectionPosition.z = CLEAN_ROOM_REFERENCE.inactiveZ;
+        }
+        entry.sectionScale = CLEAN_ROOM_REFERENCE.modelWidth;
         entry.sectionWeight = sectionEligible && figureRect.top < viewportHeight * 1.25 ? 1 : 0;
         entry.sectionVisible = entry.sectionWeight > 0
           && figureRect.bottom > -180
@@ -685,31 +676,52 @@ export const mountCleanRoomCatalogue = (): boolean => {
         entry.sectionTurnY = 0;
       }
       if (!entry.initialized) {
-        unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, depth);
+        unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, shelfCenterDepth);
         if (entry.sectionWeight > 0 && entry.index === currentRouteIndex) {
+          setActiveEulerOrders(entry.book);
           entry.book.root.position.copy(entry.sectionPosition);
           entry.book.root.scale.setScalar(entry.sectionScale);
           entry.book.root.rotation.set(
-            0,
-            CLEAN_ROOM_MOTION.sectionCoverYaw,
-            CLEAN_ROOM_MOTION.sectionCoverRoll
+            CLEAN_ROOM_REFERENCE.activeRotationX
+              + (narrow.matches ? CLEAN_ROOM_REFERENCE.narrowActivePitchOffset : 0),
+            CLEAN_ROOM_REFERENCE.activeRotationY + entry.sectionTurnY,
+            CLEAN_ROOM_REFERENCE.activeRotationZ
           );
-          entry.book.object.rotation.x = Math.PI / 2
-            - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall;
-          entry.book.object.scale.x = sectionObjectScaleX();
-          entry.book.object.scale.y = presentationThicknessScaleY();
+          entry.book.cover.position.set(0, 0, 0);
+          entry.book.cover.rotation.set(
+            0,
+            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+            0
+          );
+          entry.book.object.rotation.set(0, 0, 0);
+          entry.book.object.scale.x = 1;
+          entry.book.object.scale.y = thicknessScaleY(entry);
         } else {
+          setShelfEulerOrders(entry.book);
           entry.book.root.position.copy(center);
+          entry.book.root.position.z = CLEAN_ROOM_REFERENCE.shelfRootZ;
           entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
           entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
-          entry.book.root.scale.setScalar(scale);
-          entry.book.object.rotation.x = entry.profile.shelfPitch;
-          entry.book.object.scale.y = shelfThicknessScaleY(entry);
+          entry.book.root.scale.setScalar(entry.homeScale);
+          entry.book.root.rotation.set(
+            CLEAN_ROOM_REFERENCE.shelfRootRotationX,
+            0,
+            CLEAN_ROOM_REFERENCE.shelfRootRotationZ
+          );
+          entry.book.cover.position.set(shelfCoverOffset(), 0, 0);
+          entry.book.cover.rotation.set(
+            0,
+            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+            0
+          );
+          entry.book.object.rotation.set(0, 0, 0);
+          entry.book.object.scale.x = 1;
+          entry.book.object.scale.y = thicknessScaleY(entry);
         }
         entry.initialized = true;
       }
     });
-    unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, -3);
+    unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, shelfCenterDepth);
     wake(720);
   }
 
@@ -806,54 +818,88 @@ export const mountCleanRoomCatalogue = (): boolean => {
           return;
         }
         const live = index === currentRouteIndex;
-        const targetRotationY = CLEAN_ROOM_MOTION.sectionCoverYaw
-          + entry.sectionTurnY
+        const targetRootRotationX = live
+          ? CLEAN_ROOM_REFERENCE.activeRotationX
+            + (narrow.matches ? CLEAN_ROOM_REFERENCE.narrowActivePitchOffset : 0)
+          : 0;
+        const targetRootRotationY = live
+          ? CLEAN_ROOM_REFERENCE.activeRotationY + entry.sectionTurnY
+          : 0;
+        const targetRootRotationZ = live
+          ? CLEAN_ROOM_REFERENCE.activeRotationZ
+          : 0;
+        const targetCoverRotationX = live ? volumePose.rotationX : 0;
+        const targetCoverRotationY = CLEAN_ROOM_REFERENCE.coverBaseRotationY
           + (live ? volumePose.rotationY : 0);
-        const targetRotationZ = CLEAN_ROOM_MOTION.sectionCoverRoll;
-        const targetObjectRotationX = Math.PI / 2
-          - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall
-          + (live ? volumePose.rotationX : 0);
+        setActiveEulerOrders(entry.book);
         if (activeFlight?.direction === "to-volume" && activeFlight.index === index) {
           const approach = activeFlight.approach;
           entry.book.root.position.lerp(entry.sectionPosition, approach);
           const nextScale = mix(entry.book.root.scale.x, entry.sectionScale, approach);
           entry.book.root.scale.setScalar(nextScale);
-          entry.book.root.rotation.x = mix(entry.book.root.rotation.x, 0, approach);
+          entry.book.root.rotation.x = mix(
+            entry.book.root.rotation.x,
+            targetRootRotationX,
+            approach
+          );
           entry.book.root.rotation.y = mix(
             entry.book.root.rotation.y,
-            targetRotationY,
+            targetRootRotationY,
             approach
           );
           entry.book.root.rotation.z = mix(
             entry.book.root.rotation.z,
-            targetRotationZ,
+            targetRootRotationZ,
             approach
           );
-          entry.book.object.rotation.x = mix(
-            entry.book.object.rotation.x,
-            targetObjectRotationX,
+          entry.book.cover.position.x = mix(
+            entry.book.cover.position.x,
+            0,
             approach
           );
-          entry.book.object.scale.x = mix(
-            entry.book.object.scale.x,
-            sectionObjectScaleX(),
+          entry.book.cover.rotation.x = mix(
+            entry.book.cover.rotation.x,
+            targetCoverRotationX,
             approach
           );
-          entry.book.object.scale.y = presentationThicknessScaleY();
+          entry.book.cover.rotation.y = mix(
+            entry.book.cover.rotation.y,
+            targetCoverRotationY,
+            approach
+          );
+          entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
+          entry.book.object.rotation.set(0, 0, 0);
+          entry.book.object.scale.x = 1;
+          entry.book.object.scale.y = thicknessScaleY(entry);
           const residual = Math.max(
             entry.book.root.position.distanceTo(entry.sectionPosition),
             Math.abs(entry.book.root.scale.x - entry.sectionScale) * 20,
-            Math.abs(entry.book.object.rotation.x - targetObjectRotationX) * 10
+            Math.abs(entry.book.root.rotation.x - targetRootRotationX) * 10,
+            Math.abs(entry.book.root.rotation.y - targetRootRotationY) * 10,
+            Math.abs(entry.book.root.rotation.z - targetRootRotationZ) * 10,
+            Math.abs(entry.book.cover.position.x) * 10,
+            Math.abs(entry.book.cover.rotation.x - targetCoverRotationX) * 10,
+            Math.abs(entry.book.cover.rotation.y - targetCoverRotationY) * 10
           );
           entryResidual = Math.max(entryResidual, residual);
           if (residual < 0.012 && flight === activeFlight) flight = null;
         } else {
           entry.book.root.position.copy(entry.sectionPosition);
           entry.book.root.scale.setScalar(entry.sectionScale);
-          entry.book.root.rotation.set(0, targetRotationY, targetRotationZ);
-          entry.book.object.rotation.x = targetObjectRotationX;
-          entry.book.object.scale.x = sectionObjectScaleX();
-          entry.book.object.scale.y = presentationThicknessScaleY();
+          entry.book.root.rotation.set(
+            targetRootRotationX,
+            targetRootRotationY,
+            targetRootRotationZ
+          );
+          entry.book.cover.position.set(0, 0, 0);
+          entry.book.cover.rotation.set(
+            targetCoverRotationX,
+            targetCoverRotationY,
+            0
+          );
+          entry.book.object.rotation.set(0, 0, 0);
+          entry.book.object.scale.x = 1;
+          entry.book.object.scale.y = thicknessScaleY(entry);
         }
         setBookOpacity(entry, entry.sectionVisible ? 1 : 0);
         return;
@@ -864,7 +910,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         : null;
       if (returnFlight) {
         const shelfY = entry.homePosition.y + catalogueRestLift() * unitsPerPixel;
-        const targetPitch = shelfPitch(entry);
+        setShelfEulerOrders(entry.book);
         if (index === returnFlight.index) {
           const approach = returnFlight.approach;
           entry.book.root.position.x = mix(
@@ -880,18 +926,34 @@ export const mountCleanRoomCatalogue = (): boolean => {
           );
           const nextScale = mix(entry.book.root.scale.x, entry.homeScale, approach);
           entry.book.root.scale.setScalar(nextScale);
-          entry.book.root.rotation.x = mix(entry.book.root.rotation.x, 0, approach);
-          entry.book.root.rotation.y = mix(entry.book.root.rotation.y, 0, approach);
-          entry.book.root.rotation.z = mix(entry.book.root.rotation.z, 0, approach);
-          entry.book.object.rotation.x = mix(
-            entry.book.object.rotation.x,
-            targetPitch,
+          entry.book.root.rotation.x = mix(
+            entry.book.root.rotation.x,
+            CLEAN_ROOM_REFERENCE.shelfRootRotationX,
             approach
           );
-          entry.book.object.scale.x = mix(entry.book.object.scale.x, 1, approach);
+          entry.book.root.rotation.y = mix(entry.book.root.rotation.y, 0, approach);
+          entry.book.root.rotation.z = mix(
+            entry.book.root.rotation.z,
+            CLEAN_ROOM_REFERENCE.shelfRootRotationZ,
+            approach
+          );
+          entry.book.cover.position.x = mix(
+            entry.book.cover.position.x,
+            shelfCoverOffset(),
+            approach
+          );
+          entry.book.cover.rotation.x = mix(entry.book.cover.rotation.x, 0, approach);
+          entry.book.cover.rotation.y = mix(
+            entry.book.cover.rotation.y,
+            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+            approach
+          );
+          entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
+          entry.book.object.rotation.set(0, 0, 0);
+          entry.book.object.scale.x = 1;
           entry.book.object.scale.y = mix(
             entry.book.object.scale.y,
-            shelfThicknessScaleY(entry),
+            thicknessScaleY(entry),
             approach
           );
           setBookOpacity(entry, 1);
@@ -919,10 +981,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
             entry.homePosition.z
           );
           entry.book.root.scale.setScalar(entry.homeScale);
-          entry.book.root.rotation.set(0, 0, 0);
-          entry.book.object.rotation.x = targetPitch;
+          entry.book.root.rotation.set(
+            CLEAN_ROOM_REFERENCE.shelfRootRotationX,
+            0,
+            CLEAN_ROOM_REFERENCE.shelfRootRotationZ
+          );
+          entry.book.cover.position.set(shelfCoverOffset(), 0, 0);
+          entry.book.cover.rotation.set(
+            0,
+            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+            0
+          );
+          entry.book.object.rotation.set(0, 0, 0);
           entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = shelfThicknessScaleY(entry);
+          entry.book.object.scale.y = thicknessScaleY(entry);
           setBookOpacity(entry, stackOpacity);
         }
         entryResidual = Math.max(
@@ -931,16 +1003,24 @@ export const mountCleanRoomCatalogue = (): boolean => {
           Math.abs(entry.book.root.position.y - shelfY),
           Math.abs(entry.book.root.position.z - entry.homePosition.z),
           Math.abs(entry.book.root.scale.x - entry.homeScale) * 20,
+          Math.abs(
+            entry.book.root.rotation.x - CLEAN_ROOM_REFERENCE.shelfRootRotationX
+          ) * 10,
           Math.abs(entry.book.root.rotation.y) * 10,
-          Math.abs(entry.book.root.rotation.z) * 10,
-          Math.abs(entry.book.object.rotation.x - targetPitch) * 10,
+          Math.abs(
+            entry.book.root.rotation.z - CLEAN_ROOM_REFERENCE.shelfRootRotationZ
+          ) * 10,
+          Math.abs(entry.book.cover.position.x - shelfCoverOffset()) * 10,
+          Math.abs(entry.book.cover.rotation.x) * 10,
+          Math.abs(
+            entry.book.cover.rotation.y - CLEAN_ROOM_REFERENCE.coverBaseRotationY
+          ) * 10,
           Math.abs(entry.opacity - 1) * 10
         );
         return;
       }
 
       const activelyHeld = gesture?.index === index;
-      const pressedWithoutDrag = activelyHeld && !gesture?.moved;
       const interactive = !reducedMotion.matches && (
         interactionSnapshot.hoverIndex === index
         || interactionSnapshot.focusIndex === index
@@ -948,20 +1028,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       const holdTarget = activelyHeld
         || (index === returningIndex && returningPresentation);
+      setShelfEulerOrders(entry.book);
       entry.hover = damp(entry.hover, interactive ? 1 : 0, interactive ? 9.2 : 6.8, deltaSeconds);
       entry.hold = damp(entry.hold, holdTarget ? 1 : 0, holdTarget ? 15 : 6.5, deltaSeconds);
-      entry.holdRotationX = damp(
-        entry.holdRotationX,
-        activelyHeld || returningPresentation ? entry.holdTargetRotationX : 0,
-        activelyHeld ? 14.5 : 7.5,
-        deltaSeconds
-      );
-      entry.holdRotationY = damp(
-        entry.holdRotationY,
-        activelyHeld || returningPresentation ? entry.holdTargetRotationY : 0,
-        activelyHeld ? 14.5 : 7.5,
-        deltaSeconds
-      );
 
       const evictionPixels = index === activeIndex
         ? 0
@@ -973,25 +1042,18 @@ export const mountCleanRoomCatalogue = (): boolean => {
         + (
           catalogueRestLift()
             + entry.hold * CLEAN_ROOM_MOTION.heldLiftPixels
-            + (pressedWithoutDrag
-              ? entry.hold * CLEAN_ROOM_MOTION.pressPickLiftPixels
-              : 0)
         ) * unitsPerPixel
         - (1 - entryDrive) * 28 * unitsPerPixel
         + evictionPixels * unitsPerPixel;
-      const hoverDepth = camera.position.z
-        * (1 - 1 / CLEAN_ROOM_MOTION.hoverProjectedScale);
-      const holdDepth = camera.position.z
-        * (1 - 1 / CLEAN_ROOM_MOTION.holdProjectedScale);
       const entryDepth = -camera.position.z * 0.012 * (1 - smooth(entryLinear));
       const targetDepth = entry.homePosition.z
         + entryDepth
-        + mix(entry.hover * hoverDepth, holdDepth, entry.hold);
+        + (CLEAN_ROOM_REFERENCE.shelfHoverZ - entry.homePosition.z)
+          * Math.max(entry.hover, entry.hold);
 
       entry.book.root.position.x = damp(
         entry.book.root.position.x,
-        entry.homePosition.x
-          + entry.hold * CLEAN_ROOM_MOTION.heldOffsetXPixels * unitsPerPixel,
+        entry.homePosition.x,
         11.5,
         deltaSeconds
       );
@@ -1014,6 +1076,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
         deltaSeconds
       );
       entry.book.root.scale.setScalar(nextScale);
+      entry.book.cover.position.x = damp(
+        entry.book.cover.position.x,
+        shelfCoverOffset(),
+        13,
+        deltaSeconds
+      );
+      entry.book.cover.position.y = 0;
+      entry.book.cover.position.z = 0;
+      entry.book.object.rotation.set(0, 0, 0);
       entry.book.object.scale.x = damp(
         entry.book.object.scale.x,
         1,
@@ -1022,37 +1093,58 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       entry.book.object.scale.y = damp(
         entry.book.object.scale.y,
-        mix(
-          shelfThicknessScaleY(entry),
-          presentationThicknessScaleY(),
-          entry.hold
-        ),
+        thicknessScaleY(entry),
         11,
+        deltaSeconds
+      );
+      entry.book.root.rotation.x = damp(
+        entry.book.root.rotation.x,
+        CLEAN_ROOM_REFERENCE.shelfRootRotationX
+          + catalogueMotion.scrollVelocity * (1 - entry.hold),
+        13,
         deltaSeconds
       );
       entry.book.root.rotation.y = damp(
         entry.book.root.rotation.y,
-        entry.holdRotationY * entry.hold,
+        0,
         13,
         deltaSeconds
       );
       entry.book.root.rotation.z = damp(
         entry.book.root.rotation.z,
-        (1 - entryDrive) * (index % 2 ? -0.008 : 0.008),
+        CLEAN_ROOM_REFERENCE.shelfRootRotationZ,
         13,
         deltaSeconds
       );
-      entry.book.object.rotation.x = damp(
-        entry.book.object.rotation.x,
-        shelfPitch(entry)
-          + catalogueMotion.scrollVelocity * (1 - entry.hold)
-          + entry.holdRotationX * entry.hold
-          + (pressedWithoutDrag
-            ? CLEAN_ROOM_MOTION.pressPickPitch * entry.hold
-            : 0),
-        13,
-        deltaSeconds
-      );
+      if (activelyHeld && gesture) {
+        entry.book.cover.rotation.x = wrapRotation(
+          gesture.dx * CLEAN_ROOM_MOTION.volumeDragRate
+        );
+        entry.book.cover.rotation.y = wrapRotation(
+          CLEAN_ROOM_REFERENCE.coverBaseRotationY
+            - gesture.dy * CLEAN_ROOM_MOTION.volumeDragRate
+        );
+        entry.book.cover.rotation.z = 0;
+      } else {
+        entry.book.cover.rotation.x = damp(
+          entry.book.cover.rotation.x,
+          0,
+          7.5,
+          deltaSeconds
+        );
+        entry.book.cover.rotation.y = damp(
+          entry.book.cover.rotation.y,
+          CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+          7.5,
+          deltaSeconds
+        );
+        entry.book.cover.rotation.z = damp(
+          entry.book.cover.rotation.z,
+          0,
+          7.5,
+          deltaSeconds
+        );
+      }
       setBookOpacity(entry, entryOpacity * catalogueMotion.terminalSceneOpacity);
 
       entryResidual = Math.max(
@@ -1149,6 +1241,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   window.addEventListener("resize", scheduleLayout, { passive: true });
   window.addEventListener("scroll", scheduleLayout, { passive: true });
   compact.addEventListener("change", scheduleLayout);
+  narrow.addEventListener("change", scheduleLayout);
   reducedMotion.addEventListener("change", scheduleLayout);
 
   layout();
@@ -1236,9 +1329,19 @@ export const mountCleanRoomCatalogue = (): boolean => {
         sectionVisible,
         screenBounds: projectedBookBounds(book, camera, viewportWidth, viewportHeight),
         rotation: [
-          Number(book.object.rotation.x.toFixed(4)),
+          Number(book.root.rotation.x.toFixed(4)),
           Number(book.root.rotation.y.toFixed(4)),
           Number(book.root.rotation.z.toFixed(4))
+        ],
+        coverPosition: [
+          Number(book.cover.position.x.toFixed(4)),
+          Number(book.cover.position.y.toFixed(4)),
+          Number(book.cover.position.z.toFixed(4))
+        ],
+        coverRotation: [
+          Number(book.cover.rotation.x.toFixed(4)),
+          Number(book.cover.rotation.y.toFixed(4)),
+          Number(book.cover.rotation.z.toFixed(4))
         ],
         opacity: Number(opacity.toFixed(4)),
         material: {

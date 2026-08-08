@@ -80,17 +80,10 @@ export interface CleanRoomVolumeProfile {
   readonly artworkUrl: string;
   readonly caption: string;
   readonly thicknessRatio: number;
-  /** Resting-shelf thickness, measured independently for each reference volume. */
-  readonly shelfThicknessScale: number;
+  /** Shared-mesh thickness correction, measured independently per volume. */
+  readonly thicknessScale: number;
   readonly depthRatio: number;
-  readonly shelfPitch: number;
-  readonly shelfRoll: number;
   readonly spineNote?: string;
-  readonly drag: {
-    readonly revealPitch: number;
-    readonly verticalResponse: number;
-    readonly yawResponse: number;
-  };
   readonly binding: {
     /** Board and text-block thicknesses are independently reference-calibrated. */
     readonly boardThicknessRatio: number;
@@ -123,11 +116,8 @@ export const cleanRoomProfiles = [
     artworkUrl: reflyArtwork,
     caption: "Re-run browser incidents frame by frame—from captured evidence to deterministic replay, with network, input, and state changes kept inspectable.",
     thicknessRatio: 0.1672,
-    shelfThicknessScale: 0.87,
-    depthRatio: 0.792,
-    shelfPitch: 0.052,
-    shelfRoll: 0.0015,
-    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
+    thicknessScale: 0.87,
+    depthRatio: 0.672,
     binding: {
       boardThicknessRatio: 0.0105,
       pageBlockThicknessRatio: 0.1462,
@@ -172,12 +162,9 @@ export const cleanRoomProfiles = [
     artworkUrl: armArtwork,
     caption: "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
     thicknessRatio: 0.1672,
-    shelfThicknessScale: 0.805,
-    depthRatio: 0.792,
-    shelfPitch: 0.048,
-    shelfRoll: -0.001,
+    thicknessScale: 0.805,
+    depthRatio: 0.672,
     spineNote: "Field guide",
-    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
       boardThicknessRatio: 0.0105,
       pageBlockThicknessRatio: 0.1462,
@@ -222,12 +209,9 @@ export const cleanRoomProfiles = [
     artworkUrl: telemetryArtwork,
     caption: "Replay distributed-system evidence in order, without sanding away uncertainty.",
     thicknessRatio: 0.1672,
-    shelfThicknessScale: 0.88,
-    depthRatio: 0.792,
-    shelfPitch: 0.046,
-    shelfRoll: 0.001,
+    thicknessScale: 0.88,
+    depthRatio: 0.672,
     spineNote: "Run 04",
-    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
       boardThicknessRatio: 0.0105,
       pageBlockThicknessRatio: 0.1462,
@@ -272,12 +256,9 @@ export const cleanRoomProfiles = [
     artworkUrl: practiceArtwork,
     caption: "Show the boundary, the contract, and the evidence behind every engineering claim.",
     thicknessRatio: 0.1672,
-    shelfThicknessScale: 0.72,
-    depthRatio: 0.792,
-    shelfPitch: 0.051,
-    shelfRoll: -0.0015,
+    thicknessScale: 0.72,
+    depthRatio: 0.672,
     spineNote: "Methods",
-    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
       boardThicknessRatio: 0.0105,
       pageBlockThicknessRatio: 0.1462,
@@ -322,12 +303,9 @@ export const cleanRoomProfiles = [
     artworkUrl: notesArtwork,
     caption: "Working notes on replayable systems, verification, and engineering decisions that can be inspected.",
     thicknessRatio: 0.1672,
-    shelfThicknessScale: 0.84,
-    depthRatio: 0.792,
-    shelfPitch: 0.053,
-    shelfRoll: 0.001,
+    thicknessScale: 0.84,
+    depthRatio: 0.672,
     spineNote: "Revised",
-    drag: { revealPitch: 0, verticalResponse: 1.3, yawResponse: 1 },
     binding: {
       boardThicknessRatio: 0.0105,
       pageBlockThicknessRatio: 0.1462,
