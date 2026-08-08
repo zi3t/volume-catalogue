@@ -38,7 +38,8 @@ export const extractMain = (html: string): string => {
 
 export const renderVolumeSection = (
   volume: VolumeDefinition,
-  content: string
+  content: string,
+  excerpt = escapeHtml(volume.description)
 ): string => `
 <section class="press-volume-section press-volume-section--${escapeHtml(volume.slug)}"
          id="volume-${escapeHtml(volume.slug)}"
@@ -50,8 +51,9 @@ export const renderVolumeSection = (
     <div class="press-volume-detail">
       <p class="press-volume-kicker">${escapeHtml(volume.spine.eyebrow)}</p>
       <h2 class="press-volume-title" id="volume-${escapeHtml(volume.slug)}-title">${escapeHtml(volume.title)}</h2>
-      <p class="press-volume-summary">${escapeHtml(volume.description)}</p>
+      <p class="press-volume-summary">${escapeHtml(volume.byline)}</p>
       <p class="press-volume-actions"><a href="${escapeHtml(volume.contentPath)}">Open ${escapeHtml(volume.routeMode)} page</a></p>
+      <p class="press-volume-excerpt">${excerpt}</p>
       <dl class="press-volume-meta">
         <div><dt>Volume</dt><dd>${escapeHtml(volume.spine.serial)}</dd></div>
         <div><dt>Format</dt><dd>${escapeHtml(volume.routeMode)}</dd></div>
@@ -60,6 +62,38 @@ export const renderVolumeSection = (
   </div>
   <div class="press-volume-content">${content}</div>
 </section>`;
+
+/**
+ * Promotes the source page's own lead into the opening route composition. The
+ * paragraph is removed from the long-form copy so the assembled document does
+ * not repeat it one viewport later. All input is same-origin generated HTML;
+ * retaining its inline emphasis and links is intentional.
+ */
+const extractRouteExcerpt = (
+  html: string,
+  fallback: string
+): { readonly html: string; readonly excerpt: string } => {
+  const brief = /<(section|div)\b[^>]*\bdata-press-brief\b[^>]*>([\s\S]*?)<\/\1>/i.exec(html);
+  if (brief) {
+    const paragraphs = brief[2].matchAll(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi);
+    for (const paragraph of paragraphs) {
+      if (/\bsection-label\b/i.test(paragraph[1])) continue;
+      const excerpt = paragraph[2].trim();
+      if (!excerpt) continue;
+      return { html: html.replace(paragraph[0], ""), excerpt };
+    }
+  }
+
+  const authoredLead = /<p\b[^>]*class="[^"]*\b(?:resume-summary|lead)\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i.exec(html);
+  if (authoredLead?.[1].trim()) {
+    return {
+      html: html.replace(authoredLead[0], ""),
+      excerpt: authoredLead[1].trim()
+    };
+  }
+
+  return { html, excerpt: escapeHtml(fallback) };
+};
 
 class RemoveLiveDemo implements HTMLRewriterElementContentHandlers {
   element(element: Element): void {
@@ -140,8 +174,10 @@ const assembleVolumes = async (
       .on("[data-press-brief]", new RevealPressBrief())
       .transform(response)
       .text();
-    const content = namespaceIds(extractMain(prepared), volume.slug);
-    return renderVolumeSection(volume, content);
+    const promoted = extractRouteExcerpt(prepared, volume.description);
+    const content = namespaceIds(extractMain(promoted.html), volume.slug);
+    const excerpt = namespaceIds(promoted.excerpt, volume.slug);
+    return renderVolumeSection(volume, content, excerpt);
   }));
 
   return sections.join("\n");

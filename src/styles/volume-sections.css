@@ -297,13 +297,12 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 
 .press-volume-kicker,
 .press-volume-actions,
+.press-volume-excerpt,
 .press-volume-meta {
   display: none;
 }
 
-/* The clean-room route uses the selected cover's authored cloth as one
-   continuous surface. These values are scoped so the accepted renderer and
-   the no-WebGL document retain their established palette. */
+/* The selected cover's authored cloth continues behind its route content. */
 html[data-press-renderer="clean-room"] .press-volume-section--refly {
   --press-volume-bg: #b9ad6c;
   --press-volume-ink: #18185e;
@@ -360,9 +359,25 @@ html[data-press-renderer="clean-room"] .press-volume-actions a:focus-visible {
   background: var(--press-volume-ink);
 }
 
+html[data-press-renderer="clean-room"] .press-volume-excerpt {
+  display: block;
+  max-width: 34rem;
+  margin: clamp(1.75rem, 4vh, 2.5rem) 0 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: clamp(16px, 1.18vw, 18px);
+  font-weight: 600;
+  line-height: 1.42;
+}
+
+html[data-press-renderer="clean-room"] .press-volume-excerpt a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 0.18em;
+}
+
 html[data-press-renderer="clean-room"] .press-volume-meta {
   display: grid;
-  max-width: 27rem;
+  max-width: 34rem;
   margin: clamp(1.75rem, 4vh, 2.75rem) 0 0;
   border-top: 1px solid currentColor;
 }
@@ -392,7 +407,7 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 
   html[data-press-renderer="clean-room"] .press-volume-detail {
     align-self: start;
-    padding-top: 3.1svh;
+    padding-top: 21.1svh;
   }
 
   html[data-press-renderer="clean-room"] .press-volume-kicker {
@@ -401,7 +416,8 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 
   html[data-press-renderer="clean-room"] .press-volume-title {
     max-width: 17ch;
-    font-size: clamp(30px, 2.45vw, 38px);
+    min-height: 2.12em;
+    font-size: clamp(30px, 2.15vw, 34px);
   }
 
   html[data-press-renderer="clean-room"] .press-volume-summary {
@@ -413,6 +429,16 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
     font-weight: 600;
     line-height: 1.35;
     opacity: 1;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-excerpt {
+    margin-top: 3rem;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-actions {
+    margin-top: 2rem;
   }
 }
 
@@ -519,6 +545,16 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 }
 
 @media (max-width: 900px) {
+  .press-volumes-open .press-back {
+    top: 194px;
+    left: 14px;
+  }
+
+  .press-volumes-open .press-rail {
+    top: 225px;
+    left: 18px;
+  }
+
   .press-volume-stage {
     grid-template-columns: 1fr;
     min-height: auto;
@@ -534,8 +570,12 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
   }
 
   html[data-press-renderer="clean-room"] .press-volume-detail {
-    padding-top: 0;
+    padding-top: 22px;
     padding-inline: 30px;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-kicker {
+    display: none;
   }
 
   html[data-press-renderer="clean-room"] .press-volume-title {
@@ -550,5 +590,13 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
     font-weight: 600;
     line-height: 1.4;
     opacity: 1;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-actions {
+    margin-top: 2rem;
+  }
+
+  html[data-press-renderer="clean-room"] .press-volume-excerpt {
+    margin-top: 2.8rem;
   }
 }

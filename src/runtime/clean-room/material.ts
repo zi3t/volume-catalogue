@@ -68,7 +68,6 @@ uniform float baseDiffuseContrast;
 uniform float bumpScaleBase;
 uniform float bumpScaleCustom;
 uniform float effectReliefSuppression;
-uniform float surfaceCurvature;
 uniform float reflectiveness;
 
 uniform vec3 foilColorA;
@@ -212,21 +211,6 @@ normal = normalize( mix(
   clamp( finishedCoverage * effectReliefSuppression, 0.0, 0.72 )
 ) );
 
-// A bound spine is round. The reference's spine reads bright along its crown and
-// falls away at both edges because it is a curved surface; ours is a plane, and
-// a plane under fixed lights shades uniformly — which is most of why our case
-// has half the reference's tonal spread. Bend the shading normal across the
-// short axis through the same derivative frame the relief uses, so it stays
-// correct as the volume rotates and leaves geometry and silhouette untouched.
-// Applied after the suppression mix on purpose: this is the shape of the board
-// under the cloth, so a foil or gloss mask must not flatten it.
-normal = cleanRoomPerturbNormal(
-  -vViewPosition,
-  normal,
-  vec2( 0.0, surfaceCurvature * ( 0.5 - vMapUv.y ) ),
-  faceDirection
-);
-
 vec3 viewDirection = normalize( vViewPosition );
 float foilSweep = 0.5 + 0.5 * sin(
   (
@@ -331,10 +315,6 @@ export const createCleanRoomLayeredMaterial = (
     bumpScaleBase: { value: profile.bump.base },
     bumpScaleCustom: { value: profile.bump.custom },
     effectReliefSuppression: { value: 0.68 },
-    // The spine carries the crown. The cover is authored separately rather than
-    // as a fraction of it: a cover between boards is a different shape, and the
-    // statistic the spine's value is tuned against barely contains the cover.
-    surfaceCurvature: { value: surface === "spine" ? profile.spineCrown : profile.cover.crown },
     reflectiveness: { value: profile.reflectiveness },
     foilColorA: { value: new THREE.Color(profile.foil.colors[0]) },
     foilColorB: { value: new THREE.Color(profile.foil.colors[1]) },

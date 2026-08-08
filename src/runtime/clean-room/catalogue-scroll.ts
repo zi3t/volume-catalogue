@@ -55,16 +55,29 @@ export const installCleanRoomCatalogueScroll = (
 
   const updateTerminal = (progress: number): void => {
     const terminalProgress = clamp(progress, 0, 1);
-    const signatureIn = smooth(clamp(terminalProgress / 0.14, 0, 1));
+    const sceneSplit = smooth(clamp(terminalProgress / 0.16, 0, 1));
     const signatureOut = 1 - smooth(clamp((terminalProgress - 0.48) / 0.15, 0, 1));
-    const signatureOpacity = signatureIn * signatureOut;
+    const signatureOpacity = terminalProgress > 0 ? signatureOut : 0;
     const closingOpacity = smooth(clamp((terminalProgress - 0.58) / 0.2, 0, 1));
-    const terminalSceneOpacity = 1 - smooth(clamp(terminalProgress / 0.16, 0, 1));
+    // Stripe hands its fixed canvas from books to the next scene with two
+    // complementary scissors. Mirror that visible boundary here: the book
+    // canvas retreats upward while the genuine terminal surface is revealed
+    // from below. Opacity cross-fading both full frames made the books print
+    // through the signature artwork during the hand-off.
+    const terminalSceneOpacity = sceneSplit < 1 ? 1 : 0;
 
     signaturePanel?.style.setProperty("--press-terminal-opacity", signatureOpacity.toFixed(4));
     signaturePanel?.style.setProperty(
+      "--press-terminal-signature-clip",
+      `${((1 - sceneSplit) * 100).toFixed(3)}%`
+    );
+    signaturePanel?.style.setProperty(
       "--press-terminal-scale",
-      mix(0.965, 1, signatureIn).toFixed(4)
+      mix(0.965, 1, sceneSplit).toFixed(4)
+    );
+    options.stage.style.setProperty(
+      "--press-terminal-book-clip",
+      `${(sceneSplit * 100).toFixed(3)}%`
     );
     closingPanel?.style.setProperty("--press-terminal-opacity", closingOpacity.toFixed(4));
     closingPanel?.style.setProperty(

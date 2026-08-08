@@ -9,6 +9,7 @@ export const CLEAN_ROOM_REFERENCE = {
   cameraBaseZ: 100,
   cameraY: 6.5,
   cameraPitch: -0.06,
+  catalogueCameraScroll: 0.0222,
   modelWidth: REFERENCE_MODEL_WIDTH,
   shelfRootZ: -3,
   // Stripe pulls the hovered root toward z=6, then its ordinary shelf
@@ -35,11 +36,11 @@ export const CLEAN_ROOM_REFERENCE = {
 
 export const CLEAN_ROOM_MOTION = {
   dragThreshold: 4,
-  entryDelay: 54,
-  entryStagger: 72,
-  entryDuration: 492,
   entrySettleEpsilon: 0.012,
-  entrySettleTimeout: 1800,
+  entryInitialY: 3,
+  entryInitialGap: 3,
+  entryInitialZ: -50,
+  entryInitialDepthArc: 150,
   stackEvictionViewports: 1.12,
   spineZEase: 0.1,
   releaseIsolation: 360,
@@ -59,8 +60,6 @@ export const CLEAN_ROOM_MOTION = {
   scrollVelocityPerPixel: 0.003,
   scrollVelocityDecay: 0.4,
   scrollVelocityLimit: 1,
-  catalogueRestLiftPixels: 10,
-  compactCatalogueRestLiftPixels: 6.5,
   heldLiftPixels: 0,
   terminalScrollViewports: 2.18,
   idlePauseAfter: 1200
@@ -95,13 +94,6 @@ export const frameApproach = (
 export const smooth = (progress: number): number => {
   const value = clamp(progress, 0, 1);
   return value * value * (3 - 2 * value);
-};
-
-export const spring = (progress: number): number => {
-  const value = clamp(progress, 0, 1);
-  const raw = 1 - Math.exp(-7.25 * value) * Math.cos(9.4 * value);
-  const end = 1 - Math.exp(-7.25) * Math.cos(9.4);
-  return raw / end;
 };
 
 export const wrapRotation = (radians: number): number => radians % (Math.PI * 2);

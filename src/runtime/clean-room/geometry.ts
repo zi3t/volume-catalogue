@@ -32,6 +32,8 @@ export interface CleanRoomBook {
     readonly coverSkinOffset: number;
     readonly coverClothThickness: number;
     readonly coverJointClearance: number;
+    readonly spineSpan: number;
+    readonly spineSpanRatio: number;
     readonly boardStopsAtJoint: true;
     readonly boardCornerRadius: number;
     readonly pageBlockInset: number;
@@ -41,26 +43,112 @@ export interface CleanRoomBook {
   };
 }
 
+/**
+ * Head/tail silhouette sampled from Stripe's shared case mesh at the 3.4-unit
+ * thickness used by the supplied Poor Charlie's frame, then normalized to its
+ * full depth and board half-thickness. Keeping those points dimensionless lets
+ * every local volume preserve the reference joint and backstrip curve.
+ */
+const REFERENCE_CASE_OUTER_PROFILE = [
+  [0.9211273, 1],
+  [0.9248393, 0.9970839],
+  [0.9285523, 0.9883351],
+  [0.9321254, 0.9740871],
+  [0.9376543, 0.9472585],
+  [0.9412609, 0.9323476],
+  [0.9450835, 0.921702],
+  [0.9490297, 0.9157717],
+  [0.9529976, 0.9147754],
+  [0.9568838, 0.9186748],
+  [0.9605928, 0.9271836],
+  [0.9691468, 0.9525778],
+  [0.9730141, 0.9640591],
+  [0.9770131, 0.9706447],
+  [0.9806417, 0.975931],
+  [0.9885884, 0.975931],
+  [0.9918405, 0.9733125],
+  [0.9951397, 0.9620594],
+  [0.9978567, 0.9390826],
+  [0.9994839, 0.9125945],
+  [1, 0.8828633]
+] as const;
+
+const SPINE_SHOULDER_PROFILE_INDEX = 15;
+const SPINE_SHOULDER_RATIO = (
+  REFERENCE_CASE_OUTER_PROFILE[SPINE_SHOULDER_PROFILE_INDEX][1]
+);
+const SPINE_FACE_RATIO = REFERENCE_CASE_OUTER_PROFILE.at(-1)?.[1] ?? 0.8828633;
+
+const profileRowAt = (progress: number, depth: number): number => (
+  -depth * 0.5 + progress * depth
+);
+
+const caseHalfSpanRatioAt = (row: number, depth: number): number => {
+  const progress = THREE.MathUtils.clamp(row / depth + 0.5, 0, 1);
+  const first = REFERENCE_CASE_OUTER_PROFILE[0];
+  if (progress <= first[0]) return 1;
+
+  for (let index = 1; index < REFERENCE_CASE_OUTER_PROFILE.length; index += 1) {
+    const previous = REFERENCE_CASE_OUTER_PROFILE[index - 1];
+    const current = REFERENCE_CASE_OUTER_PROFILE[index];
+    if (progress > current[0]) continue;
+    const across = (progress - previous[0]) / (current[0] - previous[0]);
+    return THREE.MathUtils.lerp(previous[1], current[1], across);
+  }
+  return SPINE_FACE_RATIO;
+};
+
+const caseOuterOffsetAt = (
+  row: number,
+  depth: number,
+  thickness: number
+): number => (
+  (caseHalfSpanRatioAt(row, depth) - 1) * thickness * 0.5
+);
+
 const createSpineGeometry = (
   width: number,
-  height: number,
-  bulge: number
-): THREE.PlaneGeometry => {
-  const geometry = new THREE.PlaneGeometry(width, height, 1, 12);
-  const positions = geometry.getAttribute("position");
-  if (!positions) throw new Error("Spine geometry has no position attribute");
-  for (let index = 0; index < positions.count; index += 1) {
-    const normalizedY = THREE.MathUtils.clamp(
-      positions.getY(index) / (height * 0.5),
-      -1,
-      1
+  thickness: number,
+  depth: number
+): THREE.BufferGeometry => {
+  const halfThickness = thickness * 0.5;
+  const crown = REFERENCE_CASE_OUTER_PROFILE.slice(SPINE_SHOULDER_PROFILE_INDEX);
+  const rows = [
+    ...crown.map(([progress, ratio]) => ({
+      y: -halfThickness * ratio,
+      z: profileRowAt(progress, depth)
+    })),
+    { y: 0, z: depth * 0.5 },
+    ...[...crown].reverse().map(([progress, ratio]) => ({
+      y: halfThickness * ratio,
+      z: profileRowAt(progress, depth)
+    }))
+  ];
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const shoulderHalfSpan = halfThickness * SPINE_SHOULDER_RATIO;
+
+  rows.forEach(({ y, z }) => {
+    const v = y / (shoulderHalfSpan * 2) + 0.5;
+    positions.push(-width * 0.5, y, z, width * 0.5, y, z);
+    uvs.push(0, v, 1, v);
+  });
+  for (let row = 0; row < rows.length - 1; row += 1) {
+    const lowerLeft = row * 2;
+    const lowerRight = lowerLeft + 1;
+    const upperLeft = lowerLeft + 2;
+    const upperRight = lowerLeft + 3;
+    indices.push(
+      lowerLeft, lowerRight, upperRight,
+      lowerLeft, upperRight, upperLeft
     );
-    // Match the case shell's semicircular crown. The former sine profile sat
-    // behind that shell near both shoulders, leaving only a textured centre
-    // band visible on the spine.
-    positions.setZ(index, Math.sqrt(Math.max(0, 1 - normalizedY ** 2)) * bulge);
   }
-  positions.needsUpdate = true;
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
   geometry.computeVertexNormals();
   return geometry;
 };
@@ -79,14 +167,12 @@ const createCoverWrapGeometry = (
   upper: boolean,
   bookWidth: number,
   bookDepth: number,
-  coverJointZ: number,
-  coverJointWidth: number,
-  coverJointDepth: number
+  bookThickness: number
 ): THREE.PlaneGeometry => {
   const geometry = new THREE.PlaneGeometry(
     span,
     thickness,
-    edge === "fore" ? 1 : 32,
+    edge === "fore" ? 1 : 128,
     1
   );
   const uvs = geometry.getAttribute("uv");
@@ -114,21 +200,16 @@ const createCoverWrapGeometry = (
     }
 
     if (edge !== "fore") {
-      const row = (coverV - 0.5) * bookDepth;
-      const jointCenter = upper ? -coverJointZ : coverJointZ;
-      const progress = (
-        row - (jointCenter - coverJointWidth * 0.5)
-      ) / coverJointWidth;
-      if (progress >= 0 && progress <= 1) {
-        const recess = -(
-          Math.sin(progress * Math.PI) ** 2
-        ) * coverJointDepth;
-        const outerWeight = upper ? across : 1 - across;
-        positions.setY(
-          index,
-          positions.getY(index) + (upper ? recess : -recess) * outerWeight
-        );
-      }
+      // Head wraps rotate +90° around Y and tail wraps rotate -90°, so their
+      // local x axes run in opposite depth directions. Geometry, not artwork
+      // UV orientation, owns the silhouette sample.
+      const row = (edge === "head" ? -1 : 1) * positions.getX(index);
+      const offset = caseOuterOffsetAt(row, bookDepth, bookThickness);
+      const outerWeight = upper ? across : 1 - across;
+      positions.setY(
+        index,
+        positions.getY(index) + (upper ? offset : -offset) * outerWeight
+      );
     }
   }
   uvs.needsUpdate = true;
@@ -140,18 +221,16 @@ const createCoverWrapGeometry = (
 const createCoverJointGeometry = (
   length: number,
   boardDepth: number,
-  jointY: number,
-  jointWidth: number,
-  jointDepth: number
+  bookThickness: number
 ): THREE.BufferGeometry => {
   const halfDepth = boardDepth * 0.5;
-  const halfJoint = jointWidth * 0.5;
+  const shoulderProfile = REFERENCE_CASE_OUTER_PROFILE.slice(
+    0,
+    SPINE_SHOULDER_PROFILE_INDEX + 1
+  );
   const rows = [
     -halfDepth,
-    ...Array.from({ length: 9 }, (_, index) => (
-      jointY - halfJoint + jointWidth * index / 8
-    )),
-    halfDepth
+    ...shoulderProfile.map(([progress]) => profileRowAt(progress, boardDepth))
   ]
     .map((value) => THREE.MathUtils.clamp(value, -halfDepth, halfDepth))
     .sort((left, right) => left - right)
@@ -164,15 +243,7 @@ const createCoverJointGeometry = (
   const uvs: number[] = [];
   const indices: number[] = [];
   rows.forEach((row) => {
-    const acrossJoint = THREE.MathUtils.clamp(
-      (row - (jointY - halfJoint)) / jointWidth,
-      0,
-      1
-    );
-    const insideJoint = row >= jointY - halfJoint && row <= jointY + halfJoint;
-    const recess = insideJoint
-      ? -(Math.sin(acrossJoint * Math.PI) ** 2) * jointDepth
-      : 0;
+    const recess = caseOuterOffsetAt(row, boardDepth, bookThickness);
     positions.push(
       -length * 0.5, row, recess,
       length * 0.5, row, recess
@@ -390,50 +461,29 @@ const createCaseShellGeometry = (
   length: number,
   depth: number,
   thickness: number,
-  blockThickness: number,
-  jointInset: number,
-  jointWidth: number,
-  jointDepth: number,
-  spineTurnIn: number,
-  spineBulge: number
+  blockThickness: number
 ): THREE.ExtrudeGeometry => {
-  const segments = 18;
   const spineSegments = 28;
   const foreEdge = -depth * 0.5;
-  const jointEnd = depth * 0.5 - jointInset;
-  const jointStart = jointEnd - jointWidth;
   const halfThickness = thickness * 0.5;
   const innerHalfThickness = blockThickness * 0.5 + 0.0002;
-  const spineShoulder = depth * 0.5 + spineTurnIn;
-  const innerSpine = depth * 0.5 - 0.0008;
+  const innerSpine = depth * 0.5 - 0.0022;
   const innerCrown = 0.0012;
   const shape = new THREE.Shape();
 
   shape.moveTo(foreEdge, halfThickness);
-  shape.lineTo(jointStart, halfThickness);
-  for (let index = 1; index <= segments; index += 1) {
-    const progress = index / segments;
+  REFERENCE_CASE_OUTER_PROFILE.forEach(([progress, ratio]) => {
     shape.lineTo(
-      jointStart + jointWidth * progress,
-      halfThickness - Math.sin(progress * Math.PI) ** 2 * jointDepth
+      profileRowAt(progress, depth),
+      halfThickness * ratio
     );
-  }
-  shape.lineTo(spineShoulder, halfThickness);
-  for (let index = 0; index <= spineSegments; index += 1) {
-    const angle = Math.PI * 0.5 - Math.PI * index / spineSegments;
+  });
+  [...REFERENCE_CASE_OUTER_PROFILE].reverse().forEach(([progress, ratio]) => {
     shape.lineTo(
-      spineShoulder + Math.cos(angle) * spineBulge,
-      Math.sin(angle) * halfThickness
+      profileRowAt(progress, depth),
+      -halfThickness * ratio
     );
-  }
-  shape.lineTo(jointEnd, -halfThickness);
-  for (let index = segments - 1; index >= 0; index -= 1) {
-    const progress = index / segments;
-    shape.lineTo(
-      jointStart + jointWidth * progress,
-      -halfThickness + Math.sin(progress * Math.PI) ** 2 * jointDepth
-    );
-  }
+  });
   shape.lineTo(foreEdge, -halfThickness);
   shape.lineTo(foreEdge, -innerHalfThickness);
   shape.lineTo(innerSpine, -innerHalfThickness);
@@ -469,17 +519,22 @@ export const createCleanRoomBook = (
   const thickness = profile.thicknessRatio;
   const boardThickness = profile.binding.boardThicknessRatio;
   const boardCornerRadius = Math.min(boardThickness * 0.36, 0.0052);
-  const coverSkinOffset = 0.00045;
+  // The reference case is one continuous surface. Layered materials use
+  // polygon offset for draw ordering, so physically lifting the cover/spine
+  // skins only creates a bright rail at grazing shelf angles.
+  const coverSkinOffset = 0;
   const coverClothThickness = 0.00055;
   const square = 0.018;
   const blockThickness = profile.binding.pageBlockThicknessRatio;
+  // The reference backstrip is flat through its central face and rolls outward
+  // into a taller shoulder; its face is not a smaller semicircle pasted onto
+  // the full board caliper.
+  const spineSpan = thickness * SPINE_FACE_RATIO;
   const foreEdgeZ = depth * -0.5;
-  const coverJointZ = (
-    depth * 0.5
-    - profile.binding.coverJoints.inset
-    - profile.binding.coverJoints.width * 0.5
+  const boardBoundEdgeZ = profileRowAt(
+    REFERENCE_CASE_OUTER_PROFILE[0][0],
+    depth
   );
-  const boardBoundEdgeZ = coverJointZ - profile.binding.coverJoints.width * 0.5;
   const coverJointClearance = (
     boardThickness
     + coverSkinOffset
@@ -534,10 +589,14 @@ export const createCleanRoomBook = (
     map: surfaces.pageEdge,
     bumpMap: surfaces.pageEdge,
     bumpScale: 0.001,
-    color: 0xffffff,
+    // The legacy light rig sums above one on a square-on leaf edge. White
+    // material clips the paper texture completely, erasing the individual
+    // signatures. Stripe's uploaded edge resolves around warm 208 rather than
+    // display white under the same rake, so keep enough headroom for the map.
+    color: new THREE.Color(profile.binding.paper).multiplyScalar(0.75),
     specular: 0x303030,
     shininess: 3,
-    emissive: 0x050505
+    emissive: 0x000000
   });
   const endpaperMaterial = new THREE.MeshPhongMaterial({
     map: shared.paper,
@@ -560,69 +619,58 @@ export const createCleanRoomBook = (
     width - boardCornerRadius * 2,
     boardBoundEdgeZ - foreEdgeZ - boardCornerRadius * 2
   );
-  const spineBulge = Math.max(0.0055, thickness * 0.045);
-  const spineTurnIn = boardCornerRadius * 0.34;
   const caseShellGeometry = createCaseShellGeometry(
     width,
     depth,
     thickness,
-    blockThickness,
-    profile.binding.coverJoints.inset,
-    profile.binding.coverJoints.width,
-    profile.binding.coverJoints.depth,
-    spineTurnIn,
-    Math.max(0.001, spineBulge - 0.00055)
+    blockThickness
   );
   const spineGeometry = createSpineGeometry(
     width,
     thickness,
-    spineBulge
+    depth
   );
   const upperCoverGeometry = createCoverJointGeometry(
     width,
     depth,
-    -coverJointZ,
-    profile.binding.coverJoints.width,
-    profile.binding.coverJoints.depth
+    thickness
   );
   const lowerCoverGeometry = createCoverJointGeometry(
     width,
     depth,
-    coverJointZ,
-    profile.binding.coverJoints.width,
-    profile.binding.coverJoints.depth
+    thickness
   );
   const headbandRadius = Math.max(0.0028, blockThickness * 0.026);
   const headbandGeometry = new THREE.CylinderGeometry(
     headbandRadius,
     headbandRadius,
-    blockThickness + 0.002,
+    blockThickness,
     16
   );
   const coverWrapThickness = boardThickness + coverClothThickness;
   const upperHeadWrapGeometry = createCoverWrapGeometry(
     depth, coverWrapThickness, "head", true, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
   const upperTailWrapGeometry = createCoverWrapGeometry(
     depth, coverWrapThickness, "tail", true, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
   const lowerHeadWrapGeometry = createCoverWrapGeometry(
     depth, coverWrapThickness, "head", false, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
   const lowerTailWrapGeometry = createCoverWrapGeometry(
     depth, coverWrapThickness, "tail", false, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
   const upperForeWrapGeometry = createCoverWrapGeometry(
     width, coverWrapThickness, "fore", true, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
   const lowerForeWrapGeometry = createCoverWrapGeometry(
     width, coverWrapThickness, "fore", false, width, depth,
-    coverJointZ, profile.binding.coverJoints.width, profile.binding.coverJoints.depth
+    thickness
   );
 
   const pages = new THREE.Mesh(pageGeometry, [
@@ -665,9 +713,9 @@ export const createCleanRoomBook = (
   lowerCover.rotation.x = Math.PI / 2;
   lowerCover.position.y = -(thickness * 0.5 + coverSkinOffset);
 
-  const wrapX = width * 0.5 + coverClothThickness * 0.55;
+  const wrapX = width * 0.5;
   const wrapY = thickness * 0.5 + coverSkinOffset - coverWrapThickness * 0.5;
-  const wrapForeZ = foreEdgeZ - coverClothThickness * 0.45;
+  const wrapForeZ = foreEdgeZ;
 
   const upperHeadWrap = new THREE.Mesh(upperHeadWrapGeometry, coverLayer.material);
   upperHeadWrap.rotation.y = Math.PI / 2;
@@ -690,10 +738,13 @@ export const createCleanRoomBook = (
   lowerForeWrap.position.set(0, -wrapY, wrapForeZ);
 
   const spine = new THREE.Mesh(spineGeometry, spineLayer.material);
-  spine.position.z = depth * 0.5 + spineTurnIn + 0.0003;
+  spine.position.z = 0;
 
   const headbandX = width * 0.5 - square - headbandRadius * 0.7;
-  const headbandZ = depth * 0.5 - headbandRadius * 0.65;
+  // A headband sits behind the backstrip at the bound edge of the text block.
+  // The former -.65 radius placement let .35 radius protrude through the
+  // spine face, turning each cord into a full-height striped catalogue bar.
+  const headbandZ = depth * 0.5 - headbandRadius * 1.25;
   const headbandHead = new THREE.Mesh(headbandGeometry, headbandMaterial);
   headbandHead.position.set(headbandX, 0, headbandZ);
   const headbandTail = new THREE.Mesh(headbandGeometry, headbandMaterial);
@@ -782,11 +833,15 @@ export const createCleanRoomBook = (
       coverSkinOffset,
       coverClothThickness,
       coverJointClearance,
+      spineSpan,
+      spineSpanRatio: spineSpan / thickness,
       boardStopsAtJoint: true,
       boardCornerRadius,
       pageBlockInset: square,
       spineEndCapCount: 2,
-      spineEndCapDepth: spineTurnIn + spineBulge,
+      spineEndCapDepth: depth * (
+        1 - REFERENCE_CASE_OUTER_PROFILE[SPINE_SHOULDER_PROFILE_INDEX][0]
+      ),
       headbandCount: 2
     }
   };

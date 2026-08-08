@@ -62,40 +62,6 @@ const createRandom = (seed: number): (() => number) => {
   };
 };
 
-const paintCloth = (
-  context: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  color: string,
-  seed: number
-): void => {
-  context.fillStyle = color;
-  context.fillRect(0, 0, width, height);
-
-  const random = createRandom(seed);
-  context.save();
-  context.globalCompositeOperation = "soft-light";
-  for (let y = 0; y < height; y += 4 + random() * 2.2) {
-    context.globalAlpha = 0.045 + random() * 0.035;
-    context.strokeStyle = random() > 0.5 ? "#ffffff" : "#000000";
-    context.lineWidth = 0.45;
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(width, y + (random() - 0.5) * 1.6);
-    context.stroke();
-  }
-  for (let x = 0; x < width; x += 4 + random() * 2.5) {
-    context.globalAlpha = 0.035 + random() * 0.03;
-    context.strokeStyle = random() > 0.5 ? "#ffffff" : "#000000";
-    context.lineWidth = 0.4;
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x + (random() - 0.5) * 1.6, height);
-    context.stroke();
-  }
-  context.restore();
-};
-
 const configureTexture = (
   texture: THREE.Texture,
   renderer: THREE.WebGLRenderer,
@@ -159,13 +125,13 @@ const createPaperEdgeTexture = (
   const random = createRandom(seedFor(profile.slug));
   const density = profile.binding.leafDensity;
   let leaf = 0;
-  for (let y = 1.5; y < canvas.height; y += (3.2 + random() * 4.4) / density) {
+  for (let y = 1.5; y < canvas.height; y += (2.2 + random() * 3.2) / density) {
     const signature = leaf % profile.binding.signatureEvery === 0;
     context.strokeStyle = signature || random() < 0.74
       ? profile.binding.paperEdge
       : "rgba(246,246,241,.62)";
-    context.globalAlpha = signature ? 0.34 : 0.1 + random() * 0.18;
-    context.lineWidth = signature ? 0.8 : random() > 0.92 ? 0.52 : 0.34;
+    context.globalAlpha = signature ? 0.42 : 0.14 + random() * 0.22;
+    context.lineWidth = signature ? 0.9 : random() > 0.9 ? 0.64 : 0.42;
     context.beginPath();
     context.moveTo(0, y);
     context.bezierCurveTo(
@@ -331,7 +297,6 @@ const paintCover = (
   const diffuse = getContext(canvases.diffuse, "the cover diffuse texture");
   resetCanvas(diffuse, canvases.diffuse, profile.cloth);
   withCoverSpace(diffuse, canvases.diffuse, (width, height) => {
-    paintCloth(diffuse, width, height, profile.cloth, metadata.serial.charCodeAt(0) * 97);
     if (artwork) {
       diffuse.drawImage(artwork, 0, 0, width, height);
     }
@@ -420,13 +385,6 @@ const paintSpine = (
 ): void => {
   const diffuse = getContext(canvases.diffuse, "the spine diffuse texture");
   resetCanvas(diffuse, canvases.diffuse, profile.cloth);
-  paintCloth(
-    diffuse,
-    canvases.diffuse.width,
-    canvases.diffuse.height,
-    profile.cloth,
-    metadata.serial.charCodeAt(0) * 131
-  );
   paintSpineTypography(diffuse, canvases.diffuse, profile, metadata, profile.ink);
   const edge = diffuse.createLinearGradient(0, 0, 0, canvases.diffuse.height);
   edge.addColorStop(0, "rgba(255,255,255,.16)");

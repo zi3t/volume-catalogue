@@ -511,12 +511,17 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     opacity 180ms linear;
 }
 
+.press-scene-canvas--clean-room {
+  clip-path: inset(0 0 var(--press-terminal-book-clip, 0%) 0);
+}
+
 /* The five genuine volumes retain the reference shelf rhythm. Past the last
    volume, the same sticky canvas hands off to ZI3T's existing signature and
    closing content instead of fabricating more books. */
 .signature-section {
   --press-terminal-opacity: 0;
   --press-terminal-scale: 0.965;
+  --press-terminal-signature-clip: 100%;
   position: fixed;
   z-index: 18;
   inset: 0;
@@ -535,12 +540,13 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     #111617;
   background-size: 181px 173px, 229px 211px, 263px 251px, 307px 283px, 347px 331px, auto;
   color: #f5f1e7;
+  clip-path: inset(var(--press-terminal-signature-clip) 0 0 0);
   opacity: var(--press-terminal-opacity);
   pointer-events: none;
   transform: scale(var(--press-terminal-scale));
   transform-origin: center;
   transition: none;
-  will-change: opacity, transform;
+  will-change: clip-path, opacity, transform;
 }
 
 .signature-section::before,

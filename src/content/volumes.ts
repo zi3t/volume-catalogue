@@ -5,6 +5,7 @@ export interface VolumeDefinition {
   readonly contentPath: string;
   readonly slug: string;
   readonly title: string;
+  readonly byline: string;
   readonly description: string;
   readonly routeMode: VolumeRouteMode;
   readonly spine: {
@@ -25,6 +26,7 @@ export const volumes = [
     contentPath: "/refly/",
     slug: "refly",
     title: "Re-fly the incident",
+    byline: "Rust / WebAssembly",
     description:
       "Re-run browser incidents frame by frame, from captured evidence to deterministic replay.",
     routeMode: "project",
@@ -40,6 +42,7 @@ export const volumes = [
     contentPath: "/arm/",
     slug: "arm",
     title: "GLUON kinematics",
+    byline: "Rust kinematics / three.js",
     description:
       "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
     routeMode: "project",
@@ -55,6 +58,7 @@ export const volumes = [
     contentPath: "/telemetry/",
     slug: "telemetry",
     title: "Telemetry replay",
+    byline: "C# / RabbitMQ / SQL",
     description:
       "Replay distributed-system evidence in order, without sanding away uncertainty.",
     routeMode: "project",
@@ -70,6 +74,7 @@ export const volumes = [
     contentPath: "/resume/",
     slug: "practice",
     title: "Evidence over adjectives",
+    byline: "Systems engineering / security",
     description:
       "The boundary, the contract, and the evidence behind every engineering claim.",
     routeMode: "project",
@@ -85,6 +90,7 @@ export const volumes = [
     contentPath: "/notes/counterfactual-replay/",
     slug: "field-notes",
     title: "Engineering notes",
+    byline: "Replay / verification",
     description:
       "Working notes on replayable systems, verification, and decisions that can be inspected.",
     routeMode: "reading",

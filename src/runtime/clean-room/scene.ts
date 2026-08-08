@@ -16,7 +16,6 @@ import {
   frameApproach,
   mix,
   smooth,
-  spring,
   wrapRotation
 } from "./motion";
 import { cleanRoomProfiles, type CleanRoomVolumeProfile } from "./profiles";
@@ -174,24 +173,6 @@ const getMetadata = (item: HTMLElement, index: number): CleanRoomMetadata => ({
     ?? String(index + 1).padStart(2, "0")
 });
 
-const pointOnDepthPlane = (
-  camera: THREE.PerspectiveCamera,
-  viewportWidth: number,
-  viewportHeight: number,
-  screenX: number,
-  screenY: number,
-  depth: number
-): THREE.Vector3 => {
-  const point = new THREE.Vector3(
-    screenX / viewportWidth * 2 - 1,
-    -(screenY / viewportHeight) * 2 + 1,
-    0.5
-  ).unproject(camera);
-  const direction = point.sub(camera.position).normalize();
-  const distance = (depth - camera.position.z) / direction.z;
-  return camera.position.clone().add(direction.multiplyScalar(distance));
-};
-
 const worldUnitsPerPixel = (
   camera: THREE.PerspectiveCamera,
   viewportHeight: number,
@@ -315,8 +296,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   let frameRequest = 0;
   let layoutFrame = 0;
-  let entryStartedAt = 0;
   let entryComplete = reducedMotion.matches;
+  let entrySpeed = 0;
   let lastFrameAt = 0;
   let animationFrames = 0;
   let presentedFrames = 0;
@@ -354,12 +335,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
   const thicknessScaleY = (entry: CleanRoomEntry): number => (
     entry.profile.thicknessScale
   );
-  const catalogueRestLift = (): number => (
-    compact.matches
-      ? CLEAN_ROOM_MOTION.compactCatalogueRestLiftPixels
-      : CLEAN_ROOM_MOTION.catalogueRestLiftPixels
-  );
-
   const shelfCoverOffset = (): number => CLEAN_ROOM_REFERENCE.shelfCoverOffsetX;
 
   const setShelfEulerOrders = (book: CleanRoomBook): void => {
@@ -435,7 +410,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       hold: 0,
       initialized: false
     };
-    setBookOpacity(entry, entryComplete ? 1 : 0);
+    setBookOpacity(entry, 1);
     return entry;
   });
 
@@ -629,24 +604,27 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
     camera.position.z = CLEAN_ROOM_REFERENCE.cameraBaseZ * canvasScale;
     camera.updateProjectionMatrix();
-    camera.position.y = CLEAN_ROOM_REFERENCE.cameraY;
+    const catalogueMaximum = catalogueScroll.snapshot().currentScrollStep
+      * Math.max(0, entries.length - 1);
+    const catalogueScrollY = Math.min(window.scrollY, catalogueMaximum);
+    const cameraScrollRatio = CLEAN_ROOM_REFERENCE.catalogueCameraScroll
+      / (viewportHeight / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
+      * canvasScale;
+    camera.position.y = pressMode === "catalogue"
+      ? CLEAN_ROOM_REFERENCE.cameraY - catalogueScrollY * cameraScrollRatio
+      : CLEAN_ROOM_REFERENCE.cameraY;
     camera.updateMatrixWorld(true);
     lights.update(camera.position.y, pressMode === "volumes" ? 1 : holdPresentation);
 
     const sectionTarget = activePosition();
     const shelfCenterDepth = CLEAN_ROOM_REFERENCE.shelfRootZ - 11;
     entries.forEach((entry, index) => {
-      const rect = entry.target.getBoundingClientRect();
-      const center = pointOnDepthPlane(
-        camera,
-        viewportWidth,
-        viewportHeight,
-        rect.left + rect.width * 0.5,
-        rect.top + rect.height * 0.5,
-        shelfCenterDepth
+      const shelfGap = narrow.matches ? -7 : -6;
+      entry.homePosition.set(
+        0,
+        index * shelfGap,
+        CLEAN_ROOM_REFERENCE.shelfRootZ
       );
-      entry.homePosition.copy(center);
-      entry.homePosition.z = CLEAN_ROOM_REFERENCE.shelfRootZ;
       entry.homeScale = CLEAN_ROOM_REFERENCE.modelWidth;
 
       const figureRect = entry.figure?.getBoundingClientRect() ?? null;
@@ -698,10 +676,18 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.object.scale.y = thicknessScaleY(entry);
         } else {
           setShelfEulerOrders(entry.book);
-          entry.book.root.position.copy(center);
-          entry.book.root.position.z = CLEAN_ROOM_REFERENCE.shelfRootZ;
-          entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
-          entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
+          entry.book.root.position.set(
+            entry.homePosition.x,
+            reducedMotion.matches
+              ? entry.homePosition.y
+              : CLEAN_ROOM_MOTION.entryInitialY
+                - index * CLEAN_ROOM_MOTION.entryInitialGap,
+            reducedMotion.matches
+              ? entry.homePosition.z
+              : CLEAN_ROOM_MOTION.entryInitialZ
+                - Math.sin(index / entries.length)
+                  * CLEAN_ROOM_MOTION.entryInitialDepthArc
+          );
           entry.book.root.scale.setScalar(entry.homeScale);
           entry.book.root.rotation.set(
             CLEAN_ROOM_REFERENCE.shelfRootRotationX,
@@ -733,7 +719,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   function animate(now: number): void {
     frameRequest = 0;
-    if (!entryStartedAt) entryStartedAt = now;
     const rawDelta = lastFrameAt ? (now - lastFrameAt) / 1000 : 1 / 60;
     const deltaSeconds = clamp(rawDelta, 1 / 240, 0.25);
     lastFrameAt = now;
@@ -794,24 +779,18 @@ export const mountCleanRoomCatalogue = (): boolean => {
       flight = null;
     }
 
-    let allEntryCurvesComplete = true;
+    const entryFrames = clamp(deltaSeconds * 60, 0.25, 4);
+    if (!entryComplete && pressMode === "catalogue") {
+      entrySpeed = Math.min(
+        CLEAN_ROOM_MOTION.flightEaseCeiling,
+        entrySpeed + CLEAN_ROOM_MOTION.flightEaseStep * entryFrames
+      );
+    }
+    const entryApproach = entryComplete || reducedMotion.matches
+      ? 1
+      : 1 - Math.pow(1 - entrySpeed, entryFrames);
     let entryResidual = 0;
     entries.forEach((entry, index) => {
-      const entryLinear = reducedMotion.matches || pressMode === "volumes"
-        ? 1
-        : clamp(
-          (now - entryStartedAt - CLEAN_ROOM_MOTION.entryDelay
-            - index * CLEAN_ROOM_MOTION.entryStagger)
-            / CLEAN_ROOM_MOTION.entryDuration,
-          0,
-          1
-        );
-      const entryDrive = reducedMotion.matches ? 1 : spring(entryLinear);
-      const entryOpacity = reducedMotion.matches
-        ? 1
-        : smooth(clamp(entryLinear / 0.72, 0, 1));
-      if (entryLinear < 1) allEntryCurvesComplete = false;
-
       if (pressMode === "volumes") {
         if (entry.sectionWeight <= 0) {
           setBookOpacity(entry, 0);
@@ -909,7 +888,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         ? activeFlight
         : null;
       if (returnFlight) {
-        const shelfY = entry.homePosition.y + catalogueRestLift() * unitsPerPixel;
+        const shelfY = entry.homePosition.y;
         setShelfEulerOrders(entry.book);
         if (index === returnFlight.index) {
           const approach = returnFlight.approach;
@@ -1040,41 +1019,31 @@ export const mountCleanRoomCatalogue = (): boolean => {
           * holdIsolation;
       const targetY = entry.homePosition.y
         + (
-          catalogueRestLift()
-            + entry.hold * CLEAN_ROOM_MOTION.heldLiftPixels
+          entry.hold * CLEAN_ROOM_MOTION.heldLiftPixels
         ) * unitsPerPixel
-        - (1 - entryDrive) * 28 * unitsPerPixel
         + evictionPixels * unitsPerPixel;
-      const entryDepth = -camera.position.z * 0.012 * (1 - smooth(entryLinear));
       const targetDepth = entry.homePosition.z
-        + entryDepth
         + (CLEAN_ROOM_REFERENCE.shelfHoverZ - entry.homePosition.z)
           * Math.max(entry.hover, entry.hold);
 
-      entry.book.root.position.x = damp(
-        entry.book.root.position.x,
-        entry.homePosition.x,
-        11.5,
-        deltaSeconds
-      );
-      entry.book.root.position.y = damp(
-        entry.book.root.position.y,
-        targetY,
-        11.5,
-        deltaSeconds
-      );
-      entry.book.root.position.z = frameApproach(
-        entry.book.root.position.z,
-        targetDepth,
-        CLEAN_ROOM_MOTION.spineZEase,
-        deltaSeconds
-      );
-      const nextScale = damp(
-        entry.book.root.scale.x,
-        entry.homeScale,
-        11,
-        deltaSeconds
-      );
+      const shelfApproach = entryComplete ? null : entryApproach;
+      entry.book.root.position.x = shelfApproach === null
+        ? damp(entry.book.root.position.x, entry.homePosition.x, 11.5, deltaSeconds)
+        : mix(entry.book.root.position.x, entry.homePosition.x, shelfApproach);
+      entry.book.root.position.y = shelfApproach === null
+        ? damp(entry.book.root.position.y, targetY, 11.5, deltaSeconds)
+        : mix(entry.book.root.position.y, targetY, shelfApproach);
+      entry.book.root.position.z = shelfApproach === null
+        ? frameApproach(
+          entry.book.root.position.z,
+          targetDepth,
+          CLEAN_ROOM_MOTION.spineZEase,
+          deltaSeconds
+        )
+        : mix(entry.book.root.position.z, targetDepth, shelfApproach);
+      const nextScale = shelfApproach === null
+        ? damp(entry.book.root.scale.x, entry.homeScale, 11, deltaSeconds)
+        : mix(entry.book.root.scale.x, entry.homeScale, shelfApproach);
       entry.book.root.scale.setScalar(nextScale);
       entry.book.cover.position.x = damp(
         entry.book.cover.position.x,
@@ -1145,7 +1114,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
           deltaSeconds
         );
       }
-      setBookOpacity(entry, entryOpacity * catalogueMotion.terminalSceneOpacity);
+      setBookOpacity(entry, catalogueMotion.terminalSceneOpacity);
 
       entryResidual = Math.max(
         entryResidual,
@@ -1171,11 +1140,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
     if (
       !entryComplete
-      && allEntryCurvesComplete
-      && (
-        entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
-        || now - entryStartedAt > CLEAN_ROOM_MOTION.entrySettleTimeout
-      )
+      && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
     ) {
       entryComplete = true;
       document.documentElement.classList.add("press-entry-complete");
@@ -1364,6 +1329,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
           coverSkinOffset: book.bindingModel.coverSkinOffset,
           coverClothThickness: book.bindingModel.coverClothThickness,
           coverJointClearance: book.bindingModel.coverJointClearance,
+          spineSpan: book.bindingModel.spineSpan,
+          spineSpanRatio: book.bindingModel.spineSpanRatio,
           boardStopsAtJoint: book.bindingModel.boardStopsAtJoint,
           boardCornerRadius: book.bindingModel.boardCornerRadius,
           pageBlockInset: book.bindingModel.pageBlockInset,
