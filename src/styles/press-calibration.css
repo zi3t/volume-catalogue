@@ -3,11 +3,11 @@
    while the progressive Three.js scene supplies physical book materials. */
 
 .home-page {
-  --press-stack-top: calc(15svh + 6.94vw + 73px);
-  --press-stack-width: min(calc(42.2vw + 67px), calc(832px - 11.5svh), 780px);
+  --press-stack-top: calc(40svh - 42px);
+  --press-stack-width: calc(46.1vw + 3px);
   --press-stack-shift: 0px;
   --press-volume-height: clamp(88px, 8.25vw, 132px);
-  --press-row-height: clamp(110px, calc(11.92vw + 3.55px), 220px);
+  --press-row-height: calc(12.22vw + 5px);
   --press-spring-snappy: linear(
     0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%,
     0.938 16.7%, 1.017 19.4%, 1.067 22.5%, 1.089 26%,
@@ -268,7 +268,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   }
 
   .press-volume-item--telemetry {
-    top: calc(var(--press-row-height) * 2) !important;
+    top: calc(var(--press-row-height) * 2 - 10px) !important;
   }
 
   .press-volume-item--practice {
@@ -323,7 +323,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
 }
 
 .press-rail {
-  top: calc(38.3svh - 5px + clamp(0px, calc(32.2px - 2.05vw), 10px));
+  top: calc(50svh - 121px);
   left: 31px;
   width: 304px;
   height: 258px;

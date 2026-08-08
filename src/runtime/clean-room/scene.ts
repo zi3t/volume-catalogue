@@ -358,7 +358,12 @@ export const mountCleanRoomCatalogue = (): boolean => {
       ? CLEAN_ROOM_MOTION.sectionCompactObjectScaleX
       : CLEAN_ROOM_MOTION.sectionObjectScaleX
   );
-  const objectThicknessScaleY = (): number => (
+  const shelfThicknessScaleY = (entry: CleanRoomEntry): number => (
+    compact.matches
+      ? CLEAN_ROOM_MOTION.compactThicknessScale
+      : entry.profile.shelfThicknessScale
+  );
+  const presentationThicknessScaleY = (): number => (
     compact.matches ? CLEAN_ROOM_MOTION.compactThicknessScale : 1
   );
   const catalogueRestLift = (): number => (
@@ -437,7 +442,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     entry.book.root.rotation.set(0, 0, 0);
     entry.book.object.rotation.x = shelfPitch(entry);
     entry.book.object.scale.x = 1;
-    entry.book.object.scale.y = objectThicknessScaleY();
+    entry.book.object.scale.y = shelfThicknessScaleY(entry);
     entry.sectionWeight = 0;
     entry.sectionVisible = false;
     setBookOpacity(entry, 1);
@@ -692,14 +697,14 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.object.rotation.x = Math.PI / 2
             - CLEAN_ROOM_MOTION.sectionCoverPitchShortfall;
           entry.book.object.scale.x = sectionObjectScaleX();
-          entry.book.object.scale.y = objectThicknessScaleY();
+          entry.book.object.scale.y = presentationThicknessScaleY();
         } else {
           entry.book.root.position.copy(center);
           entry.book.root.position.y -= reducedMotion.matches ? 0 : 28 * unitsPerPixel;
           entry.book.root.position.z -= reducedMotion.matches ? 0 : camera.position.z * 0.012;
           entry.book.root.scale.setScalar(scale);
           entry.book.object.rotation.x = entry.profile.shelfPitch;
-          entry.book.object.scale.y = objectThicknessScaleY();
+          entry.book.object.scale.y = shelfThicknessScaleY(entry);
         }
         entry.initialized = true;
       }
@@ -834,7 +839,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
             sectionObjectScaleX(),
             approach
           );
-          entry.book.object.scale.y = objectThicknessScaleY();
+          entry.book.object.scale.y = presentationThicknessScaleY();
           const residual = Math.max(
             entry.book.root.position.distanceTo(entry.sectionPosition),
             Math.abs(entry.book.root.scale.x - entry.sectionScale) * 20,
@@ -848,7 +853,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.root.rotation.set(0, targetRotationY, targetRotationZ);
           entry.book.object.rotation.x = targetObjectRotationX;
           entry.book.object.scale.x = sectionObjectScaleX();
-          entry.book.object.scale.y = objectThicknessScaleY();
+          entry.book.object.scale.y = presentationThicknessScaleY();
         }
         setBookOpacity(entry, entry.sectionVisible ? 1 : 0);
         return;
@@ -886,7 +891,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.object.scale.x = mix(entry.book.object.scale.x, 1, approach);
           entry.book.object.scale.y = mix(
             entry.book.object.scale.y,
-            objectThicknessScaleY(),
+            shelfThicknessScaleY(entry),
             approach
           );
           setBookOpacity(entry, 1);
@@ -917,7 +922,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
           entry.book.root.rotation.set(0, 0, 0);
           entry.book.object.rotation.x = targetPitch;
           entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = objectThicknessScaleY();
+          entry.book.object.scale.y = shelfThicknessScaleY(entry);
           setBookOpacity(entry, stackOpacity);
         }
         entryResidual = Math.max(
@@ -1017,7 +1022,11 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       entry.book.object.scale.y = damp(
         entry.book.object.scale.y,
-        objectThicknessScaleY(),
+        mix(
+          shelfThicknessScaleY(entry),
+          presentationThicknessScaleY(),
+          entry.hold
+        ),
         11,
         deltaSeconds
       );
