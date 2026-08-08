@@ -1526,21 +1526,25 @@ small longitudinal features beside the spine are the exterior cover joints or
 hinge grooves. They sit down into the case where the front and back boards
 meet the spine. They are not raised bands, hubs, or strips on either cover.
 
-The separate convex meshes were removed. Each board body and its outer cover
-skin now follow the same smooth concave cross-section beside the spine. This is
-a structural recess: the substrate no longer stays rectangular beneath the
-cloth and visually fills the joint back in. The front and back joints share the
-same bound-edge position and mirror through the case, leaving a constant cloth
-offset while the rake light reveals a narrow shoulder and shadowed centre.
-Per-volume inset, width, and depth remain distinct; depth ranges from `.0036` to
-`.0045` model units, pressed inward rather than added as the former raised
-relief. A second close side reference corrected the first width estimate: the
-transition spans `.038` to `.042` model units, approximately 4.7–5.4% of each
-fore-edge depth, and its straight clearance from the spine covering is only
-`.0045` to `.0065`. The cover skin also sits `.00045` above the board rather
-than the earlier `.0015`, so the cloth reads as adhered to the recessed board
-instead of floating over it. The depth remains large enough to preserve a real
-silhouette change rather than collapsing into a one-pixel lighting seam.
+The separate convex meshes were removed. An intermediate correction then made
+the rigid board body follow the same concave cross-section as its cover skin.
+That was also anatomically wrong: it left a full board thickness underneath the
+dip, so no width or surface-offset adjustment could bring the hinge close to
+the page block in the supplied side references.
+
+The rigid front and back boards now terminate at the fore-side shoulder of each
+joint. Only the covering cloth bridges the remaining gap to the spine and dips
+through it, matching the cloth-only hinge in a case binding. That bridge is a
+`.00055`-thick solid ribbon rather than the zero-thickness plane used by the
+first cutout pass, so the side view shows a folded cloth edge instead of a pale
+triangular flap. The mirrored bridges retain per-volume profiles and their
+undersides reach to within `.0008` to `.001` model units of the page block;
+their depth is `.0109` to `.0115`. A squared-sine section keeps the shoulders
+tangent to the flat cover before descending into the joint. The transition
+spans `.038` to `.042` model units, approximately 4.7–5.4% of each fore-edge
+depth, while its straight clearance from the spine covering remains only
+`.0045` to `.0065`. Away from the joint, the cover skin sits `.00045` above the
+board so the cloth reads as adhered rather than floating.
 
 The runtime diagnostics and gates use `coverJoint*` terminology. Foundation
 requires two recessed cover joints and zero spine hubs; the hidden hardware

@@ -128,6 +128,9 @@ interface CleanRoomDebugSnapshot {
       readonly coverJointWidth: number;
       readonly coverJointDepth: number;
       readonly coverSkinOffset: number;
+      readonly coverClothThickness: number;
+      readonly coverJointClearance: number;
+      readonly boardStopsAtJoint: true;
       readonly boardCornerRadius: number;
       readonly pageBlockInset: number;
       readonly spineEndCapCount: 2;
@@ -1247,6 +1250,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
           coverJointWidth: book.bindingModel.coverJointWidth,
           coverJointDepth: book.bindingModel.coverJointDepth,
           coverSkinOffset: book.bindingModel.coverSkinOffset,
+          coverClothThickness: book.bindingModel.coverClothThickness,
+          coverJointClearance: book.bindingModel.coverJointClearance,
+          boardStopsAtJoint: book.bindingModel.boardStopsAtJoint,
           boardCornerRadius: book.bindingModel.boardCornerRadius,
           pageBlockInset: book.bindingModel.pageBlockInset,
           spineEndCapCount: book.bindingModel.spineEndCapCount,

@@ -24,6 +24,9 @@ export interface CleanRoomBook {
     readonly coverJointWidth: number;
     readonly coverJointDepth: number;
     readonly coverSkinOffset: number;
+    readonly coverClothThickness: number;
+    readonly coverJointClearance: number;
+    readonly boardStopsAtJoint: true;
     readonly boardCornerRadius: number;
     readonly pageBlockInset: number;
     readonly spineEndCapCount: 2;
@@ -162,7 +165,7 @@ const createCoverJointGeometry = (
     );
     const insideJoint = row >= jointY - halfJoint && row <= jointY + halfJoint;
     const recess = insideJoint
-      ? -Math.sin(acrossJoint * Math.PI) * jointDepth
+      ? -(Math.sin(acrossJoint * Math.PI) ** 2) * jointDepth
       : 0;
     positions.push(
       -length * 0.5, row, recess,
@@ -190,28 +193,66 @@ const createCoverJointGeometry = (
   return geometry;
 };
 
-const createBoardGeometry = (
+const createJointBridgeGeometry = (
   length: number,
-  boardDepth: number,
-  thickness: number,
-  cornerRadius: number,
   jointZ: number,
   jointWidth: number,
-  jointDepth: number
+  jointDepth: number,
+  clothThickness: number
 ): THREE.ExtrudeGeometry => {
-  const halfDepth = boardDepth * 0.5;
-  const halfThickness = thickness * 0.5;
-  const radius = Math.min(cornerRadius, halfThickness * 0.9);
-  const foreEdge = -halfDepth;
-  const boundEdge = halfDepth;
+  const segments = 16;
   const jointStart = jointZ - jointWidth * 0.5;
-  const jointEnd = jointZ + jointWidth * 0.5;
+  const shape = new THREE.Shape();
+  const recessAt = (progress: number) => (
+    -(Math.sin(progress * Math.PI) ** 2) * jointDepth
+  );
+
+  shape.moveTo(jointStart, recessAt(0));
+  for (let index = 1; index <= segments; index += 1) {
+    const progress = index / segments;
+    shape.lineTo(jointStart + jointWidth * progress, recessAt(progress));
+  }
+  for (let index = segments; index >= 0; index -= 1) {
+    const progress = index / segments;
+    shape.lineTo(
+      jointStart + jointWidth * progress,
+      recessAt(progress) - clothThickness
+    );
+  }
+  shape.closePath();
+
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: length,
+    steps: 1,
+    bevelEnabled: false,
+    curveSegments: 4
+  });
+  geometry.rotateY(-Math.PI / 2);
+  geometry.translate(length * 0.5, 0, 0);
+  geometry.computeVertexNormals();
+  return geometry;
+};
+
+const createBoardGeometry = (
+  length: number,
+  foreEdge: number,
+  boundEdge: number,
+  thickness: number,
+  cornerRadius: number
+): THREE.ExtrudeGeometry => {
+  const halfThickness = thickness * 0.5;
+  const radius = Math.min(
+    cornerRadius,
+    halfThickness * 0.9,
+    (boundEdge - foreEdge) * 0.25
+  );
   const shape = new THREE.Shape();
 
-  // The board is authored from its fore edge around the inner face and back
-  // along the outer face. The outer run includes the pressed-in hinge groove,
-  // so the joint changes the real side silhouette instead of shading a flat
-  // box or adding a separate raised strip.
+  // A case-bound board ends before the exterior joint. The covering cloth,
+  // authored separately below, bridges the remaining distance to the spine.
+  // Keeping rigid substrate under that bridge forces the dip to remain a full
+  // board thickness away from the page block and creates the false broad dent
+  // the side reference exposed.
   shape.moveTo(foreEdge + radius, -halfThickness);
   shape.lineTo(boundEdge - radius, -halfThickness);
   shape.quadraticCurveTo(
@@ -227,14 +268,6 @@ const createBoardGeometry = (
     boundEdge - radius,
     halfThickness
   );
-  shape.lineTo(jointEnd, halfThickness);
-  for (let index = 0; index <= 12; index += 1) {
-    const progress = index / 12;
-    shape.lineTo(
-      jointEnd - jointWidth * progress,
-      halfThickness - Math.sin(progress * Math.PI) * jointDepth
-    );
-  }
   shape.lineTo(foreEdge + radius, halfThickness);
   shape.quadraticCurveTo(
     foreEdge,
@@ -729,6 +762,9 @@ export const createCleanRoomBook = (
       coverJointWidth: profile.binding.coverJoints.width,
       coverJointDepth: profile.binding.coverJoints.depth,
       coverSkinOffset,
+      coverClothThickness,
+      coverJointClearance,
+      boardStopsAtJoint: true,
       boardCornerRadius,
       pageBlockInset: square,
       spineEndCapCount: 2,
