@@ -40,12 +40,23 @@ interface AtlasCanvases {
 
 const ATLAS_WIDTH = 1920;
 const ATLAS_HEIGHT = 1600;
-const WRAP_TOP = 288;
+// The authored page-edge island ends at atlas row 320. Stripe starts the
+// wrapped-cover artwork on that exact boundary; starting it any earlier paints
+// the lower part of the exposed page block as cloth.
+const WRAP_TOP = 320;
 const SPINE_LEFT = 874;
 const SPINE_RIGHT = 1046;
 const FRONT_LEFT = 1040;
 const FOIL_TILE_WIDTH = Math.round(ATLAS_WIDTH * 0.14);
 const FOIL_TILE_HEIGHT = Math.round(ATLAS_HEIGHT * 0.19);
+// The authored OBJ packs its small sewn endband into this isolated swatch.
+// Keep ink inside these bounds: neighboring white UV islands are the page
+// block, so an oversized swatch prints across the visible fore edge.
+const ENDBAND_LEFT = 421;
+const ENDBAND_TOP = 197;
+const ENDBAND_WIDTH = 195;
+const ENDBAND_HEIGHT = 52;
+const ENDBAND_STITCH_COUNT = 12;
 
 const configureTexture = (
   texture: THREE.Texture,
@@ -161,21 +172,30 @@ const paintFoilPalette = (
   context.fillRect(0, 0, FOIL_TILE_WIDTH, FOIL_TILE_HEIGHT);
 };
 
-const paintHeadbands = (
+const paintEndband = (
   context: CanvasRenderingContext2D,
-  colors: readonly [string, string]
+  color: string
 ): void => {
-  const left = 380;
-  const top = 178;
-  const width = 178;
-  const stripe = 7;
-  for (let row = 0; row < 2; row += 1) {
-    const y = top + row * 34;
-    for (let x = 0; x < width; x += stripe) {
-      context.fillStyle = colors[Math.floor(x / stripe) % 2] ?? colors[0];
-      context.fillRect(left + x, y, stripe + 1, 18);
-    }
+  const pitch = ENDBAND_WIDTH / ENDBAND_STITCH_COUNT;
+  context.save();
+  context.fillStyle = color;
+  for (let index = 0; index < ENDBAND_STITCH_COUNT; index += 1) {
+    const x = ENDBAND_LEFT + index * pitch;
+    const top = ENDBAND_TOP + (index % 3 === 1 ? 1 : 0);
+    const bottom = ENDBAND_TOP + ENDBAND_HEIGHT - (index % 4 === 2 ? 1 : 0);
+    context.beginPath();
+    context.moveTo(x + 2, top);
+    context.lineTo(x + pitch * 0.72, top + 2);
+    context.lineTo(x + pitch * 0.58, top + ENDBAND_HEIGHT * 0.36);
+    context.lineTo(x + pitch * 0.76, top + ENDBAND_HEIGHT * 0.58);
+    context.lineTo(x + pitch * 0.55, bottom);
+    context.lineTo(x, bottom - 2);
+    context.lineTo(x + pitch * 0.12, top + ENDBAND_HEIGHT * 0.62);
+    context.lineTo(x - 1, top + ENDBAND_HEIGHT * 0.34);
+    context.closePath();
+    context.fill();
   }
+  context.restore();
 };
 
 const wrapText = (
@@ -310,7 +330,7 @@ const paintAtlas = (
   diffuse.fillStyle = profile.cloth;
   diffuse.fillRect(0, WRAP_TOP, ATLAS_WIDTH, ATLAS_HEIGHT - WRAP_TOP);
   paintFoilPalette(diffuse, profile.material.foil.colors);
-  paintHeadbands(diffuse, profile.headband);
+  paintEndband(diffuse, profile.headband[0]);
   if (artwork) paintArtwork(diffuse, artwork);
   paintBackTypography(diffuse, profile);
   paintFrontTypography(diffuse, metadata, profile.ink);
