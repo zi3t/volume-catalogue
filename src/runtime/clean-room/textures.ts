@@ -1,9 +1,12 @@
 import * as THREE from "three";
 
-import clothColourUrl from "../../assets/textures/polyhaven-book-pattern-colour-1k.jpg?url";
-import clothHeightUrl from "../../assets/textures/polyhaven-book-pattern-height-1k.jpg?url";
-import paperColourUrl from "../../assets/textures/Paper001_1K-JPG_Color.jpg?url";
-import type { CleanRoomVolumeProfile } from "./profiles";
+import bumpBuckramUrl from "../../assets/textures/shared-bump-buckram.jpg?url";
+import bumpCardboardUrl from "../../assets/textures/shared-bump-cardboard.jpg?url";
+import bumpNoneUrl from "../../assets/textures/shared-bump-none.jpg?url";
+import bumpPaperUrl from "../../assets/textures/shared-bump-paper.jpg?url";
+import diffuseOverlayUrl from "../../assets/textures/shared-diffuse-overlay.jpg?url";
+import glitterUrl from "../../assets/textures/shared-glitter.png?url";
+import type { CleanRoomBaseBump, CleanRoomVolumeProfile } from "./profiles";
 
 export interface CleanRoomMetadata {
   readonly title: string;
@@ -12,10 +15,9 @@ export interface CleanRoomMetadata {
 }
 
 export interface CleanRoomSharedTextures {
-  readonly clothDiffuse: THREE.Texture;
-  readonly clothBump: THREE.Texture;
-  readonly glitter: THREE.DataTexture;
-  readonly paper: THREE.Texture;
+  readonly diffuseOverlay: THREE.Texture;
+  readonly bumps: Readonly<Record<CleanRoomBaseBump, THREE.Texture>>;
+  readonly glitter: THREE.Texture;
 }
 
 export interface CleanRoomMaterialMaps {
@@ -25,199 +27,108 @@ export interface CleanRoomMaterialMaps {
   readonly customBump: THREE.CanvasTexture;
   readonly foil: THREE.CanvasTexture;
   readonly gloss: THREE.CanvasTexture;
-  readonly glitter: THREE.DataTexture;
-  readonly dimensions: {
-    readonly diffuse: readonly [number, number];
-    readonly masks: readonly [number, number];
-  };
+  readonly glitter: THREE.Texture;
+  readonly dimensions: readonly [1920, 1600];
 }
 
-export interface CleanRoomSurfaceTextures {
-  readonly cover: CleanRoomMaterialMaps;
-  readonly spine: CleanRoomMaterialMaps;
-  readonly pageEdge: THREE.CanvasTexture;
-  readonly headband: THREE.CanvasTexture;
-}
-
-interface SurfaceCanvases {
+interface AtlasCanvases {
   readonly diffuse: HTMLCanvasElement;
   readonly customBump: HTMLCanvasElement;
   readonly foil: HTMLCanvasElement;
   readonly gloss: HTMLCanvasElement;
 }
 
-const COVER_DIFFUSE_SIZE = [1600, 1280] as const;
-const COVER_MASK_SIZE = [800, 640] as const;
-const SPINE_DIFFUSE_SIZE = [1536, 240] as const;
-const SPINE_MASK_SIZE = [768, 120] as const;
-
-const createRandom = (seed: number): (() => number) => {
-  let state = seed >>> 0;
-  return () => {
-    state += 0x6d2b79f5;
-    let value = state;
-    value = Math.imul(value ^ value >>> 15, value | 1);
-    value ^= value + Math.imul(value ^ value >>> 7, value | 61);
-    return ((value ^ value >>> 14) >>> 0) / 4294967296;
-  };
-};
+const ATLAS_WIDTH = 1920;
+const ATLAS_HEIGHT = 1600;
+const WRAP_TOP = 288;
+const SPINE_LEFT = 874;
+const SPINE_RIGHT = 1046;
+const FRONT_LEFT = 1040;
+const FOIL_TILE_WIDTH = Math.round(ATLAS_WIDTH * 0.14);
+const FOIL_TILE_HEIGHT = Math.round(ATLAS_HEIGHT * 0.19);
 
 const configureTexture = (
   texture: THREE.Texture,
   renderer: THREE.WebGLRenderer,
-  repeatX = 1,
-  repeatY = 1
-): void => {
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(repeatX, repeatY);
+  name: string
+): THREE.Texture => {
+  texture.name = name;
   texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   texture.colorSpace = THREE.NoColorSpace;
-};
-
-const createGlitterTexture = (renderer: THREE.WebGLRenderer): THREE.DataTexture => {
-  const size = 128;
-  const data = new Uint8Array(size * size * 4);
-  const random = createRandom(0x5eedf11e);
-  for (let index = 0; index < size * size; index += 1) {
-    const roll = random();
-    const value = roll > 0.987 ? 255 : roll > 0.975 ? 92 : 0;
-    const offset = index * 4;
-    data[offset] = value;
-    data[offset + 1] = value;
-    data[offset + 2] = value;
-    data[offset + 3] = 255;
-  }
-  const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
-  texture.name = "clean-room-glitter";
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
   texture.generateMipmaps = true;
-  texture.needsUpdate = true;
-  configureTexture(texture, renderer);
   return texture;
 };
 
-const seedFor = (value: string): number => [...value].reduce(
-  (seed, character) => Math.imul(seed ^ character.charCodeAt(0), 16777619) >>> 0,
-  2166136261
-);
-
-const createPaperEdgeTexture = (
+const loadTexture = (
+  loader: THREE.TextureLoader,
   renderer: THREE.WebGLRenderer,
-  profile: CleanRoomVolumeProfile
-): THREE.CanvasTexture => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 256;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("2D canvas is unavailable for the paper edge");
-  context.fillStyle = profile.binding.paper;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  const edgeShade = context.createLinearGradient(0, 0, 0, canvas.height);
-  edgeShade.addColorStop(0, "rgba(70,72,72,.14)");
-  edgeShade.addColorStop(0.055, "rgba(90,92,92,.035)");
-  edgeShade.addColorStop(0.48, "rgba(255,255,255,.015)");
-  edgeShade.addColorStop(0.945, "rgba(90,92,92,.035)");
-  edgeShade.addColorStop(1, "rgba(70,72,72,.14)");
-  context.fillStyle = edgeShade;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  const random = createRandom(seedFor(profile.slug));
-  const density = profile.binding.leafDensity;
-  let leaf = 0;
-  for (let y = 1.5; y < canvas.height; y += (2.2 + random() * 3.2) / density) {
-    const signature = leaf % profile.binding.signatureEvery === 0;
-    context.strokeStyle = signature || random() < 0.74
-      ? profile.binding.paperEdge
-      : "rgba(246,246,241,.62)";
-    context.globalAlpha = signature ? 0.42 : 0.14 + random() * 0.22;
-    context.lineWidth = signature ? 0.9 : random() > 0.9 ? 0.64 : 0.42;
-    context.beginPath();
-    context.moveTo(0, y);
-    context.bezierCurveTo(
-      canvas.width * 0.28,
-      y + (random() - 0.5) * 0.75,
-      canvas.width * 0.72,
-      y + (random() - 0.5) * 0.75,
-      canvas.width,
-      y + (random() - 0.5) * 0.5
-    );
-    context.stroke();
-    leaf += 1;
-  }
-  context.globalAlpha = 1;
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.name = `clean-room-${profile.slug}-paper-edge`;
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.generateMipmaps = true;
-  configureTexture(texture, renderer);
-  texture.needsUpdate = true;
-  return texture;
-};
-
-const createHeadbandTexture = (
-  renderer: THREE.WebGLRenderer,
-  profile: CleanRoomVolumeProfile
-): THREE.CanvasTexture => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 32;
-  const context = canvas.getContext("2d", { alpha: false });
-  if (!context) throw new Error("2D canvas is unavailable for the headband");
-  const [first, second] = profile.binding.headband;
-  // Cylinder v follows the headband's long axis. Alternating on canvas-y
-  // makes the tiny cord read as a sewn two-colour band in the head/tail view;
-  // alternating on x produced one solid dark line from that angle.
-  for (let y = 0; y < canvas.height; y += 3) {
-    context.fillStyle = Math.floor(y / 3) % 2 ? first : second;
-    context.fillRect(0, y, canvas.width, 3);
-  }
-  context.fillStyle = "rgba(0,0,0,.08)";
-  for (let x = 4; x < canvas.width; x += 8) context.fillRect(x, 0, 1, canvas.height);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.name = `clean-room-${profile.slug}-headband`;
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.generateMipmaps = true;
-  configureTexture(texture, renderer, 2.2, 1.25);
-  texture.needsUpdate = true;
-  return texture;
-};
+  url: string,
+  name: string,
+  invalidate: () => void
+): THREE.Texture => configureTexture(loader.load(url, invalidate), renderer, name);
 
 export const createSharedTextures = (
   renderer: THREE.WebGLRenderer,
   invalidate: () => void
 ): CleanRoomSharedTextures => {
   const loader = new THREE.TextureLoader();
-  const clothDiffuse = loader.load(clothColourUrl, invalidate);
-  clothDiffuse.name = "clean-room-base-diffuse";
-  configureTexture(clothDiffuse, renderer);
-
-  const clothBump = loader.load(clothHeightUrl, invalidate);
-  clothBump.name = "clean-room-base-bump";
-  configureTexture(clothBump, renderer);
-
-  const paper = loader.load(paperColourUrl, invalidate);
-  paper.name = "clean-room-paper";
-  configureTexture(paper, renderer, 2.4, 2.4);
-
   return {
-    clothDiffuse,
-    clothBump,
-    glitter: createGlitterTexture(renderer),
-    paper
+    diffuseOverlay: loadTexture(
+      loader,
+      renderer,
+      diffuseOverlayUrl,
+      "book-shared-diffuse-overlay",
+      invalidate
+    ),
+    bumps: {
+      none: loadTexture(loader, renderer, bumpNoneUrl, "book-shared-bump-none", invalidate),
+      buckram: loadTexture(
+        loader,
+        renderer,
+        bumpBuckramUrl,
+        "book-shared-bump-buckram",
+        invalidate
+      ),
+      paper: loadTexture(
+        loader,
+        renderer,
+        bumpPaperUrl,
+        "book-shared-bump-paper",
+        invalidate
+      ),
+      cardboard: loadTexture(
+        loader,
+        renderer,
+        bumpCardboardUrl,
+        "book-shared-bump-cardboard",
+        invalidate
+      )
+    },
+    glitter: loadTexture(
+      loader,
+      renderer,
+      glitterUrl,
+      "book-shared-glitter",
+      invalidate
+    )
   };
 };
 
-const createCanvas = (width: number, height: number): HTMLCanvasElement => {
+const createCanvas = (): HTMLCanvasElement => {
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = ATLAS_WIDTH;
+  canvas.height = ATLAS_HEIGHT;
   return canvas;
 };
 
-const getContext = (
+const createAtlasCanvases = (): AtlasCanvases => ({
+  diffuse: createCanvas(),
+  customBump: createCanvas(),
+  foil: createCanvas(),
+  gloss: createCanvas()
+});
+
+const contextFor = (
   canvas: HTMLCanvasElement,
   label: string
 ): CanvasRenderingContext2D => {
@@ -226,240 +137,223 @@ const getContext = (
   return context;
 };
 
-const resetCanvas = (
+const reset = (
   context: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
   color: string
 ): void => {
   context.setTransform(1, 0, 0, 1, 0, 0);
   context.globalAlpha = 1;
   context.globalCompositeOperation = "source-over";
   context.fillStyle = color;
-  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillRect(0, 0, ATLAS_WIDTH, ATLAS_HEIGHT);
 };
 
-const withCoverSpace = (
+const paintFoilPalette = (
   context: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
-  paint: (width: number, height: number, scale: number) => void
+  colors: readonly [string, string]
 ): void => {
-  context.save();
-  context.translate(0, canvas.height);
-  context.rotate(-Math.PI / 2);
-  const width = canvas.height;
-  const height = canvas.width;
-  paint(width, height, width / 800);
-  context.restore();
+  const gradient = context.createLinearGradient(0, 0, FOIL_TILE_WIDTH, FOIL_TILE_HEIGHT);
+  gradient.addColorStop(0, colors[0]);
+  gradient.addColorStop(0.35, colors[1]);
+  gradient.addColorStop(0.7, colors[0]);
+  gradient.addColorStop(1, colors[1]);
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, FOIL_TILE_WIDTH, FOIL_TILE_HEIGHT);
 };
 
-const paintCoverTypography = (
+const paintHeadbands = (
+  context: CanvasRenderingContext2D,
+  colors: readonly [string, string]
+): void => {
+  const left = 380;
+  const top = 178;
+  const width = 178;
+  const stripe = 7;
+  for (let row = 0; row < 2; row += 1) {
+    const y = top + row * 34;
+    for (let x = 0; x < width; x += stripe) {
+      context.fillStyle = colors[Math.floor(x / stripe) % 2] ?? colors[0];
+      context.fillRect(left + x, y, stripe + 1, 18);
+    }
+  }
+};
+
+const wrapText = (
+  context: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number
+): void => {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = "";
+  words.forEach((word) => {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && context.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  });
+  if (line) lines.push(line);
+  lines.forEach((value, index) => {
+    context.fillText(value, centerX, startY + index * lineHeight, maxWidth);
+  });
+};
+
+const paintFrontTypography = (
   context: CanvasRenderingContext2D,
   metadata: CleanRoomMetadata,
-  color: string,
-  opacity = 1
+  color: string
 ): void => {
-  const scale = context.canvas.height / 800;
-  const width = context.canvas.height;
+  const left = FRONT_LEFT + 72;
   context.fillStyle = color;
   context.textAlign = "left";
   context.textBaseline = "alphabetic";
-  context.globalAlpha = opacity;
-  context.font = `600 ${38 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
-  context.fillText(metadata.title, 82 * scale, 142 * scale, width - 164 * scale);
-  context.font = `600 ${17 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-  context.globalAlpha = opacity * 0.66;
-  context.fillText(metadata.eyebrow.toUpperCase(), 84 * scale, 93 * scale, width - 168 * scale);
+  context.font = '700 23px ui-monospace, SFMono-Regular, Menlo, monospace';
+  context.globalAlpha = 0.7;
+  context.fillText(metadata.eyebrow.toUpperCase(), left, WRAP_TOP + 92, 700);
+  context.font = '600 52px "Iowan Old Style", Baskerville, Georgia, serif';
   context.globalAlpha = 1;
+  context.fillText(metadata.title, left, WRAP_TOP + 160, 720);
 };
 
-const createArtworkSilhouette = (
-  canvas: HTMLCanvasElement,
-  artwork: HTMLImageElement
-): HTMLCanvasElement => {
-  const layer = createCanvas(canvas.width, canvas.height);
-  const context = layer.getContext("2d");
-  if (!context) throw new Error("2D canvas is unavailable for the artwork mask");
-  withCoverSpace(context, layer, (width, height) => {
-    context.drawImage(artwork, 0, 0, width, height);
-    context.globalCompositeOperation = "source-in";
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, width, height);
-  });
-  return layer;
-};
-
-const paintCover = (
-  canvases: SurfaceCanvases,
-  profile: CleanRoomVolumeProfile,
-  metadata: CleanRoomMetadata,
-  artwork: HTMLImageElement | null
+const paintBackTypography = (
+  context: CanvasRenderingContext2D,
+  profile: CleanRoomVolumeProfile
 ): void => {
-  const diffuse = getContext(canvases.diffuse, "the cover diffuse texture");
-  resetCanvas(diffuse, canvases.diffuse, profile.cloth);
-  withCoverSpace(diffuse, canvases.diffuse, (width, height) => {
-    if (artwork) {
-      diffuse.drawImage(artwork, 0, 0, width, height);
-    }
-    paintCoverTypography(diffuse, metadata, profile.ink);
-  });
-
-  const bump = getContext(canvases.customBump, "the cover custom-bump mask");
-  const foil = getContext(canvases.foil, "the cover foil mask");
-  const gloss = getContext(canvases.gloss, "the cover gloss mask");
-  resetCanvas(bump, canvases.customBump, "#000000");
-  resetCanvas(foil, canvases.foil, "#000000");
-  resetCanvas(gloss, canvases.gloss, "#000000");
-
-  if (artwork) {
-    for (const [context, canvas, opacity] of [
-      [bump, canvases.customBump, 0.78],
-      [foil, canvases.foil, 0.46],
-      [gloss, canvases.gloss, 0.62]
-    ] as const) {
-      context.save();
-      context.globalAlpha = opacity;
-      context.drawImage(createArtworkSilhouette(canvas, artwork), 0, 0);
-      context.restore();
-    }
-  }
-
-  withCoverSpace(bump, canvases.customBump, () => {
-    paintCoverTypography(bump, metadata, "#ffffff", 0.92);
-  });
-  withCoverSpace(foil, canvases.foil, () => {
-    paintCoverTypography(foil, metadata, "#ffffff", 0.84);
-  });
-  withCoverSpace(gloss, canvases.gloss, (width, height) => {
-    const field = gloss.createLinearGradient(0, 0, width, height);
-    field.addColorStop(0, "#080808");
-    field.addColorStop(0.42, "#303030");
-    field.addColorStop(0.72, "#141414");
-    field.addColorStop(1, "#000000");
-    gloss.globalCompositeOperation = "screen";
-    gloss.fillStyle = field;
-    gloss.fillRect(0, 0, width, height);
-  });
+  context.save();
+  context.fillStyle = profile.ink;
+  context.textAlign = "center";
+  context.textBaseline = "alphabetic";
+  context.globalAlpha = 0.92;
+  context.font = 'italic 500 36px "Iowan Old Style", Baskerville, Georgia, serif';
+  wrapText(context, profile.caption, 430, 760, 560, 46);
+  context.font = '700 18px ui-monospace, SFMono-Regular, Menlo, monospace';
+  context.globalAlpha = 0.72;
+  context.fillText(`ZI3T / ${profile.slug.toUpperCase()}`, 430, 1470);
+  context.restore();
 };
 
 const paintSpineTypography = (
   context: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
   profile: CleanRoomVolumeProfile,
   metadata: CleanRoomMetadata,
-  color: string,
-  opacity = 1
+  color: string
 ): void => {
-  const scale = canvas.width / 1536;
+  const centerX = (SPINE_LEFT + SPINE_RIGHT) * 0.5;
+  const centerY = (WRAP_TOP + ATLAS_HEIGHT) * 0.5;
+  context.save();
+  context.translate(centerX, centerY);
+  context.rotate(Math.PI / 2);
+  const length = ATLAS_HEIGHT - WRAP_TOP;
   context.fillStyle = color;
   context.textBaseline = "middle";
+  context.font = '700 22px ui-monospace, SFMono-Regular, Menlo, monospace';
   context.textAlign = "left";
-  context.font = `700 ${25 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-  context.globalAlpha = opacity * 0.7;
-  context.fillText(metadata.eyebrow.toUpperCase(), 62 * scale, canvas.height / 2);
-  context.globalAlpha = opacity;
+  context.globalAlpha = 0.72;
+  context.fillText(metadata.eyebrow.toUpperCase(), -length * 0.44, 0, length * 0.22);
+  context.font = '600 49px "Iowan Old Style", Baskerville, Georgia, serif';
   context.textAlign = "center";
-  context.font = `600 ${54 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
-  context.fillText(
-    metadata.title,
-    canvas.width * (profile.spineNote ? 0.46 : 0.52),
-    canvas.height / 2,
-    canvas.width * (profile.spineNote ? 0.4 : 0.56)
-  );
+  context.globalAlpha = 1;
+  context.fillText(metadata.title, profile.spineNote ? -70 : 0, 0, length * 0.45);
   if (profile.spineNote) {
-    context.textAlign = "center";
-    context.font = `italic 600 ${29 * scale}px "Iowan Old Style", Baskerville, Georgia, serif`;
-    context.globalAlpha = opacity * 0.82;
-    context.fillText(profile.spineNote, canvas.width * 0.76, canvas.height / 2);
+    context.font = 'italic 600 26px "Iowan Old Style", Baskerville, Georgia, serif';
+    context.globalAlpha = 0.82;
+    context.fillText(profile.spineNote, length * 0.3, 0, length * 0.18);
   }
   context.textAlign = "right";
-  context.font = `700 ${21 * scale}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-  context.globalAlpha = opacity * 0.72;
-  context.fillText(metadata.serial, canvas.width - 64 * scale, canvas.height / 2);
-  context.globalAlpha = 1;
+  context.font = '700 19px ui-monospace, SFMono-Regular, Menlo, monospace';
+  context.globalAlpha = 0.72;
+  context.fillText(metadata.serial, length * 0.45, 0);
+  context.restore();
 };
 
-const paintSpine = (
-  canvases: SurfaceCanvases,
-  profile: CleanRoomVolumeProfile,
-  metadata: CleanRoomMetadata
+const paintArtwork = (
+  context: CanvasRenderingContext2D,
+  artwork: HTMLImageElement
 ): void => {
-  const diffuse = getContext(canvases.diffuse, "the spine diffuse texture");
-  resetCanvas(diffuse, canvases.diffuse, profile.cloth);
-  paintSpineTypography(diffuse, canvases.diffuse, profile, metadata, profile.ink);
-  const edge = diffuse.createLinearGradient(0, 0, 0, canvases.diffuse.height);
-  edge.addColorStop(0, "rgba(255,255,255,.16)");
-  edge.addColorStop(0.12, "rgba(255,255,255,0)");
-  edge.addColorStop(0.88, "rgba(0,0,0,0)");
-  edge.addColorStop(1, "rgba(0,0,0,.18)");
-  diffuse.fillStyle = edge;
-  diffuse.fillRect(0, 0, canvases.diffuse.width, canvases.diffuse.height);
+  context.drawImage(
+    artwork,
+    FRONT_LEFT,
+    WRAP_TOP,
+    ATLAS_WIDTH - FRONT_LEFT,
+    ATLAS_HEIGHT - WRAP_TOP
+  );
+};
 
-  const bump = getContext(canvases.customBump, "the spine custom-bump mask");
-  const foil = getContext(canvases.foil, "the spine foil mask");
-  const gloss = getContext(canvases.gloss, "the spine gloss mask");
-  resetCanvas(bump, canvases.customBump, "#000000");
-  resetCanvas(foil, canvases.foil, "#000000");
-  resetCanvas(gloss, canvases.gloss, "#000000");
-  paintSpineTypography(bump, canvases.customBump, profile, metadata, "#ffffff", 0.9);
-  paintSpineTypography(foil, canvases.foil, profile, metadata, "#ffffff", 0.3);
-  const glossField = gloss.createLinearGradient(0, 0, 0, canvases.gloss.height);
-  glossField.addColorStop(0, "#060606");
-  glossField.addColorStop(0.5, "#505050");
-  glossField.addColorStop(1, "#040404");
-  gloss.fillStyle = glossField;
-  gloss.fillRect(0, 0, canvases.gloss.width, canvases.gloss.height);
+const createArtworkMask = (
+  artwork: HTMLImageElement,
+  color = "#ffffff"
+): HTMLCanvasElement => {
+  const canvas = createCanvas();
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("2D canvas is unavailable for the artwork mask");
+  paintArtwork(context, artwork);
+  context.globalCompositeOperation = "source-in";
+  context.fillStyle = color;
+  context.fillRect(0, 0, ATLAS_WIDTH, ATLAS_HEIGHT);
+  return canvas;
+};
+
+const paintAtlas = (
+  canvases: AtlasCanvases,
+  profile: CleanRoomVolumeProfile,
+  metadata: CleanRoomMetadata,
+  artwork: HTMLImageElement | null
+): void => {
+  const diffuse = contextFor(canvases.diffuse, "the unified diffuse atlas");
+  reset(diffuse, profile.paper);
+  diffuse.fillStyle = profile.cloth;
+  diffuse.fillRect(0, WRAP_TOP, ATLAS_WIDTH, ATLAS_HEIGHT - WRAP_TOP);
+  paintFoilPalette(diffuse, profile.material.foil.colors);
+  paintHeadbands(diffuse, profile.headband);
+  if (artwork) paintArtwork(diffuse, artwork);
+  paintBackTypography(diffuse, profile);
+  paintFrontTypography(diffuse, metadata, profile.ink);
+  paintSpineTypography(diffuse, profile, metadata, profile.ink);
+
+  const bump = contextFor(canvases.customBump, "the unified custom-bump atlas");
+  const foil = contextFor(canvases.foil, "the unified foil atlas");
+  const gloss = contextFor(canvases.gloss, "the unified gloss atlas");
+  reset(bump, "#808080");
+  reset(foil, "#000000");
+  reset(gloss, "#000000");
+
+  if (artwork) {
+    const bumpInk = profile.material.bump.custom < 0 ? "#000000" : "#ffffff";
+    const bumpMask = createArtworkMask(artwork, bumpInk);
+    const foilMask = createArtworkMask(artwork);
+    bump.save();
+    bump.globalAlpha = 0.9;
+    bump.drawImage(bumpMask, 0, 0);
+    bump.restore();
+    foil.save();
+    foil.globalAlpha = 0.92;
+    foil.drawImage(foilMask, 0, 0);
+    foil.restore();
+  }
+
+  const bumpInk = profile.material.bump.custom < 0 ? "#000000" : "#ffffff";
+  paintFrontTypography(bump, metadata, bumpInk);
+  paintSpineTypography(bump, profile, metadata, bumpInk);
+  paintFrontTypography(foil, metadata, "#ffffff");
+  paintSpineTypography(foil, profile, metadata, "#ffffff");
 };
 
 const makeCanvasTexture = (
-  canvas: HTMLCanvasElement,
   renderer: THREE.WebGLRenderer,
+  canvas: HTMLCanvasElement,
   name: string
 ): THREE.CanvasTexture => {
   const texture = new THREE.CanvasTexture(canvas);
-  texture.name = name;
-  texture.colorSpace = THREE.NoColorSpace;
-  texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  texture.generateMipmaps = true;
+  configureTexture(texture, renderer, name);
+  texture.needsUpdate = true;
   return texture;
 };
-
-const createCanvases = (
-  diffuseSize: readonly [number, number],
-  maskSize: readonly [number, number]
-): SurfaceCanvases => ({
-  diffuse: createCanvas(...diffuseSize),
-  customBump: createCanvas(...maskSize),
-  foil: createCanvas(...maskSize),
-  gloss: createCanvas(...maskSize)
-});
-
-const makeMaterialMaps = (
-  renderer: THREE.WebGLRenderer,
-  shared: CleanRoomSharedTextures,
-  canvases: SurfaceCanvases,
-  slug: string,
-  surface: "cover" | "spine"
-): CleanRoomMaterialMaps => ({
-  baseDiffuse: shared.clothDiffuse,
-  customDiffuse: makeCanvasTexture(
-    canvases.diffuse,
-    renderer,
-    `clean-room-${slug}-${surface}-custom-diffuse`
-  ),
-  baseBump: shared.clothBump,
-  customBump: makeCanvasTexture(
-    canvases.customBump,
-    renderer,
-    `clean-room-${slug}-${surface}-custom-bump`
-  ),
-  foil: makeCanvasTexture(canvases.foil, renderer, `clean-room-${slug}-${surface}-foil`),
-  gloss: makeCanvasTexture(canvases.gloss, renderer, `clean-room-${slug}-${surface}-gloss`),
-  glitter: shared.glitter,
-  dimensions: {
-    diffuse: [canvases.diffuse.width, canvases.diffuse.height],
-    masks: [canvases.foil.width, canvases.foil.height]
-  }
-});
 
 const invalidateMaps = (maps: CleanRoomMaterialMaps): void => {
   maps.customDiffuse.needsUpdate = true;
@@ -474,28 +368,37 @@ export const createSurfaceTextures = (
   metadata: CleanRoomMetadata,
   shared: CleanRoomSharedTextures,
   invalidate: () => void
-): CleanRoomSurfaceTextures => {
-  const coverCanvases = createCanvases(COVER_DIFFUSE_SIZE, COVER_MASK_SIZE);
-  const spineCanvases = createCanvases(SPINE_DIFFUSE_SIZE, SPINE_MASK_SIZE);
-  paintCover(coverCanvases, profile, metadata, null);
-  paintSpine(spineCanvases, profile, metadata);
+): CleanRoomMaterialMaps => {
+  const canvases = createAtlasCanvases();
+  paintAtlas(canvases, profile, metadata, null);
 
-  const cover = makeMaterialMaps(renderer, shared, coverCanvases, profile.slug, "cover");
-  const spine = makeMaterialMaps(renderer, shared, spineCanvases, profile.slug, "spine");
+  const maps: CleanRoomMaterialMaps = {
+    baseDiffuse: shared.diffuseOverlay,
+    customDiffuse: makeCanvasTexture(
+      renderer,
+      canvases.diffuse,
+      `book-${profile.slug}-custom-diffuse`
+    ),
+    baseBump: shared.bumps[profile.material.baseBump],
+    customBump: makeCanvasTexture(
+      renderer,
+      canvases.customBump,
+      `book-${profile.slug}-custom-bump`
+    ),
+    foil: makeCanvasTexture(renderer, canvases.foil, `book-${profile.slug}-foil`),
+    gloss: makeCanvasTexture(renderer, canvases.gloss, `book-${profile.slug}-gloss`),
+    glitter: shared.glitter,
+    dimensions: [ATLAS_WIDTH, ATLAS_HEIGHT]
+  };
 
   const artwork = new Image();
   artwork.decoding = "async";
   artwork.addEventListener("load", () => {
-    paintCover(coverCanvases, profile, metadata, artwork);
-    invalidateMaps(cover);
+    paintAtlas(canvases, profile, metadata, artwork);
+    invalidateMaps(maps);
     invalidate();
   }, { once: true });
   artwork.src = profile.artworkUrl;
 
-  return {
-    cover,
-    spine,
-    pageEdge: createPaperEdgeTexture(renderer, profile),
-    headband: createHeadbandTexture(renderer, profile)
-  };
+  return maps;
 };

@@ -109,31 +109,18 @@ interface CleanRoomDebugSnapshot {
       readonly height: number;
     } | null;
     readonly material: {
-      readonly architecture: "clean-room-shader-material";
-      readonly coverMaps: 7;
-      readonly spineMaps: 7;
-      readonly coverDiffuseSize: readonly [number, number];
-      readonly coverMaskSize: readonly [number, number];
-      readonly textureFamily: CleanRoomVolumeProfile["material"]["texture"]["family"];
-      readonly textureTransform: CleanRoomVolumeProfile["material"]["texture"]["cover"];
+      readonly architecture: "reference-book-shader-material";
+      readonly mapCount: 7;
+      readonly atlasSize: readonly [1920, 1600];
+      readonly thickness: number;
+      readonly baseBump: CleanRoomVolumeProfile["material"]["baseBump"];
       readonly responseSignature: string;
     };
-    readonly binding: {
-      readonly spineSegments: number;
-      readonly coverJointCount: 2;
-      readonly spineHubCount: 0;
-      readonly coverJointInset: number;
-      readonly coverJointWidth: number;
-      readonly coverJointDepth: number;
-      readonly coverSkinOffset: number;
-      readonly coverClothThickness: number;
-      readonly coverJointClearance: number;
-      readonly boardStopsAtJoint: true;
-      readonly boardCornerRadius: number;
-      readonly pageBlockInset: number;
-      readonly spineEndCapCount: 2;
-      readonly spineEndCapDepth: number;
-      readonly headbandCount: 2;
+    readonly geometry: {
+      readonly meshCount: 1;
+      readonly vertexCount: number;
+      readonly triangleCount: number;
+      readonly objectName: "book";
     };
   }[];
   readonly render: {
@@ -332,9 +319,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
   const backdropColor = new THREE.Color(0x201819);
   const backLightTarget = new THREE.Color(0x211815);
 
-  const thicknessScaleY = (entry: CleanRoomEntry): number => (
-    entry.profile.thicknessScale
-  );
   const shelfCoverOffset = (): number => CLEAN_ROOM_REFERENCE.shelfCoverOffsetX;
 
   const setShelfEulerOrders = (book: CleanRoomBook): void => {
@@ -388,7 +372,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       renderUntil = Math.max(renderUntil, performance.now() + 300);
       if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
     });
-    const book = createCleanRoomBook(profile, surfaces, shared);
+    const book = createCleanRoomBook(profile, surfaces);
     scene.add(book.root);
     const entry: CleanRoomEntry = {
       index,
@@ -445,9 +429,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
       CLEAN_ROOM_REFERENCE.coverBaseRotationY,
       0
     );
-    entry.book.object.rotation.set(0, 0, 0);
-    entry.book.object.scale.x = 1;
-    entry.book.object.scale.y = thicknessScaleY(entry);
     entry.sectionWeight = 0;
     entry.sectionVisible = false;
     setBookOpacity(entry, 1);
@@ -625,7 +606,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         index * shelfGap,
         CLEAN_ROOM_REFERENCE.shelfRootZ
       );
-      entry.homeScale = CLEAN_ROOM_REFERENCE.modelWidth;
+      entry.homeScale = CLEAN_ROOM_REFERENCE.modelScale;
 
       const figureRect = entry.figure?.getBoundingClientRect() ?? null;
       const sectionEligible = pressMode === "volumes"
@@ -635,7 +616,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         if (index !== currentRouteIndex && !compact.matches) {
           entry.sectionPosition.z = CLEAN_ROOM_REFERENCE.inactiveZ;
         }
-        entry.sectionScale = CLEAN_ROOM_REFERENCE.modelWidth;
+        entry.sectionScale = CLEAN_ROOM_REFERENCE.modelScale;
         entry.sectionWeight = sectionEligible && figureRect.top < viewportHeight * 1.25 ? 1 : 0;
         entry.sectionVisible = entry.sectionWeight > 0
           && figureRect.bottom > -180
@@ -671,9 +652,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             CLEAN_ROOM_REFERENCE.coverBaseRotationY,
             0
           );
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = thicknessScaleY(entry);
         } else {
           setShelfEulerOrders(entry.book);
           entry.book.root.position.set(
@@ -700,9 +678,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             CLEAN_ROOM_REFERENCE.coverBaseRotationY,
             0
           );
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = thicknessScaleY(entry);
         }
         entry.initialized = true;
       }
@@ -847,9 +822,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             approach
           );
           entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = thicknessScaleY(entry);
           const residual = Math.max(
             entry.book.root.position.distanceTo(entry.sectionPosition),
             Math.abs(entry.book.root.scale.x - entry.sectionScale) * 20,
@@ -876,9 +848,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             targetCoverRotationY,
             0
           );
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = thicknessScaleY(entry);
         }
         setBookOpacity(entry, entry.sectionVisible ? 1 : 0);
         return;
@@ -928,13 +897,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             approach
           );
           entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = mix(
-            entry.book.object.scale.y,
-            thicknessScaleY(entry),
-            approach
-          );
           setBookOpacity(entry, 1);
         } else {
           const settled = returnFlight.progress >= CLEAN_ROOM_MOTION.returnFlightSettleProgress;
@@ -971,9 +933,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
             CLEAN_ROOM_REFERENCE.coverBaseRotationY,
             0
           );
-          entry.book.object.rotation.set(0, 0, 0);
-          entry.book.object.scale.x = 1;
-          entry.book.object.scale.y = thicknessScaleY(entry);
           setBookOpacity(entry, stackOpacity);
         }
         entryResidual = Math.max(
@@ -1053,19 +1012,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
       entry.book.cover.position.y = 0;
       entry.book.cover.position.z = 0;
-      entry.book.object.rotation.set(0, 0, 0);
-      entry.book.object.scale.x = damp(
-        entry.book.object.scale.x,
-        1,
-        11,
-        deltaSeconds
-      );
-      entry.book.object.scale.y = damp(
-        entry.book.object.scale.y,
-        thicknessScaleY(entry),
-        11,
-        deltaSeconds
-      );
       entry.book.root.rotation.x = damp(
         entry.book.root.rotation.x,
         CLEAN_ROOM_REFERENCE.shelfRootRotationX
@@ -1310,33 +1256,18 @@ export const mountCleanRoomCatalogue = (): boolean => {
         ],
         opacity: Number(opacity.toFixed(4)),
         material: {
-          architecture: book.materialModel.cover.architecture,
-          coverMaps: book.materialModel.cover.mapCount,
-          spineMaps: book.materialModel.spine.mapCount,
-          coverDiffuseSize: book.materialModel.cover.diffuseSize,
-          coverMaskSize: book.materialModel.cover.maskSize,
-          textureFamily: book.materialModel.cover.textureFamily,
-          textureTransform: book.materialModel.cover.textureTransform,
-          responseSignature: book.materialModel.cover.responseSignature
+          architecture: book.materialModel.architecture,
+          mapCount: book.materialModel.mapCount,
+          atlasSize: book.materialModel.atlasSize,
+          thickness: book.materialModel.thickness,
+          baseBump: book.materialModel.baseBump,
+          responseSignature: book.materialModel.responseSignature
         },
-        binding: {
-          spineSegments: book.bindingModel.spineSegments,
-          coverJointCount: book.bindingModel.coverJointCount,
-          spineHubCount: book.bindingModel.spineHubCount,
-          coverJointInset: book.bindingModel.coverJointInset,
-          coverJointWidth: book.bindingModel.coverJointWidth,
-          coverJointDepth: book.bindingModel.coverJointDepth,
-          coverSkinOffset: book.bindingModel.coverSkinOffset,
-          coverClothThickness: book.bindingModel.coverClothThickness,
-          coverJointClearance: book.bindingModel.coverJointClearance,
-          spineSpan: book.bindingModel.spineSpan,
-          spineSpanRatio: book.bindingModel.spineSpanRatio,
-          boardStopsAtJoint: book.bindingModel.boardStopsAtJoint,
-          boardCornerRadius: book.bindingModel.boardCornerRadius,
-          pageBlockInset: book.bindingModel.pageBlockInset,
-          spineEndCapCount: book.bindingModel.spineEndCapCount,
-          spineEndCapDepth: book.bindingModel.spineEndCapDepth,
-          headbandCount: book.bindingModel.headbandCount
+        geometry: {
+          meshCount: book.geometryModel.meshCount,
+          vertexCount: book.geometryModel.vertexCount,
+          triangleCount: book.geometryModel.triangleCount,
+          objectName: book.geometryModel.objectName
         }
       })),
       render: {

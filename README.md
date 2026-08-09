@@ -58,9 +58,11 @@ remote builds restore both repositories before running Wrangler.
 - `src/adapters/cloudflare-worker.ts` composes the real project pages into the
   book-detail document.
 - `src/styles/` and `src/assets/` are package-owned and travel with the build.
-- `docs/reference-extraction-sheet.md` records the durable facts recovered from
-  the live reference. `docs/current-parity.md` records the current manual
-  checkpoint.
+
+The renderer uses a single authored book mesh and a single seven-map material
+per volume. Cover, spine, page block, joints, and headbands are regions of that
+shared UV atlas; thickness is a material uniform that moves only the outer
+shell vertices, preserving the authored hinge and spine curves.
 
 ## Browser contract
 

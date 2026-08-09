@@ -1,5 +1,3 @@
-const REFERENCE_MODEL_WIDTH = 23.67794;
-
 /** Values read from the current Stripe Press camera and shared book scene. */
 export const CLEAN_ROOM_REFERENCE = {
   canvasMaxWidth: 2000,
@@ -10,14 +8,14 @@ export const CLEAN_ROOM_REFERENCE = {
   cameraY: 6.5,
   cameraPitch: -0.06,
   catalogueCameraScroll: 0.0222,
-  modelWidth: REFERENCE_MODEL_WIDTH,
+  modelScale: 1,
   shelfRootZ: -3,
   // Stripe pulls the hovered root toward z=6, then its ordinary shelf
   // transform simultaneously pulls it back toward z=-3. Their observed
   // equilibrium is ~z=1.5; using that effective target avoids inventing a
   // second feedback loop while preserving the same projected motion.
   shelfHoverZ: 1.5,
-  shelfCoverOffsetX: 11 / REFERENCE_MODEL_WIDTH,
+  shelfCoverOffsetX: 11,
   shelfRootRotationX: -(Math.PI / 2),
   shelfRootRotationZ: Math.PI / 2,
   coverBaseRotationY: -(Math.PI / 2),
