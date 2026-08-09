@@ -174,14 +174,10 @@ const worldUnitsPerPixel = (
 const setBookOpacity = (entry: CleanRoomEntry, opacity: number): void => {
   const next = clamp(opacity, 0, 1);
   entry.opacity = next;
+  // Stripe's book shader is fully opaque. Transitions move or hide the mesh;
+  // applying fractional surface alpha makes rear faces and page edges print
+  // through the cover.
   entry.book.root.visible = next > 0.001;
-  entry.book.materials.forEach((material) => {
-    material.opacity = next;
-    if (material instanceof THREE.ShaderMaterial) {
-      const opacityUniform = material.uniforms.opacity;
-      if (opacityUniform) opacityUniform.value = next;
-    }
-  });
 };
 
 const projectedBookBounds = (

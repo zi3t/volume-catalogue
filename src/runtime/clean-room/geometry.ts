@@ -14,7 +14,6 @@ export interface CleanRoomBook {
   readonly root: THREE.Group;
   /** The single authored mesh is also the interactive cover pivot. */
   readonly cover: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>;
-  readonly materials: readonly [THREE.ShaderMaterial];
   readonly geometries: readonly [THREE.BufferGeometry];
   readonly materialModel: CleanRoomMaterialDiagnostics;
   readonly geometryModel: {
@@ -64,7 +63,6 @@ export const createCleanRoomBook = (
   return {
     root,
     cover,
-    materials: [layered.material],
     geometries: [BOOK_GEOMETRY],
     materialModel: layered.diagnostics,
     geometryModel: {

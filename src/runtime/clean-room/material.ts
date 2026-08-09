@@ -38,22 +38,6 @@ const MAP_NAMES = [
   "glitter"
 ] as const;
 
-/*
- * The reference material is intentionally kept as one complete shader rather
- * than being split across MeshPhong hooks. Opacity is the only host addition:
- * the local route compositor fades inactive books while the reference moves
- * them outside its scissor instead.
- */
-const fragmentShader = referenceFragmentShader
-  .replace(
-    "uniform float reflectiveness;",
-    "uniform float reflectiveness;\nuniform float opacity;"
-  )
-  .replace(
-    "gl_FragColor = vec4( outgoingLight, diffuseColor.a );",
-    "gl_FragColor = vec4( outgoingLight, diffuseColor.a * opacity );"
-  );
-
 export const createCleanRoomLayeredMaterial = (
   profile: CleanRoomMaterialProfile,
   thickness: number,
@@ -68,7 +52,6 @@ export const createCleanRoomLayeredMaterial = (
       specular: { value: new THREE.Color(profile.specular) },
       shininess: { value: profile.shininess },
       reflectiveness: { value: profile.reflectiveness },
-      opacity: { value: 1 },
       thickness: { value: thickness },
       diffuseMapBase: { value: maps.baseDiffuse },
       diffuseBaseColor: { value: new THREE.Color(profile.diffuseBaseColor) },
@@ -95,17 +78,15 @@ export const createCleanRoomLayeredMaterial = (
   const material = new THREE.ShaderMaterial({
     name: `book-${slug}-seven-map`,
     vertexShader: referenceVertexShader,
-    fragmentShader,
+    fragmentShader: referenceFragmentShader,
     uniforms,
     lights: true,
-    transparent: true,
     defines: {
       USE_UV: "",
       USE_MAP: "",
       USE_BUMPMAP: ""
     }
   });
-  material.depthWrite = true;
   material.userData.bookMaterial = {
     architecture: "reference-book-shader-material",
     mapCount: 7,
