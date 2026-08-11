@@ -231,9 +231,9 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
   --press-volume-ink: var(--press-arm-ink);
 }
 
-.press-volume-section--telemetry {
-  --press-volume-bg: var(--press-telemetry);
-  --press-volume-ink: var(--press-telemetry-ink);
+.press-volume-section--shutdown-drain {
+  --press-volume-bg: var(--press-shutdown-drain);
+  --press-volume-ink: var(--press-shutdown-drain-ink);
 }
 
 .press-volume-section--practice {
@@ -313,7 +313,7 @@ html[data-press-renderer="clean-room"] .press-volume-section--arm {
   --press-volume-ink: #29435c;
 }
 
-html[data-press-renderer="clean-room"] .press-volume-section--telemetry {
+html[data-press-renderer="clean-room"] .press-volume-section--shutdown-drain {
   --press-volume-bg: #243447;
   --press-volume-ink: #e7e7df;
 }

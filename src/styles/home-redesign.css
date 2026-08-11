@@ -9,8 +9,8 @@
   --press-refly-ink: #292a74;
   --press-arm: #d6cda9;
   --press-arm-ink: #29435c;
-  --press-telemetry: #304255;
-  --press-telemetry-ink: #e5e6df;
+  --press-shutdown-drain: #304255;
+  --press-shutdown-drain-ink: #e5e6df;
   --press-practice: #702c4d;
   --press-practice-ink: #f0dfb4;
   --press-notes: #b37c3f;
@@ -99,13 +99,13 @@
 }
 
 .home-masthead .brand-name span {
-  display: none;
+  display: inline;
+  color: var(--press-dim);
+  font-weight: 400;
 }
 
 .home-masthead .brand-name::after {
-  color: var(--press-white);
-  content: "Systems for progress";
-  font: italic 600 16px/1.15 var(--home-serif);
+  content: none;
 }
 
 .home-brand:hover .brand-mark {
@@ -116,7 +116,16 @@
 }
 
 .home-nav {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.home-nav a {
+  color: var(--press-white);
+  font: 600 0.72rem/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* The reference is a canvas, not a conventional portfolio hero. */
@@ -237,7 +246,7 @@
   top: calc(var(--press-volume-height) * 1.37);
 }
 
-.press-volume-item--telemetry {
+.press-volume-item--shutdown-drain {
   top: calc(var(--press-volume-height) * 2.65);
 }
 
@@ -435,20 +444,20 @@
   font-style: italic;
 }
 
-.press-volume-item--telemetry .press-volume-top {
+.press-volume-item--shutdown-drain .press-volume-top {
   top: 0;
   height: 55%;
-  background-color: var(--press-telemetry);
-  background-image: url("../assets/telemetry-volume.svg");
+  background-color: var(--press-shutdown-drain);
+  background-image: url("../assets/shutdown-drain-volume.svg");
 }
 
-.press-volume-item--telemetry .press-volume-spine {
+.press-volume-item--shutdown-drain .press-volume-spine {
   top: 52%;
   height: 72%;
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent 12%, rgba(255, 255, 255, 0.07) 64%, rgba(0, 0, 0, 0.2)),
-    var(--press-telemetry);
-  color: var(--press-telemetry-ink);
+    var(--press-shutdown-drain);
+  color: var(--press-shutdown-drain-ink);
 }
 
 .press-volume-item--practice .press-volume-top {
@@ -673,7 +682,7 @@
 
 .press-volume-item--refly { animation-delay: 90ms; }
 .press-volume-item--arm { animation-delay: 160ms; }
-.press-volume-item--telemetry { animation-delay: 230ms; }
+.press-volume-item--shutdown-drain { animation-delay: 230ms; }
 .press-volume-item--practice { animation-delay: 300ms; }
 .press-volume-item--notes { animation-delay: 370ms; }
 
@@ -715,7 +724,7 @@
     top: calc(var(--press-volume-height) * 1);
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-volume-height) * 2.08);
   }
 
@@ -822,7 +831,7 @@
     top: calc(var(--press-volume-height) * 0.82);
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-volume-height) * 1.7);
   }
 

@@ -24,9 +24,9 @@
   --press-texture-opacity: 0.9;
 }
 
-.press-volume-item--telemetry {
-  --press-cover: var(--press-telemetry);
-  --press-cover-ink: var(--press-telemetry-ink);
+.press-volume-item--shutdown-drain {
+  --press-cover: var(--press-shutdown-drain);
+  --press-cover-ink: var(--press-shutdown-drain-ink);
   --press-cloth-size: 218px;
   --press-texture-opacity: 0.64;
 }
@@ -171,7 +171,7 @@
     ) !important;
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-volume-height) * 2.65) !important;
     transform: translate3d(
       0,

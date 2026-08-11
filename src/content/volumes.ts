@@ -54,20 +54,20 @@ export const volumes = [
     contentStylesheet: "/assets/arm.css"
   },
   {
-    routeUrl: "/press/telemetry/",
-    contentPath: "/telemetry/",
-    slug: "telemetry",
-    title: "Telemetry replay",
-    byline: "C# / RabbitMQ / SQL",
+    routeUrl: "/press/shutdown-drain/",
+    contentPath: "/notes/first-queue/",
+    slug: "shutdown-drain",
+    title: "The last command",
+    byline: "C++17 / UDP / packet evidence",
     description:
-      "Replay distributed-system evidence in order, without sanding away uncertainty.",
-    routeMode: "project",
+      "Follow a shutdown warning upstream to the queue that still owned the actuator-disable command.",
+    routeMode: "reading",
     spine: {
-      eyebrow: "C# / RabbitMQ",
+      eyebrow: "C++17 / UDP",
       serial: "03",
-      ariaLabel: "Open the telemetry replay project"
+      ariaLabel: "Open the robot-controller shutdown field report"
     },
-    contentStylesheet: "/assets/telemetry.css"
+    contentStylesheet: "/assets/notes.css"
   },
   {
     routeUrl: "/press/practice/",
@@ -87,17 +87,17 @@ export const volumes = [
   },
   {
     routeUrl: "/press/field-notes/",
-    contentPath: "/notes/counterfactual-replay/",
+    contentPath: "/notes/",
     slug: "field-notes",
     title: "Engineering notes",
     byline: "Replay / verification",
     description:
-      "Working notes on replayable systems, verification, and decisions that can be inspected.",
+      "All field reports, public experiments, and technical decisions in one reading index.",
     routeMode: "reading",
     spine: {
       eyebrow: "Replay / Verification",
       serial: "05",
-      ariaLabel: "Open the latest engineering note"
+      ariaLabel: "Open all engineering notes"
     }
   }
 ] as const satisfies readonly VolumeDefinition[];
