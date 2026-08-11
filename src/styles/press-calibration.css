@@ -235,7 +235,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   height: calc(var(--press-volume-height) * 1.06);
 }
 
-.press-volume-item--telemetry {
+.press-volume-item--shutdown-drain {
   top: calc(var(--press-volume-height) * 2.735) !important;
   height: calc(var(--press-volume-height) * 1.31);
 }
@@ -253,7 +253,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
 @media (min-width: 900px) {
   .press-volume-item--refly,
   .press-volume-item--arm,
-  .press-volume-item--telemetry,
+  .press-volume-item--shutdown-drain,
   .press-volume-item--practice,
   .press-volume-item--notes {
     height: var(--press-row-height);
@@ -267,7 +267,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     top: var(--press-row-height) !important;
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-row-height) * 2 - 10px) !important;
   }
 
@@ -289,7 +289,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     height: calc(var(--press-volume-height) * 1.06);
   }
 
-  .press-volume-item--telemetry .press-volume-book {
+  .press-volume-item--shutdown-drain .press-volume-book {
     top: clamp(-14px, calc(48.94px - 4.02vw), 5px);
     height: calc(var(--press-volume-height) * 1.31);
   }
@@ -794,7 +794,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
 
   .press-volume-item,
   .press-volume-item--arm,
-  .press-volume-item--telemetry,
+  .press-volume-item--shutdown-drain,
   .press-volume-item--practice,
   .press-volume-item--notes {
     height: var(--press-volume-height);
@@ -804,7 +804,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     top: calc(var(--press-volume-height) * 1.05) !important;
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-volume-height) * 2.1) !important;
   }
 
@@ -851,7 +851,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
 
   .press-volume-item,
   .press-volume-item--arm,
-  .press-volume-item--telemetry,
+  .press-volume-item--shutdown-drain,
   .press-volume-item--practice,
   .press-volume-item--notes {
     height: var(--press-volume-height);
@@ -861,7 +861,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
     top: calc(var(--press-volume-height) * 0.82) !important;
   }
 
-  .press-volume-item--telemetry {
+  .press-volume-item--shutdown-drain {
     top: calc(var(--press-volume-height) * 1.7) !important;
   }
 

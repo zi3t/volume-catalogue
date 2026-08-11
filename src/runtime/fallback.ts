@@ -3,7 +3,7 @@ import armArt from "../assets/arm-volume.svg?url";
 import notesArt from "../assets/notes-volume.svg?url";
 import practiceArt from "../assets/practice-volume.svg?url";
 import reflyArt from "../assets/refly-volume.svg?url";
-import telemetryArt from "../assets/telemetry-volume.svg?url";
+import shutdownDrainArt from "../assets/shutdown-drain-volume.svg?url";
 
 export const activateClassicFallback = () => {
   const stage = document.querySelector(".press-catalog");
@@ -41,12 +41,12 @@ export const activateClassicFallback = () => {
       art: armArt
     },
     {
-      title: "Telemetry replay",
-      meta: "C# / RabbitMQ",
+      title: "The last command",
+      meta: "C++17 / UDP",
       serial: "03",
       background: "#304255",
       ink: "#e5e6df",
-      art: telemetryArt
+      art: shutdownDrainArt
     },
     {
       title: "Evidence over adjectives",

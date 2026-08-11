@@ -665,7 +665,7 @@
   fill: var(--muted);
 }
 
-.telemetry-log {
+.shutdown-log {
   display: grid;
   flex: 1;
   align-content: center;
@@ -675,7 +675,7 @@
   list-style: none;
 }
 
-.telemetry-log li {
+.shutdown-log li {
   display: grid;
   grid-template-columns: 3rem minmax(5rem, 1fr) minmax(5.5rem, auto) minmax(4rem, auto);
   gap: 0.75rem;
@@ -686,35 +686,35 @@
   transition: transform 520ms var(--home-spring-snappy);
 }
 
-.telemetry-log li:last-child {
+.shutdown-log li:last-child {
   border-bottom: 1px solid var(--home-line-soft);
 }
 
-.telemetry-log span,
-.telemetry-log small {
+.shutdown-log span,
+.shutdown-log small {
   color: var(--faint);
 }
 
-.telemetry-log b {
+.shutdown-log b {
   color: var(--ink);
 }
 
-.telemetry-log em {
+.shutdown-log em {
   color: var(--classify);
   font-style: normal;
   text-align: right;
 }
 
-.telemetry-log .is-late em,
-.telemetry-log .is-duplicate em {
+.shutdown-log .is-late em,
+.shutdown-log .is-duplicate em {
   color: var(--action);
 }
 
-.telemetry-log small {
+.shutdown-log small {
   text-align: right;
 }
 
-.telemetry-summary {
+.shutdown-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   margin: 0 clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 3vw, 2.5rem);
@@ -722,24 +722,24 @@
   background: color-mix(in srgb, var(--paper) 72%, transparent);
 }
 
-.telemetry-summary span {
+.shutdown-summary span {
   display: grid;
   gap: 0.15rem;
   padding: 0.85rem;
 }
 
-.telemetry-summary span + span {
+.shutdown-summary span + span {
   border-left: 1px solid var(--home-line);
 }
 
-.telemetry-summary b {
+.shutdown-summary b {
   font-family: var(--home-serif);
   font-size: clamp(1.55rem, 2.7vw, 2.6rem);
   font-weight: 400;
   line-height: 1;
 }
 
-.telemetry-summary small {
+.shutdown-summary small {
   color: var(--faint);
   font: 500 0.52rem/1.35 var(--mono);
   letter-spacing: 0.05em;
@@ -1110,14 +1110,14 @@
 .home-motion .project-row.is-visible .arm-link--four { transition-delay: 210ms; }
 .home-motion .project-row.is-visible .arm-link--five { transition-delay: 280ms; }
 
-.home-motion .project-row:not(.is-visible) .telemetry-log li {
+.home-motion .project-row:not(.is-visible) .shutdown-log li {
   transform: translateX(-1rem);
 }
 
-.home-motion .project-row.is-visible .telemetry-log li:nth-child(2) { transition-delay: 55ms; }
-.home-motion .project-row.is-visible .telemetry-log li:nth-child(3) { transition-delay: 110ms; }
-.home-motion .project-row.is-visible .telemetry-log li:nth-child(4) { transition-delay: 165ms; }
-.home-motion .project-row.is-visible .telemetry-log li:nth-child(5) { transition-delay: 220ms; }
+.home-motion .project-row.is-visible .shutdown-log li:nth-child(2) { transition-delay: 55ms; }
+.home-motion .project-row.is-visible .shutdown-log li:nth-child(3) { transition-delay: 110ms; }
+.home-motion .project-row.is-visible .shutdown-log li:nth-child(4) { transition-delay: 165ms; }
+.home-motion .project-row.is-visible .shutdown-log li:nth-child(5) { transition-delay: 220ms; }
 
 @supports not (animation-timing-function: linear(0, 1)) {
   .home-page {
@@ -1349,28 +1349,28 @@
     font-size: 0.5rem;
   }
 
-  .telemetry-log {
+  .shutdown-log {
     padding: 1rem;
   }
 
-  .telemetry-log li {
+  .shutdown-log li {
     grid-template-columns: 2.2rem minmax(4.5rem, 1fr) auto;
     gap: 0.45rem;
   }
 
-  .telemetry-log small {
+  .shutdown-log small {
     display: none;
   }
 
-  .telemetry-summary {
+  .shutdown-summary {
     margin: 0 1rem 1rem;
   }
 
-  .telemetry-summary span {
+  .shutdown-summary span {
     padding: 0.65rem 0.45rem;
   }
 
-  .telemetry-summary small {
+  .shutdown-summary small {
     font-size: 0.44rem;
   }
 
@@ -1411,7 +1411,7 @@
   .project-visual,
   .tape-track i,
   .arm-link,
-  .telemetry-log li,
+  .shutdown-log li,
   .capability-ledger > div,
   .note-row,
   .note-row h3,
@@ -1429,7 +1429,7 @@
     stroke-dashoffset: 0;
   }
 
-  .home-motion .project-row:not(.is-visible) .telemetry-log li {
+  .home-motion .project-row:not(.is-visible) .shutdown-log li {
     transform: none;
   }
 }

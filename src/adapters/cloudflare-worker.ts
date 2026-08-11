@@ -75,20 +75,21 @@ const extractRouteExcerpt = (
 ): { readonly html: string; readonly excerpt: string } => {
   const brief = /<(section|div)\b[^>]*\bdata-press-brief\b[^>]*>([\s\S]*?)<\/\1>/i.exec(html);
   if (brief) {
-    const paragraphs = brief[2].matchAll(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi);
+    const paragraphs = (brief[2] ?? "").matchAll(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi);
     for (const paragraph of paragraphs) {
-      if (/\bsection-label\b/i.test(paragraph[1])) continue;
-      const excerpt = paragraph[2].trim();
+      if (/\bsection-label\b/i.test(paragraph[1] ?? "")) continue;
+      const excerpt = paragraph[2]?.trim() ?? "";
       if (!excerpt) continue;
       return { html: html.replace(paragraph[0], ""), excerpt };
     }
   }
 
   const authoredLead = /<p\b[^>]*class="[^"]*\b(?:resume-summary|lead)\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i.exec(html);
-  if (authoredLead?.[1].trim()) {
+  const authoredExcerpt = authoredLead?.[1]?.trim();
+  if (authoredLead && authoredExcerpt) {
     return {
       html: html.replace(authoredLead[0], ""),
-      excerpt: authoredLead[1].trim()
+      excerpt: authoredExcerpt
     };
   }
 

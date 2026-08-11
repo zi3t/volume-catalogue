@@ -2,7 +2,7 @@ import armArtwork from "../../assets/arm-volume.svg?url";
 import notesArtwork from "../../assets/notes-volume.svg?url";
 import practiceArtwork from "../../assets/practice-volume.svg?url";
 import reflyArtwork from "../../assets/refly-volume.svg?url";
-import telemetryArtwork from "../../assets/telemetry-volume.svg?url";
+import shutdownDrainArtwork from "../../assets/shutdown-drain-volume.svg?url";
 
 export type CleanRoomBaseBump = "none" | "buckram" | "paper" | "cardboard";
 
@@ -112,15 +112,15 @@ export const cleanRoomProfiles = [
     }
   },
   {
-    slug: "telemetry",
+    slug: "shutdown-drain",
     cloth: "#243447",
     ink: "#e7e7df",
     paper: "#faf8ee",
     headband: ["#d6b86b", "#243447"],
-    artworkUrl: telemetryArtwork,
-    caption: "Replay distributed-system evidence in order, without sanding away uncertainty.",
+    artworkUrl: shutdownDrainArtwork,
+    caption: "Follow a shutdown warning upstream to the queue that still owned the actuator-disable command.",
     thickness: 3.4,
-    spineNote: "Run 04",
+    spineNote: "Field report",
     material: {
       shininess: 1.2,
       specular: "#f2ead0",
