@@ -59,7 +59,7 @@ export const CLEAN_ROOM_MOTION = {
   scrollVelocityDecay: 0.4,
   scrollVelocityLimit: 1,
   heldLiftPixels: 0,
-  terminalScrollViewports: 2.18,
+  terminalScrollViewports: 3.36,
   idlePauseAfter: 1200
 } as const;
 

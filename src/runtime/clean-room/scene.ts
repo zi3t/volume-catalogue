@@ -237,6 +237,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   );
   const signaturePanel = document.querySelector<HTMLElement>(".signature-section");
   const signatureRow = signaturePanel?.querySelector<HTMLElement>(".signature-row");
+  const signalPanel = document.querySelector<HTMLElement>(".press-signal-section");
   const closingPanel = document.querySelector<HTMLElement>(".home-closing");
   const footerPanel = document.querySelector<HTMLElement>(".home-footer");
 
@@ -421,22 +422,34 @@ export const mountCleanRoomCatalogue = (): boolean => {
       entry.link.style.setProperty("--press-hit-height", `${bounds.height.toFixed(2)}px`);
     });
 
-    // Keep the terminal surfaces in the same virtual document as the fifth
-    // book. Their current screen positions are derived from the projected book
-    // rather than a viewport percentage, so the measured gap survives Safari
-    // chrome, short displays and every responsive shelf calibration.
+    // Keep every terminal surface in the same virtual document as the fifth
+    // book. Their screen positions are derived from the projected book rather
+    // than a viewport percentage, so the handoff survives Safari chrome, short
+    // displays and every responsive shelf calibration.
     const lastBounds = screenBounds.at(-1);
-    if (lastBounds && signaturePanel && signatureRow && closingPanel && footerPanel) {
-      const signatureHeight = Math.min(viewportHeight * 0.78, 700);
+    if (
+      lastBounds
+      && signaturePanel
+      && signatureRow
+      && signalPanel
+      && closingPanel
+      && footerPanel
+    ) {
+      const signatureHeight = Math.min(viewportHeight * 0.72, 660);
       const signatureBaseTop = (viewportHeight - signatureHeight) / 2;
       const bookToSignatureGap = 24;
-      const signatureToClosingGap = Math.max(72, viewportHeight * 0.12);
+      const signatureToSignalGap = Math.max(180, viewportHeight * 0.26);
       const signatureTop = lastBounds.top + lastBounds.height + bookToSignatureGap;
+      const signalTop = signatureTop + signatureHeight + signatureToSignalGap;
       const signatureShift = signatureTop - signatureBaseTop;
-      const closingShift = signatureTop + signatureHeight + signatureToClosingGap;
+      const closingShift = signalTop + viewportHeight;
       signaturePanel.style.setProperty(
         "--press-terminal-signature-shift",
         `${signatureShift.toFixed(2)}px`
+      );
+      signalPanel.style.setProperty(
+        "--press-terminal-signal-shift",
+        `${signalTop.toFixed(2)}px`
       );
       closingPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);
       footerPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);

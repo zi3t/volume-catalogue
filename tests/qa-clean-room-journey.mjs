@@ -187,6 +187,7 @@ try {
     return {
       handoff: catalogueMaximum + terminalLength * .1,
       signature: catalogueMaximum + terminalLength * .3,
+      signal: catalogueMaximum + terminalLength * .55,
       closing: maximum
     };
   })()`);
@@ -239,6 +240,22 @@ try {
     signatureState
   );
   await cdp.screenshot(`${screenshotDirectory}/desktop-terminal-signature.png`);
+
+  await cdp.evaluate(`window.scrollTo({ top: ${terminalPositions.signal}, behavior: 'instant' })`);
+  const signalReady = await cdp.waitFor(`(() => {
+    const signal = document.querySelector('.press-signal-section');
+    const bounds = signal?.getBoundingClientRect();
+    return Boolean(signal)
+      && Number(getComputedStyle(signal).opacity) > .92
+      && bounds.top < innerHeight * .12
+      && bounds.bottom > innerHeight * .82
+      && !document.body.classList.contains('press-terminal-closing');
+  })()`, 5_000);
+  check(
+    "the original signal environment follows the poster on the shared track",
+    signalReady
+  );
+  await cdp.screenshot(`${screenshotDirectory}/desktop-terminal-signal.png`);
 
   await cdp.evaluate(`window.scrollTo({ top: ${terminalPositions.closing}, behavior: 'instant' })`);
   const closingReady = await cdp.waitFor(`(

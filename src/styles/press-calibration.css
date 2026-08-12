@@ -544,12 +544,12 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   overflow: hidden;
   border: 0;
   background:
-    radial-gradient(circle at 9% 18%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1.3px),
-    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 34% 73%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.3px),
-    radial-gradient(circle at 52% 42%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.4px);
-  background-size: 181px 173px, 229px 211px, 263px 251px, 307px 283px, 347px 331px, auto;
+    radial-gradient(circle at 9% 18%, rgba(255, 255, 255, 0.46) 0 1px, transparent 1.3px),
+    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.3) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 34% 73%, rgba(255, 255, 255, 0.38) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.24) 0 1px, transparent 1.3px),
+    #201819;
+  background-size: 181px 173px, 229px 211px, 263px 251px, 307px 283px, auto;
   color: #f5f1e7;
   clip-path: none;
   opacity: var(--press-terminal-opacity);
@@ -560,104 +560,158 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   will-change: opacity;
 }
 
-.signature-section::before,
-.signature-section::after {
-  position: absolute;
-  border: 1px solid rgba(245, 241, 231, 0.12);
-  border-radius: 50%;
-  content: "";
-  pointer-events: none;
-  transform: translate3d(0, var(--press-terminal-signature-shift), 0);
-}
-
-.signature-section::before {
-  width: min(76vw, 760px);
-  aspect-ratio: 1;
-  box-shadow:
-    0 0 0 78px rgba(245, 241, 231, 0.025),
-    0 0 0 79px rgba(245, 241, 231, 0.09),
-    0 0 0 156px rgba(245, 241, 231, 0.018),
-    0 0 0 157px rgba(245, 241, 231, 0.07);
-}
-
-.signature-section::after {
-  width: min(38vw, 370px);
-  aspect-ratio: 1;
-  background: rgba(109, 41, 73, 0.5);
-  box-shadow: 0 0 80px rgba(109, 41, 73, 0.3);
-}
-
 .signature-section .signature-row {
   position: relative;
   z-index: 1;
-  display: grid;
-  width: min(88vw, 980px);
-  height: min(78vh, 700px);
+  width: auto;
+  height: min(72vh, 660px);
+  aspect-ratio: 4 / 5;
   margin: 0;
-  place-items: center;
   transform: translate3d(0, var(--press-terminal-signature-shift), 0);
 }
 
-.signature-section .signature-canvas {
-  z-index: 2;
-  grid-area: 1 / 1;
-  width: min(27vw, 250px);
-  border-color: rgba(245, 241, 231, 0.44);
-  background:
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(245, 241, 231, 0.13) 100%) 0 0 / 22px 100%,
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(245, 241, 231, 0.13) 100%) 0 0 / 100% 22px,
-    #c1b676;
-  box-shadow: 0 26px 90px rgba(0, 0, 0, 0.35);
+.press-film-poster {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+  background: #090a09 url("../assets/media/observability-poster.jpg") center / cover no-repeat;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.42);
+}
+
+.press-film-poster figcaption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .signature-section .signature-copy {
-  grid-area: 1 / 1;
-  align-self: stretch;
-  justify-self: stretch;
-  text-align: center;
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  color: #e8d9a2;
+  pointer-events: none;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.95);
 }
 
 .signature-section .signature-copy .section-label {
   position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  color: #c1b676;
+  top: 18px;
+  left: 20px;
+  margin: 0;
+  color: #e8d9a2;
+  font-size: 9px;
+  letter-spacing: 0.13em;
 }
 
 .signature-section .signature-copy h2 {
   position: absolute;
   z-index: 3;
-  top: 50%;
-  right: 0;
-  left: 0;
+  right: 20px;
+  bottom: 38px;
+  left: 20px;
   margin: 0;
-  color: #f5f1e7;
-  font-size: clamp(38px, 5.5vw, 78px);
+  color: #e8d9a2;
+  font-size: clamp(22px, 2.3vw, 32px);
   font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 0.95;
-  transform: translateY(-50%);
+  letter-spacing: -0.025em;
+  line-height: 1;
 }
 
 .signature-section .signature-copy > p:not(.section-label):not(.signature-meta) {
   position: absolute;
-  right: 0;
-  bottom: 26px;
-  left: 0;
-  max-width: none;
-  margin: 0;
-  color: rgba(245, 241, 231, 0.72);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  line-height: 1.5;
-  text-transform: uppercase;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .signature-section .signature-copy .signature-meta {
-  bottom: 0;
-  color: #c1b676;
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  left: 20px;
+  margin: 0;
+  color: rgba(232, 217, 162, 0.78);
+  font: 8px/1.2 var(--mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.press-signal-section {
+  --press-terminal-opacity: 0;
+  --press-terminal-signal-shift: 156vh;
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  overflow: hidden;
+  margin: 0;
+  background: #080a09 url("../assets/media/signal-landscape.jpg") 50% 52% / cover no-repeat;
+  color: #f7f3eb;
+  opacity: var(--press-terminal-opacity);
+  pointer-events: none;
+  transform: translate3d(0, var(--press-terminal-signal-shift), 0);
+  transition: none;
+  will-change: opacity, transform;
+}
+
+.press-signal-section::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 4, 4, 0.14), transparent 34%),
+    linear-gradient(0deg, rgba(3, 4, 4, 0.2), transparent 45%);
+  content: "";
+  pointer-events: none;
+}
+
+.press-signal-copy {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  text-align: center;
+}
+
+.press-signal-copy .section-label {
+  position: absolute;
+  top: 11.5vh;
+  right: 0;
+  left: 0;
+  margin: 0;
+  color: rgba(247, 243, 235, 0.78);
+}
+
+.press-signal-copy h2 {
+  position: absolute;
+  top: 44.6%;
+  left: 50%;
+  display: grid;
+  margin: 0;
+  color: #f7f3eb;
+  font: 700 clamp(18px, 1.9vw, 30px)/0.92 Arial, Helvetica, sans-serif;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+}
+
+.press-signal-copy h2 span {
+  display: block;
+}
+
+.press-signal-copy > p:last-child {
+  position: absolute;
+  right: 0;
+  bottom: 28px;
+  left: 0;
+  margin: 0;
+  color: rgba(247, 243, 235, 0.58);
+  font: 9px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .home-closing {
@@ -768,6 +822,13 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   transition: none;
 }
 
+.home-motion .press-signal-section[data-reveal],
+.home-motion .press-signal-section[data-reveal].is-visible {
+  opacity: var(--press-terminal-opacity);
+  transform: translate3d(0, var(--press-terminal-signal-shift), 0);
+  transition: none;
+}
+
 .home-motion .home-closing[data-reveal],
 .home-motion .home-closing[data-reveal].is-visible {
   opacity: var(--press-terminal-opacity);
@@ -840,6 +901,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   }
 
   .signature-section,
+  .press-signal-section,
   .home-closing,
   .home-footer {
     display: none;
@@ -889,6 +951,7 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   }
 
   .signature-section,
+  .press-signal-section,
   .home-closing,
   .home-footer {
     display: none;

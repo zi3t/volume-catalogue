@@ -45,6 +45,7 @@ export const installCleanRoomCatalogueScroll = (
   const list = document.querySelector<HTMLElement>(".press-volume-list");
   const volumes = document.querySelector<HTMLElement>(".press-volumes");
   const signaturePanel = document.querySelector<HTMLElement>(".signature-section");
+  const signalPanel = document.querySelector<HTMLElement>(".press-signal-section");
   const closingPanel = document.querySelector<HTMLElement>(".home-closing");
   const footerPanel = document.querySelector<HTMLElement>(".home-footer");
   let state = emptySnapshot();
@@ -62,19 +63,19 @@ export const installCleanRoomCatalogueScroll = (
       * CLEAN_ROOM_MOTION.terminalScrollViewports;
     const terminalScreens = terminalTravel / Math.max(1, window.innerHeight);
     // The reference keeps the outgoing object and the next scene on one
-    // continuous vertical track. The signature starts immediately after the
-    // fifth book, and both advance one pixel for every pixel of page scroll.
-    // The light closing surface follows the signature on that same track.
+    // continuous vertical track. The film poster starts immediately after the
+    // fifth book. The signal environment and light closing surface follow it
+    // on that same one-pixel-per-pixel track.
     const terminalActive = terminalTravel > 0.5;
-    const signatureOpacity = smooth(clamp(terminalScreens / 0.06, 0, 1));
-    const closingOpacity = terminalActive ? 1 : 0;
+    const terminalOpacity = smooth(clamp(terminalScreens / 0.06, 0, 1));
     const terminalSceneOpacity = 1;
 
-    signaturePanel?.style.setProperty("--press-terminal-opacity", signatureOpacity.toFixed(4));
+    signaturePanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
+    signalPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
     options.stage.style.setProperty("--press-terminal-book-clip", "0%");
-    closingPanel?.style.setProperty("--press-terminal-opacity", closingOpacity.toFixed(4));
-    footerPanel?.style.setProperty("--press-terminal-opacity", closingOpacity.toFixed(4));
-    const controlsOpacity = 1 - smooth(clamp((terminalProgress - 0.5) / 0.24, 0, 1));
+    closingPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
+    footerPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
+    const controlsOpacity = 1 - smooth(clamp((terminalScreens - 2.08) / 0.34, 0, 1));
     options.stage.style.setProperty(
       "--press-terminal-controls-opacity",
       controlsOpacity.toFixed(4)
@@ -88,7 +89,7 @@ export const installCleanRoomCatalogueScroll = (
     // Keep the masthead and controls in their dark-surface colours while the
     // light page is only entering at the bottom. They switch only when that
     // surface reaches the fixed header, as on the reference.
-    const closing = terminalScreens > 1.45;
+    const closing = terminalScreens > 2.42;
     document.body.classList.toggle("press-terminal-active", active);
     document.body.classList.toggle("press-terminal-closing", closing);
     if (closingPanel) closingPanel.inert = !closing;
