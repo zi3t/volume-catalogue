@@ -130,8 +130,7 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 
 /* Positioned above the pinned hero, so the words paint over the canvas while
    the transparent figure column still reveals the live volume. */
-.press-volume-stage,
-.press-volume-content {
+.press-volume-stage {
   position: relative;
   z-index: 2;
 }
@@ -246,24 +245,46 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
   --press-volume-ink: var(--press-notes-ink);
 }
 
-/* The hero holds the volume for a viewport: figure on the left, the volume's
-   own words on the right, matching the catalogue's split. */
+/* A volume is one continuous two-column section. The left grid track persists
+   for the complete height of the imported page so its sticky figure can carry
+   the canvas book beside every paragraph. Keeping the genuine page inside the
+   right track is the important part: a sibling content block would expand back
+   across the book as soon as the one-viewport introduction had scrolled away. */
 .press-volume-stage {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: center;
+  align-items: stretch;
   min-height: 100svh;
   padding-inline: clamp(24px, 4vw, 64px);
   gap: clamp(24px, 4vw, 64px);
 }
 
-/* The figure is the volume's hit area: the book itself is drawn by the canvas
-   behind the section, so this column is what a reader actually grabs. `pan-y`
-   keeps a touch drag scrolling the page — the cover only answers a mouse. */
+/* The renderer reads this sticky rectangle on every layout pass. Before the
+   section reaches its resting position the rectangle rises with the section;
+   through the reading body it stays centred in the left track; and at the end
+   it leaves with its own section. That is the reference's book handoff rather
+   than a second fixed coordinate shared by every volume. */
+.press-volume-figure-track {
+  position: relative;
+  min-width: 0;
+  min-height: 100svh;
+}
+
 .press-volume-figure {
-  min-height: 60svh;
+  position: sticky;
+  top: 20svh;
+  height: 60svh;
   cursor: grab;
   touch-action: pan-y;
+}
+
+.press-volume-copy {
+  min-width: 0;
+}
+
+.press-volume-detail {
+  box-sizing: border-box;
+  min-height: 100svh;
 }
 
 .press-cover-dragging,
@@ -402,11 +423,10 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
   }
 
   html[data-press-renderer="clean-room"] .press-volume-figure {
-    align-self: center;
+    align-self: start;
   }
 
   html[data-press-renderer="clean-room"] .press-volume-detail {
-    align-self: start;
     padding-top: 21.1svh;
   }
 
@@ -444,9 +464,10 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 
 /* The genuine page's own content, given the section's colours. */
 .press-volume-content {
-  max-width: 62rem;
-  margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 64px);
+  width: 100%;
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
 }
 
 /* The static summary a demo page carries for the assembled document — the
@@ -533,6 +554,7 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 /* No volume is posed into the figure under reduced motion — the canvas cannot
    follow the scroll there — so the column would only be a held-open gap. */
 @media (prefers-reduced-motion: reduce) {
+  .press-volume-figure-track,
   .press-volume-figure {
     display: none;
   }
@@ -541,6 +563,10 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
     grid-template-columns: 1fr;
     min-height: auto;
     padding-block: 12svh 6svh;
+  }
+
+  .press-volume-detail {
+    min-height: auto;
   }
 }
 
@@ -561,8 +587,14 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
     padding-block: 18svh 6svh;
   }
 
+  .press-volume-figure-track {
+    min-height: auto;
+  }
+
   .press-volume-figure {
-    min-height: 42svh;
+    position: relative;
+    top: auto;
+    height: 42svh;
   }
 
   .press-volume-section {
@@ -570,6 +602,7 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
   }
 
   html[data-press-renderer="clean-room"] .press-volume-detail {
+    min-height: auto;
     padding-top: 22px;
     padding-inline: 30px;
   }

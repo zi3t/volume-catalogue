@@ -4,7 +4,7 @@ import { connect } from "./cdp.mjs";
 
 const [
   port = "9226",
-  url = "http://127.0.0.1:4173/press/telemetry/?press-renderer=clean-room",
+  url = "http://127.0.0.1:4173/press/shutdown-drain/?press-renderer=clean-room",
   screenshotDirectory = "/tmp/zi3t-clean-room-volume"
 ] = Deno.args;
 
@@ -12,6 +12,10 @@ const cdp = await connect(port, { width: 1568, height: 894 });
 const checks = [];
 const check = (name, passed, details = undefined) => {
   checks.push({ name, passed: Boolean(passed), ...(details === undefined ? {} : { details }) });
+};
+const angularDistance = (left, right) => {
+  const distance = Math.abs(left - right) % (Math.PI * 2);
+  return Math.min(distance, Math.PI * 2 - distance);
 };
 const state = () => cdp.evaluate("window.__pressCleanRoomDebug?.()");
 const dispatchMouse = (type, x, y, options = {}) => cdp.send("Input.dispatchMouseEvent", {
@@ -25,7 +29,27 @@ const dispatchMouse = (type, x, y, options = {}) => cdp.send("Input.dispatchMous
 try {
   await mkdir(screenshotDirectory, { recursive: true });
   await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
-    source: "window.__pressDebugEnabled = true;"
+    source: `
+      window.__pressDebugEnabled = true;
+      window.__pressBootSamples = [];
+      const samplePressBoot = () => {
+        const root = document.documentElement;
+        const body = document.body;
+        const canvas = document.querySelector?.('.press-scene-canvas');
+        if (root && body) {
+          window.__pressBootSamples.push({
+            pending: root.classList.contains('press-startup-pending'),
+            ready: root.classList.contains('press-startup-ready'),
+            sceneReady: root.classList.contains('press-scene-ready'),
+            bodyVisibility: getComputedStyle(body).visibility,
+            canvasOpacity: canvas ? Number(getComputedStyle(canvas).opacity) : null,
+            renderCalls: window.__pressCleanRoomDebug?.().render.calls ?? 0
+          });
+        }
+        if (performance.now() < 6000) requestAnimationFrame(samplePressBoot);
+      };
+      requestAnimationFrame(samplePressBoot);
+    `
   });
   await cdp.navigate(url);
   const ready = await cdp.waitFor(`(() => {
@@ -36,6 +60,24 @@ try {
       && debug.books[2].sectionVisible === true;
   })()`, 15_000);
   check("the live-volume gate opens directly on its section", ready);
+
+  const bootSamples = await cdp.evaluate("window.__pressBootSamples ?? []");
+  const pendingSamples = bootSamples.filter((sample) => sample.pending);
+  const revealedSample = bootSamples.find((sample) => sample.ready);
+  check(
+    "the initial route keeps the assembled DOM hidden while WebGL boots",
+    pendingSamples.length > 0
+      && pendingSamples.every((sample) => sample.bodyVisibility === "hidden"),
+    pendingSamples
+  );
+  check(
+    "the startup gate releases only after a rendered deep-link frame",
+    revealedSample?.pending === false
+      && revealedSample.sceneReady === true
+      && revealedSample.canvasOpacity === 1
+      && revealedSample.renderCalls > 0,
+    revealedSample
+  );
 
   const gpu = await cdp.requireHardwareGpu();
   check("the live-volume gate is running on hardware WebGL", !gpu.software, gpu);
@@ -128,8 +170,8 @@ try {
   check(
     "the throw decays to rest without snapping its authored rotation away",
     twirlSettled
-      && Math.abs(settled.state.coverRotation[0] - rotationAtRelease[0]) > 1
-      && Math.abs(settled.state.coverRotation[1] - rotationAtRelease[1]) > 1,
+      && angularDistance(settled.state.coverRotation[0], rotationAtRelease[0]) > .2
+      && angularDistance(settled.state.coverRotation[1], rotationAtRelease[1]) > .2,
     settled?.state
   );
 
@@ -147,22 +189,35 @@ try {
   )`, 15_000);
   const beforeScroll = await state();
   await cdp.evaluate("window.scrollBy({ top: 500, behavior: 'instant' })");
-  const turnedByScroll = await cdp.waitFor(`(() => {
+  const heldByScroll = await cdp.waitFor(`(() => {
     const debug = window.__pressCleanRoomDebug?.();
     return debug?.state.currentIndex === 2
-      && debug.books[2].rotation[1] > ${beforeScroll.books[2].rotation[1] + 0.36};
+      && debug.books[2].sectionVisible === true
+      && Math.abs(debug.books[2].rotation[1] - ${beforeScroll.books[2].rotation[1]}) < .02;
   })()`, 4_000);
   const afterScroll = await state();
+  const readingLayout = await cdp.evaluate(`(() => {
+    const figure = document.querySelectorAll('.press-volume-figure')[2].getBoundingClientRect();
+    const content = document.querySelectorAll('.press-volume-content')[2].getBoundingClientRect();
+    return {
+      figure: { left: figure.left, top: figure.top, right: figure.right, bottom: figure.bottom },
+      content: { left: content.left, top: content.top, right: content.right }
+    };
+  })()`);
   check(
-    "section scroll turns only its active volume at .0008 radians per pixel",
-    turnedByScroll
+    "section scroll holds the active book beside a non-overlapping copy column",
+    heldByScroll
       && Math.abs(
-        (afterScroll.books[2].rotation[1] - beforeScroll.books[2].rotation[1]) - .4
-      ) < .035
+        afterScroll.books[2].rotation[1] - beforeScroll.books[2].rotation[1]
+      ) < .02
+      && Math.abs(afterScroll.books[2].position[1] - beforeScroll.books[2].position[1]) < .02
+      && readingLayout.content.left > readingLayout.figure.right
+      && readingLayout.figure.top > 0
       && afterScroll.books.every((book, index) => index === 2 || book.opacity < .001),
     {
       before: beforeScroll?.books?.[2]?.rotation,
       after: afterScroll?.books?.[2]?.rotation,
+      layout: readingLayout,
       address: await cdp.evaluate("location.pathname + location.search")
     }
   );

@@ -21,6 +21,23 @@ try {
     source: `
       window.__pressDebugEnabled = true;
       window.__cleanRoomRouteTrail = [];
+      window.__pressBootSamples = [];
+      const samplePressBoot = () => {
+        const root = document.documentElement;
+        const body = document.body;
+        const debug = window.__pressCleanRoomDebug?.();
+        if (root && body) {
+          window.__pressBootSamples.push({
+            pending: root.classList.contains('press-startup-pending'),
+            ready: root.classList.contains('press-startup-ready'),
+            bodyVisibility: getComputedStyle(body).visibility,
+            entryComplete: debug?.state.entryComplete ?? false,
+            renderCalls: debug?.render.calls ?? 0
+          });
+        }
+        if (performance.now() < 6000) requestAnimationFrame(samplePressBoot);
+      };
+      requestAnimationFrame(samplePressBoot);
       const stamp = () => window.__cleanRoomRouteTrail.push(
         location.pathname + location.search
       );
@@ -34,9 +51,27 @@ try {
   const ready = await cdp.waitFor(`(
     document.documentElement.dataset.pressRenderer === "clean-room"
     && document.documentElement.classList.contains("press-entry-complete")
+    && document.documentElement.classList.contains("press-startup-ready")
     && window.__pressCleanRoomDebug?.().state.mode === "catalogue"
   )`, 15_000);
   check("the clean-room catalogue settles before routing is enabled", ready);
+
+  const bootSamples = await cdp.evaluate("window.__pressBootSamples ?? []");
+  const pendingSamples = bootSamples.filter((sample) => sample.pending);
+  const revealedSample = bootSamples.find((sample) => sample.ready);
+  check(
+    "the catalogue stays blank while the shelf entry is incomplete",
+    pendingSamples.length > 0
+      && pendingSamples.every((sample) => sample.bodyVisibility === "hidden"),
+    pendingSamples
+  );
+  check(
+    "the catalogue reveals on its first valid frame before the shelf entry completes",
+    revealedSample?.pending === false
+      && revealedSample.entryComplete === false
+      && revealedSample.renderCalls > 0,
+    revealedSample
+  );
 
   const gpu = await cdp.requireHardwareGpu();
   check("the routing gate is running on hardware WebGL", !gpu.software, gpu);
@@ -46,7 +81,7 @@ try {
   const catalogueAddress = await cdp.evaluate("location.pathname + location.search");
   check(
     "catalogue scrolling cannot claim a volume address",
-    catalogueAddress === "/press/?press-renderer=clean-room",
+    catalogueAddress === "/press/",
     catalogueAddress
   );
 
@@ -65,7 +100,7 @@ try {
   }))()`);
   check(
     "a deliberate pick pushes the marked volumes document",
-    flightDom.address === "/press/refly/?press-renderer=clean-room"
+    flightDom.address === "/press/refly/"
       && flightDom.volumes === "block"
       && Math.abs(flightDom.sectionTop) <= 1
       && Math.abs(flightDom.mainHeight - flightDom.volumesHeight) <= 2
@@ -104,9 +139,12 @@ try {
   const landedLayout = await cdp.evaluate(`(() => {
     const figure = document.querySelector('.press-volume-figure').getBoundingClientRect();
     const detail = document.querySelector('.press-volume-detail').getBoundingClientRect();
+    const content = document.querySelector('.press-volume-content').getBoundingClientRect();
     return {
       figure: { left: figure.left, top: figure.top, width: figure.width, height: figure.height },
-      detail: { left: detail.left, top: detail.top, width: detail.width, height: detail.height }
+      detail: { left: detail.left, top: detail.top, width: detail.width, height: detail.height },
+      content: { left: content.left, top: content.top, width: content.width, height: content.height },
+      figurePosition: getComputedStyle(document.querySelector('.press-volume-figure')).position
     };
   })()`);
   const landedBounds = landedState?.books?.[0]?.screenBounds;
@@ -117,7 +155,9 @@ try {
       && Math.abs(landedBounds?.top - 167) <= 10
       && Math.abs(landedBounds?.width - 447) <= 10
       && Math.abs(landedBounds?.height - 554) <= 10
-      && Math.abs(landedLayout.detail.left - 886) <= 12,
+      && Math.abs(landedLayout.detail.left - 886) <= 12
+      && landedLayout.figurePosition === "sticky"
+      && landedLayout.content.left >= landedLayout.figure.left + landedLayout.figure.width + 40,
     {
       book: landedState?.books?.[0],
       layout: landedLayout,
@@ -159,7 +199,7 @@ try {
     window.scrollTo({ top: section.getBoundingClientRect().top + scrollY, behavior: 'instant' });
   })()`);
   const scrolled = await cdp.waitFor(`(
-    location.pathname + location.search === "/press/telemetry/?press-renderer=clean-room"
+    location.pathname + location.search === "/press/shutdown-drain/"
     && window.__pressCleanRoomDebug?.().state.currentIndex === 2
     && window.__pressCleanRoomDebug?.().books[2].sectionVisible === true
   )`, 5_000);
@@ -184,25 +224,86 @@ try {
   );
   await cdp.screenshot(`${screenshotDirectory}/route-scroll-telemetry.png`);
 
-  const historyBeforeRail = await cdp.evaluate("history.length");
-  await cdp.evaluate("document.querySelectorAll('.press-rail-item')[3].click()");
-  const railArrived = await cdp.waitFor(`(
-    location.pathname + location.search === "/press/practice/?press-renderer=clean-room"
+  const practiceSection = await cdp.evaluate(`(() => {
+    const section = document.querySelectorAll('.press-volume-section')[3];
+    return section.getBoundingClientRect().top + scrollY;
+  })()`);
+  const fieldNotesSection = await cdp.evaluate(`(() => {
+    const section = document.querySelectorAll('.press-volume-section')[4];
+    return section.getBoundingClientRect().top + scrollY;
+  })()`);
+  await cdp.evaluate(`window.scrollTo({
+    top: ${fieldNotesSection} - innerHeight * .72,
+    behavior: "instant"
+  })`);
+  const boundaryReady = await cdp.waitFor(`(() => {
+    const debug = window.__pressCleanRoomDebug?.();
+    return location.pathname + location.search === "/press/practice/"
+      && debug?.state.currentIndex === 3
+      && debug.state.presentedIndex === 4
+      && debug.books[4].opacity > .999
+      && debug.books[3].opacity < .001;
+  })()`, 5_000);
+  const boundaryState = await state();
+  const boundaryLayout = await cdp.evaluate(`(() => {
+    const figure = document.querySelectorAll('.press-volume-figure')[4].getBoundingClientRect();
+    const detail = document.querySelectorAll('.press-volume-detail')[4].getBoundingClientRect();
+    return {
+      viewportHeight: innerHeight,
+      figure: { top: figure.top, bottom: figure.bottom, right: figure.right },
+      detail: { top: detail.top, left: detail.left }
+    };
+  })()`);
+  check(
+    "the incoming book rises with its own section before the route marker changes",
+    boundaryReady
+      && boundaryLayout.figure.top > boundaryLayout.viewportHeight * .2
+      && boundaryLayout.figure.top < boundaryLayout.viewportHeight
+      && boundaryLayout.detail.left > boundaryLayout.figure.right
+      && Math.abs(
+        boundaryState.books[4].position[1] - boundaryState.books[4].sectionPosition[1]
+      ) < .02
+      && boundaryState.books[4].sectionPose >= 0
+      && boundaryState.books[4].sectionPose < 1,
+    {
+      practiceSection,
+      fieldNotesSection,
+      state: boundaryState?.state,
+      incoming: boundaryState?.books?.[4],
+      layout: boundaryLayout
+    }
+  );
+  await cdp.screenshot(`${screenshotDirectory}/route-section-handoff.png`);
+
+  await cdp.evaluate(`window.scrollTo({ top: ${practiceSection}, behavior: "instant" })`);
+  await cdp.waitFor(`(
+    location.pathname + location.search === "/press/practice/"
     && window.__pressCleanRoomDebug?.().state.currentIndex === 3
+  )`, 5_000);
+
+  const historyBeforeRail = await cdp.evaluate("history.length");
+  await cdp.evaluate("document.querySelectorAll('.press-rail-item')[4].click()");
+  await cdp.sleep(40);
+  const railTransitionState = await state();
+  const railArrived = await cdp.waitFor(`(
+    location.pathname + location.search === "/press/field-notes/"
+    && window.__pressCleanRoomDebug?.().state.currentIndex === 4
     && window.__pressCleanRoomDebug?.().state.flightIndex === -1
   )`, 5_000);
   const historyAfterRail = await cdp.evaluate("history.length");
   check(
     "the rail deliberately pushes another marked volume",
-    railArrived && historyAfterRail === historyBeforeRail + 1,
-    { historyBeforeRail, historyAfterRail }
+    railArrived
+      && historyAfterRail === historyBeforeRail + 1
+      && railTransitionState?.state?.flightIndex === -1,
+    { historyBeforeRail, historyAfterRail, state: railTransitionState?.state }
   );
 
   await cdp.evaluate("history.back()");
   const backVolume = await cdp.waitFor(`(
-    location.pathname + location.search === "/press/telemetry/?press-renderer=clean-room"
+    location.pathname + location.search === "/press/practice/"
     && window.__pressCleanRoomDebug?.().state.mode === "volumes"
-    && window.__pressCleanRoomDebug?.().state.currentIndex === 2
+    && window.__pressCleanRoomDebug?.().state.currentIndex === 3
   )`, 5_000);
   check("browser Back restores the previous volume within the same shell", backVolume);
 
@@ -210,16 +311,20 @@ try {
   const returnStarted = await cdp.waitFor(`(() => {
     const debug = window.__pressCleanRoomDebug?.();
     return debug?.state.mode === "catalogue"
-      && debug.state.flightIndex === 2
+      && debug.state.flightIndex === 3
       && debug.state.flightDirection === "to-catalogue";
   })()`, 1_500);
-  await cdp.sleep(80);
+  const returnAdvanced = await cdp.waitFor(`(() => {
+    const progress = window.__pressCleanRoomDebug?.().state.flightProgress ?? 0;
+    return progress > 0 && progress < .9;
+  })()`, 1_500);
   const returnState = await state();
-  const returningBook = returnState?.books?.[2];
-  const returningNeighbours = returnState?.books?.filter((_, index) => index !== 2) ?? [];
+  const returningBook = returnState?.books?.[3];
+  const returningNeighbours = returnState?.books?.filter((_, index) => index !== 3) ?? [];
   check(
     "Back carries the selected book home before rebuilding the rail stack",
     returnStarted
+      && returnAdvanced
       && returnState?.state?.flightProgress > 0
       && returnState.state.flightProgress < 0.9
       && returningBook?.opacity > 0.99
@@ -238,12 +343,12 @@ try {
   await cdp.screenshot(`${screenshotDirectory}/route-return-flight.png`);
   const backHome = await cdp.waitFor(`(() => {
     const debug = window.__pressCleanRoomDebug?.();
-    return location.pathname + location.search === "/press/?press-renderer=clean-room"
+    return location.pathname + location.search === "/press/"
       && debug?.state.mode === "catalogue"
       && debug.state.flightIndex === -1
       && Math.abs(scrollY - 180) <= 1
       && debug.books.every((book, index) => (
-        Math.abs((book.position[1] - book.homePosition[1]) - .2422) < .04
+        Math.abs(book.position[1] - book.homePosition[1]) < .04
         && (
           index === debug.state.hoverIndex
           || Math.abs(book.position[2] - book.homePosition[2]) < .04
@@ -256,7 +361,7 @@ try {
     "browser Back restores the catalogue offset and shelf pose",
     backHome
       && homeState?.books?.every((book) => (
-        Math.abs((book.position[1] - book.homePosition[1]) - .2422) < .04
+        Math.abs(book.position[1] - book.homePosition[1]) < .04
       )),
     {
       address: await cdp.evaluate("location.pathname + location.search"),
@@ -283,7 +388,7 @@ try {
     return debug?.state.mode === "volumes"
       && debug.state.currentIndex === 4
       && debug.state.pendingDeepLinkIndex === -1
-      && location.pathname + location.search === "/press/field-notes/?press-renderer=clean-room"
+      && location.pathname + location.search === "/press/field-notes/"
       && Math.abs(section.getBoundingClientRect().top) <= 1
       && debug.books[4].sectionVisible === true;
   })()`, 15_000);
@@ -291,7 +396,7 @@ try {
   check(
     "a marked deep link settles directly on its own volume without address flicker",
     deepReady && deepTrail.every((address) => (
-      address === "/press/field-notes/?press-renderer=clean-room"
+      address === "/press/field-notes/"
     )),
     { deepTrail, state: await state() }
   );
@@ -299,7 +404,7 @@ try {
 
   await cdp.evaluate("document.querySelector('.press-back').click()");
   const controlBack = await cdp.waitFor(`(
-    location.pathname + location.search === "/press/?press-renderer=clean-room"
+    location.pathname + location.search === "/press/"
     && window.__pressCleanRoomDebug?.().state.mode === "catalogue"
   )`, 5_000);
   check("the dedicated back control returns the active volume to its shelf slot", controlBack);

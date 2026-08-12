@@ -1,9 +1,20 @@
 import { initializeRevealMotion } from "./runtime/reveal";
 
+const releaseStartupGate = (fallback = false): void => {
+  const root = document.documentElement;
+  root.classList.remove("press-startup-pending");
+  if (fallback) root.classList.add("press-startup-fallback");
+};
+
 const start = async (): Promise<void> => {
-  initializeRevealMotion();
-  const { mountCleanRoomCatalogue } = await import("./runtime/clean-room");
-  mountCleanRoomCatalogue();
+  try {
+    initializeRevealMotion();
+    const { mountCleanRoomCatalogue } = await import("./runtime/clean-room");
+    if (!mountCleanRoomCatalogue()) releaseStartupGate(true);
+  } catch (error) {
+    releaseStartupGate(true);
+    console.warn("Press scene failed to initialise; showing the DOM fallback.", error);
+  }
 };
 
 if (document.readyState === "loading") {

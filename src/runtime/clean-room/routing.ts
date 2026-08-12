@@ -271,7 +271,16 @@ export const installCleanRoomRouting = (
         else crossing.delete(record.target);
       });
       if (mode !== "volumes" || pendingDeepLinkIndex >= 0) return;
-      const section = sections.find((candidate) => crossing.has(candidate));
+      const viewportCentre = window.innerHeight * 0.5;
+      const section = sections
+        .filter((candidate) => crossing.has(candidate))
+        .sort((left, right) => {
+          const leftRect = left.getBoundingClientRect();
+          const rightRect = right.getBoundingClientRect();
+          const leftDistance = Math.abs(leftRect.top + leftRect.height * 0.5 - viewportCentre);
+          const rightDistance = Math.abs(rightRect.top + rightRect.height * 0.5 - viewportCentre);
+          return leftDistance - rightDistance;
+        })[0];
       if (!section) return;
       const index = sections.indexOf(section);
       const address = volumeAddress(index);

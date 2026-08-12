@@ -47,20 +47,24 @@ export const renderVolumeSection = (
          data-press-slug="${escapeHtml(volume.slug)}"
          aria-labelledby="volume-${escapeHtml(volume.slug)}-title">
   <div class="press-volume-stage">
-    <div class="press-volume-figure" aria-hidden="true"></div>
-    <div class="press-volume-detail">
-      <p class="press-volume-kicker">${escapeHtml(volume.spine.eyebrow)}</p>
-      <h2 class="press-volume-title" id="volume-${escapeHtml(volume.slug)}-title">${escapeHtml(volume.title)}</h2>
-      <p class="press-volume-summary">${escapeHtml(volume.byline)}</p>
-      <p class="press-volume-actions"><a href="${escapeHtml(volume.contentPath)}">Open ${escapeHtml(volume.routeMode)} page</a></p>
-      <p class="press-volume-excerpt">${excerpt}</p>
-      <dl class="press-volume-meta">
-        <div><dt>Volume</dt><dd>${escapeHtml(volume.spine.serial)}</dd></div>
-        <div><dt>Format</dt><dd>${escapeHtml(volume.routeMode)}</dd></div>
-      </dl>
+    <div class="press-volume-figure-track" aria-hidden="true">
+      <div class="press-volume-figure"></div>
+    </div>
+    <div class="press-volume-copy">
+      <div class="press-volume-detail">
+        <p class="press-volume-kicker">${escapeHtml(volume.spine.eyebrow)}</p>
+        <h2 class="press-volume-title" id="volume-${escapeHtml(volume.slug)}-title">${escapeHtml(volume.title)}</h2>
+        <p class="press-volume-summary">${escapeHtml(volume.byline)}</p>
+        <p class="press-volume-actions"><a href="${escapeHtml(volume.contentPath)}">Open ${escapeHtml(volume.routeMode)} page</a></p>
+        <p class="press-volume-excerpt">${excerpt}</p>
+        <dl class="press-volume-meta">
+          <div><dt>Volume</dt><dd>${escapeHtml(volume.spine.serial)}</dd></div>
+          <div><dt>Format</dt><dd>${escapeHtml(volume.routeMode)}</dd></div>
+        </dl>
+      </div>
+      <div class="press-volume-content">${content}</div>
     </div>
   </div>
-  <div class="press-volume-content">${content}</div>
 </section>`;
 
 /**
@@ -116,14 +120,34 @@ class InjectVolumeSections implements HTMLRewriterElementContentHandlers {
   }
 }
 
+const PRESS_STARTUP_GATE = `<style id="press-startup-gate">
+html.press-startup-pending{background:#201819}
+html.press-startup-pending body{visibility:hidden;animation:press-startup-failsafe 0s linear 8s forwards}
+html.press-startup-pending .press-scene-canvas{opacity:1!important;transition:none!important}
+html.press-startup-pending .home-brand{animation-play-state:paused!important}
+@keyframes press-startup-failsafe{to{visibility:visible}}
+</style><noscript><style>html.press-startup-pending body{visibility:visible;animation:none}</style></noscript>`;
+
+class MarkStartupPending implements HTMLRewriterElementContentHandlers {
+  element(element: Element): void {
+    const classes = (element.getAttribute("class") ?? "")
+      .split(/\s+/)
+      .filter(Boolean);
+    if (!classes.includes("press-startup-pending")) {
+      classes.push("press-startup-pending");
+    }
+    element.setAttribute("class", classes.join(" "));
+  }
+}
+
 class InjectVolumeAssets implements HTMLRewriterElementContentHandlers {
   constructor(private readonly stylesheets: readonly string[]) {}
 
   element(element: Element): void {
     element.append(
-      this.stylesheets
+      `${PRESS_STARTUP_GATE}${this.stylesheets
         .map((href) => `<link rel="stylesheet" href="${escapeHtml(href)}">`)
-        .join(""),
+        .join("")}`,
       { html: true }
     );
   }
@@ -229,6 +253,7 @@ export const createCloudflareCatalogueWorker = <Environment>(
       response.headers.set("cache-control", "no-cache");
 
       const rewriter = new HTMLRewriter()
+        .on("html", new MarkStartupPending())
         .on("head", new InjectVolumeAssets(stylesheets))
         .on(
           "[data-press-volumes]",
