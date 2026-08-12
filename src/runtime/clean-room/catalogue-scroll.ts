@@ -24,6 +24,7 @@ interface CleanRoomCatalogueScrollOptions {
 export interface CleanRoomCatalogueScrollController {
   update: () => CleanRoomCatalogueScrollSnapshot;
   advance: (deltaSeconds: number) => CleanRoomCatalogueScrollSnapshot;
+  invalidateMeasurements: () => void;
   snapshot: () => CleanRoomCatalogueScrollSnapshot;
 }
 
@@ -38,6 +39,11 @@ const emptySnapshot = (): CleanRoomCatalogueScrollSnapshot => ({
   mainHeight: 0
 });
 
+export const cleanRoomCatalogueScrollStep = (
+  viewportHeight: number,
+  compact: boolean
+): number => viewportHeight * (compact ? 0.225 : 0.213);
+
 export const installCleanRoomCatalogueScroll = (
   options: CleanRoomCatalogueScrollOptions
 ): CleanRoomCatalogueScrollController => {
@@ -48,9 +54,25 @@ export const installCleanRoomCatalogueScroll = (
   const signalPanel = document.querySelector<HTMLElement>(".press-signal-section");
   const closingPanel = document.querySelector<HTMLElement>(".home-closing");
   const footerPanel = document.querySelector<HTMLElement>(".home-footer");
+  const rail = document.querySelector<HTMLElement>(".press-rail");
+  const help = document.querySelector<HTMLElement>(".press-help");
   let state = emptySnapshot();
   let lastScrollY = window.scrollY;
   let reportedIndex = -1;
+  let measuredViewportWidth = -1;
+  let measuredViewportHeight = -1;
+  let measuredCompact = options.compact.matches;
+  let itemOffsets: number[] = [];
+  let measuredVolumeHeight = 0;
+  let appliedMainHeight = "";
+  let appliedStackShift = "";
+  let appliedTerminalOpacity = "";
+  let appliedControlsOpacity = "";
+  let appliedTerminalActive = false;
+  let appliedTerminalClosing = false;
+  let terminalBookClipApplied = false;
+  let accessMode: CleanRoomPressMode | null = null;
+  let accessTerminal = false;
 
   document.body.classList.remove("press-terminal-active", "press-terminal-closing");
   if (closingPanel) closingPanel.inert = true;
@@ -70,38 +92,90 @@ export const installCleanRoomCatalogueScroll = (
     const terminalOpacity = smooth(clamp(terminalScreens / 0.06, 0, 1));
     const terminalSceneOpacity = 1;
 
-    signaturePanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
-    signalPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
-    options.stage.style.setProperty("--press-terminal-book-clip", "0%");
-    closingPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
-    footerPanel?.style.setProperty("--press-terminal-opacity", terminalOpacity.toFixed(4));
+    const opacityValue = terminalOpacity.toFixed(4);
+    if (opacityValue !== appliedTerminalOpacity) {
+      appliedTerminalOpacity = opacityValue;
+      if (signaturePanel) signaturePanel.style.opacity = opacityValue;
+      if (signalPanel) signalPanel.style.opacity = opacityValue;
+      if (closingPanel) closingPanel.style.opacity = opacityValue;
+      if (footerPanel) footerPanel.style.opacity = opacityValue;
+    }
+    if (!terminalBookClipApplied) {
+      terminalBookClipApplied = true;
+      options.stage.style.setProperty("--press-terminal-book-clip", "0%");
+    }
     const controlsOpacity = 1 - smooth(clamp((terminalScreens - 2.08) / 0.34, 0, 1));
-    options.stage.style.setProperty(
-      "--press-terminal-controls-opacity",
-      controlsOpacity.toFixed(4)
-    );
-    document.documentElement.style.setProperty(
-      "--press-terminal-controls-opacity",
-      controlsOpacity.toFixed(4)
-    );
+    const controlsValue = controlsOpacity.toFixed(4);
+    if (controlsValue !== appliedControlsOpacity) {
+      appliedControlsOpacity = controlsValue;
+      if (rail) rail.style.opacity = controlsValue;
+      if (help) help.style.opacity = controlsValue;
+    }
 
     const active = terminalActive;
     // Keep the masthead and controls in their dark-surface colours while the
     // light page is only entering at the bottom. They switch only when that
     // surface reaches the fixed header, as on the reference.
     const closing = terminalScreens > 2.42;
-    document.body.classList.toggle("press-terminal-active", active);
-    document.body.classList.toggle("press-terminal-closing", closing);
-    if (closingPanel) closingPanel.inert = !closing;
-    if (footerPanel) footerPanel.inert = !closing;
+    if (active !== appliedTerminalActive) {
+      appliedTerminalActive = active;
+      document.body.classList.toggle("press-terminal-active", active);
+    }
+    if (closing !== appliedTerminalClosing) {
+      appliedTerminalClosing = closing;
+      document.body.classList.toggle("press-terminal-closing", closing);
+      if (closingPanel) closingPanel.inert = !closing;
+      if (footerPanel) footerPanel.inert = !closing;
+    }
     state = { ...state, terminalProgress, terminalTravel, terminalSceneOpacity };
   };
 
   const updateAccess = (mode: CleanRoomPressMode): void => {
+    const terminal = state.terminalProgress > 0.04;
+    if (mode === accessMode && terminal === accessTerminal) return;
+    accessMode = mode;
+    accessTerminal = terminal;
     options.items.forEach((item) => {
-      item.inert = mode === "volumes"
-        || state.terminalProgress > 0.04;
+      item.inert = mode === "volumes" || terminal;
     });
+  };
+
+  const setMainHeight = (height: string): void => {
+    if (!main || height === appliedMainHeight) return;
+    appliedMainHeight = height;
+    if (height) main.style.height = height;
+    else main.style.removeProperty("height");
+  };
+
+  const setStackShift = (value: string): void => {
+    if (!list || value === appliedStackShift) return;
+    appliedStackShift = value;
+    // `--press-stack-shift` is inherited. Updating it per pixel makes Safari
+    // restyle the entire invisible hit-target subtree before every frame. A
+    // direct transform stays on the list's compositor layer and preserves the
+    // exact same screen-space alignment without descendant invalidation.
+    list.style.transform = `translate3d(
+      calc(-50% + var(--press-shift-x)),
+      calc(var(--press-shift-y) + ${value} + var(--press-scroll-y)),
+      0
+    )`;
+  };
+
+  const measureLayout = (): void => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const compact = options.compact.matches;
+    if (
+      width === measuredViewportWidth
+      && height === measuredViewportHeight
+      && compact === measuredCompact
+      && itemOffsets.length === options.items.length
+    ) return;
+    measuredViewportWidth = width;
+    measuredViewportHeight = height;
+    measuredCompact = compact;
+    itemOffsets = options.items.map((item) => item.offsetTop);
+    measuredVolumeHeight = volumes?.offsetHeight ?? 0;
   };
 
   const reportCurrentIndex = (index: number): void => {
@@ -117,15 +191,15 @@ export const installCleanRoomCatalogueScroll = (
     lastScrollY = nextScrollY;
 
     if (!main || !list || options.reducedMotion.matches) {
-      main?.style.removeProperty("height");
-      list?.style.setProperty("--press-stack-shift", "0px");
+      setMainHeight("");
+      setStackShift("0px");
       state = {
         ...state,
         currentIndex: 0,
         currentScrollStep: 1,
         stackShift: 0,
         scrollVelocity: 0,
-        mainHeight: main?.getBoundingClientRect().height ?? 0
+        mainHeight: main?.offsetHeight ?? 0
       };
       updateTerminal(0);
       if (mode === "catalogue") reportCurrentIndex(0);
@@ -134,17 +208,21 @@ export const installCleanRoomCatalogueScroll = (
     }
 
     const compact = options.compact.matches;
-    const currentScrollStep = window.innerHeight * (compact ? 0.225 : 0.213);
+    const currentScrollStep = cleanRoomCatalogueScrollStep(
+      window.innerHeight,
+      compact
+    );
+    measureLayout();
     if (mode === "volumes") {
-      const volumeHeight = volumes?.offsetHeight ?? 0;
-      main.style.height = `${Math.ceil(volumeHeight)}px`;
-      list.style.setProperty("--press-stack-shift", "0px");
+      const volumeMainHeight = Math.ceil(measuredVolumeHeight);
+      setMainHeight(`${volumeMainHeight}px`);
+      setStackShift("0px");
       state = {
         ...state,
         currentScrollStep,
         stackShift: 0,
         scrollVelocity: 0,
-        mainHeight: main.getBoundingClientRect().height
+        mainHeight: volumeMainHeight
       };
       updateTerminal(0);
       updateAccess(mode);
@@ -165,7 +243,10 @@ export const installCleanRoomCatalogueScroll = (
     const terminalLength = compact
       ? 0
       : window.innerHeight * CLEAN_ROOM_MOTION.terminalScrollViewports;
-    main.style.height = `${Math.round(window.innerHeight + catalogueMaximum + terminalLength)}px`;
+    const catalogueMainHeight = Math.round(
+      window.innerHeight + catalogueMaximum + terminalLength
+    );
+    setMainHeight(`${catalogueMainHeight}px`);
     const catalogueScroll = Math.min(window.scrollY, catalogueMaximum);
     const floatingIndex = clamp(
       catalogueScroll / currentScrollStep,
@@ -175,17 +256,17 @@ export const installCleanRoomCatalogueScroll = (
     const lower = Math.floor(floatingIndex);
     const upper = Math.min(options.items.length - 1, lower + 1);
     const local = floatingIndex - lower;
-    const lowerOffset = options.items[lower]?.offsetTop ?? 0;
-    const upperOffset = options.items[upper]?.offsetTop ?? lowerOffset;
+    const lowerOffset = itemOffsets[lower] ?? 0;
+    const upperOffset = itemOffsets[upper] ?? lowerOffset;
     const stackShift = mix(lowerOffset, upperOffset, local);
     const currentIndex = Math.round(floatingIndex);
-    list.style.setProperty("--press-stack-shift", `${-stackShift.toFixed(2)}px`);
+    setStackShift(`${-stackShift.toFixed(2)}px`);
     state = {
       ...state,
       currentIndex,
       currentScrollStep,
       stackShift,
-      mainHeight: main.getBoundingClientRect().height
+      mainHeight: catalogueMainHeight
     };
     reportCurrentIndex(currentIndex);
     updateTerminal(
@@ -211,6 +292,10 @@ export const installCleanRoomCatalogueScroll = (
   return {
     update,
     advance,
+    invalidateMeasurements: () => {
+      measuredViewportWidth = -1;
+      measuredViewportHeight = -1;
+    },
     snapshot: () => state
   };
 };

@@ -20,6 +20,7 @@ export interface CleanRoomRouteSnapshot {
 interface CleanRoomRouteCallbacks {
   readonly items: readonly HTMLElement[];
   readonly links: readonly HTMLAnchorElement[];
+  readonly catalogueScrollTop: (index: number) => number;
   readonly onBeforeVolume: (index: number, source: CleanRoomRouteSource) => void;
   readonly onBeforeCatalogue: (index: number, source: CleanRoomRouteSource) => void;
   readonly onModeChange: (
@@ -40,7 +41,6 @@ export interface CleanRoomRouteController {
   setCatalogueIndex: (index: number) => void;
   refreshActiveInk: () => void;
   settlePendingDeepLink: () => boolean;
-  updateLayout: () => void;
 }
 
 interface ModifiedInputEvent {
@@ -105,7 +105,8 @@ export const installCleanRoomRouting = (
   let currentIndex = Math.max(0, deepLinkIndex);
   let currentAddress = cleanAddress(`${window.location.pathname}${window.location.hash}`);
   let pendingDeepLinkIndex = deepLinkIndex;
-  let catalogueScrollY = Number(history.state?.pressScrollY) || window.scrollY;
+  let catalogueScrollY = window.scrollY;
+  let activeInks: string[] = [];
 
   const available = Boolean(
     main
@@ -168,17 +169,31 @@ export const installCleanRoomRouting = (
   const syncActiveInk = (index: number): void => {
     const section = sections[index];
     if (section) {
+      const ink = activeInks[index] || getComputedStyle(section)
+        .getPropertyValue("--press-volume-ink")
+        .trim();
+      activeInks[index] = ink;
       root.style.setProperty(
         "--press-active-ink",
-        getComputedStyle(section).getPropertyValue("--press-volume-ink").trim()
+        ink
       );
     }
+  };
+
+  const refreshActiveInks = (): void => {
+    activeInks = sections.map((section) => getComputedStyle(section)
+      .getPropertyValue("--press-volume-ink")
+      .trim());
+    syncActiveInk(currentIndex);
   };
 
   const setCurrentIndex = (next: number, source: CleanRoomRouteSource): void => {
     const bounded = Math.min(callbacks.items.length - 1, Math.max(0, next));
     currentIndex = bounded;
-    syncActiveInk(bounded);
+    // Catalogue scroll only changes the rail marker. Reading a volume
+    // section's computed ink here forced a full style flush at every book
+    // boundary in Safari. Volume ink is premeasured outside the scroll path.
+    if (mode === "volumes" || source !== "scroll") syncActiveInk(bounded);
     railButtons.forEach((button, index) => {
       const current = index === bounded;
       button.classList.toggle("is-current", current);
@@ -212,17 +227,14 @@ export const installCleanRoomRouting = (
 
   const goToVolume = (index: number, source: CleanRoomRouteSource): boolean => {
     if (!available || !sections[index]) return false;
-    if (mode === "catalogue") {
-      catalogueScrollY = window.scrollY;
-      history.replaceState(
-        { ...(history.state ?? {}), pressHome: true, pressScrollY: catalogueScrollY },
-        "",
-        currentAddress
-      );
-    }
+    const enteringFromCatalogue = mode === "catalogue";
     callbacks.onBeforeVolume(index, source);
     const address = volumeAddress(index);
-    history.pushState({ pressVolume: index }, "", address);
+    // Stripe adds one history entry when leaving the product list, then
+    // replaces that entry while the active product changes. Scrolling through
+    // every slug therefore still has one Back step to the list.
+    if (enteringFromCatalogue) history.pushState({}, "", address);
+    else history.replaceState({}, "", address);
     currentAddress = address;
     setCurrentIndex(index, source);
     setMode("volumes", source);
@@ -235,10 +247,11 @@ export const installCleanRoomRouting = (
     if (!available || mode !== "volumes") return false;
     const index = currentIndex;
     callbacks.onBeforeCatalogue(index, source);
-    history.pushState({ pressHome: true, pressScrollY: catalogueScrollY }, "", catalogueAddress);
+    history.pushState({}, "", catalogueAddress);
     currentAddress = catalogueAddress;
     setMode("catalogue", source);
-    const slot = window.innerHeight * (window.innerWidth <= 899 ? 0.225 : 0.213) * index;
+    const slot = callbacks.catalogueScrollTop(index);
+    catalogueScrollY = slot;
     instantScroll(slot);
     setCurrentIndex(index, source);
     callbacks.onWake(1800);
@@ -292,21 +305,21 @@ export const installCleanRoomRouting = (
     goToVolume(next, "keyboard");
   });
 
-  window.addEventListener("popstate", (event) => {
+  window.addEventListener("popstate", () => {
     currentAddress = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const index = pathIndex();
     if (index >= 0 && sections[index]) {
-      callbacks.onBeforeVolume(index, "popstate");
-      setCurrentIndex(index, "popstate");
-      setMode("volumes", "popstate");
-      scrollToVolume(index);
-      callbacks.onWake(1400);
+      // Stripe reloads a product deeplink reached with browser Forward. Its
+      // product-list return is the only popstate transition kept in the
+      // existing scene.
+      window.location.reload();
       return;
     }
     callbacks.onBeforeCatalogue(currentIndex, "popstate");
     setMode("catalogue", "popstate");
-    catalogueScrollY = Number(event.state?.pressScrollY) || 0;
+    catalogueScrollY = callbacks.catalogueScrollTop(currentIndex);
     instantScroll(catalogueScrollY);
+    setCurrentIndex(currentIndex, "popstate");
     callbacks.onWake(1800);
   });
 
@@ -333,11 +346,7 @@ export const installCleanRoomRouting = (
       const address = volumeAddress(index);
       if (address === currentAddress) return;
       currentAddress = address;
-      history.replaceState(
-        { ...(history.state ?? {}), pressVolume: index },
-        "",
-        address
-      );
+      history.replaceState({}, "", address);
       setCurrentIndex(index, "scroll");
       callbacks.onWake(500);
     }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
@@ -357,16 +366,12 @@ export const installCleanRoomRouting = (
   if (available) {
     history.scrollRestoration = "manual";
     if (deepLinkIndex >= 0) {
-      history.replaceState({ pressVolume: deepLinkIndex }, "", currentAddress);
+      history.replaceState({}, "", currentAddress);
       callbacks.onBeforeVolume(deepLinkIndex, "deep-link");
       setCurrentIndex(deepLinkIndex, "deep-link");
       setMode("volumes", "deep-link");
     } else {
-      history.replaceState(
-        { ...(history.state ?? {}), pressHome: true, pressScrollY: catalogueScrollY },
-        "",
-        currentAddress
-      );
+      history.replaceState({}, "", currentAddress);
       pendingDeepLinkIndex = -1;
       setCurrentIndex(0, "deep-link");
       setMode("catalogue", "deep-link");
@@ -388,8 +393,7 @@ export const installCleanRoomRouting = (
     setCatalogueIndex: (index: number) => {
       if (mode === "catalogue") setCurrentIndex(index, "scroll");
     },
-    refreshActiveInk: () => syncActiveInk(currentIndex),
-    settlePendingDeepLink,
-    updateLayout: updateDocumentHeight
+    refreshActiveInk: refreshActiveInks,
+    settlePendingDeepLink
   };
 };

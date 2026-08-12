@@ -1,188 +1,256 @@
 import * as THREE from "three";
 
 import posterArtwork from "../../assets/media/shutdown-sequence-poster.webp?url";
-import { clamp, mix, smooth } from "./motion";
+import { clamp, mix } from "./motion";
 
 export interface CleanRoomFoldoutPosterSnapshot {
   readonly ready: boolean;
-  readonly progress: number;
-  readonly targetProgress: number;
-  readonly panelCount: 4;
+  readonly deformation: number;
+  readonly position: readonly [number, number, number];
+  readonly targetY: number;
+  readonly vertexCount: 10000;
+  readonly resetGap: -33;
+}
+
+interface CleanRoomFoldoutPosterLayout {
+  readonly targetY: number;
+  readonly smallScreen: boolean;
+}
+
+interface CleanRoomFoldoutPosterFrame {
+  readonly deformation: number;
+  readonly terminalTravelWorld: number;
+  readonly returnApproach: number | null;
+  readonly visible: boolean;
+}
+
+interface CleanRoomFoldoutPosterOptions {
+  readonly camera: THREE.PerspectiveCamera;
+  readonly scene: THREE.Scene;
+  readonly renderer: THREE.WebGLRenderer;
+  readonly onWake: () => void;
 }
 
 export interface CleanRoomFoldoutPosterController {
-  readonly setProgress: (progress: number) => void;
+  readonly setLayout: (layout: CleanRoomFoldoutPosterLayout | null) => void;
+  readonly stageListReturn: () => void;
+  readonly advance: (frame: CleanRoomFoldoutPosterFrame) => number;
   readonly snapshot: () => CleanRoomFoldoutPosterSnapshot;
 }
 
-const BAND_COUNT = 4;
-const POSTER_WIDTH = 20;
-const POSTER_HEIGHT = POSTER_WIDTH * 4 / 3;
+// Current Stripe Press film-mesh constants, read from its live Canvas bundle.
+const GRID_SIZE = 100;
+const FILM_WIDTH = 22;
+const FILM_HEIGHT = 30;
+const FILM_RESET_GAP = -33;
+const FILM_TILT_LIMIT = 0.3;
+const MIN_DEFORMATION = 0.08;
+const MAX_DEFORMATION = 1.4;
+
+interface FilmDeltas {
+  readonly positionY: Float64Array;
+  readonly positionZ: Float64Array;
+  readonly normalX: Float64Array;
+  readonly normalY: Float64Array;
+  readonly normalZ: Float64Array;
+}
 
 /**
- * The terminal object is one continuous paper mesh. Its vertices form a
- * shallow horizontal zig-zag, so the print, silhouette, and light all remain
- * continuous while the sheet opens along three physical crease lines.
+ * Stripe recomputes these terms inside updateFilmPosters. They depend only on
+ * the fixed 100x100 grid, so cache them once and retain the identical
+ * deformation while keeping Safari's scroll path free of trigonometry.
  */
-export const mountCleanRoomFoldoutPoster = (): CleanRoomFoldoutPosterController => {
+const createFilmDeltas = (): FilmDeltas => {
+  const vertexCount = GRID_SIZE * GRID_SIZE;
+  const positionY = new Float64Array(vertexCount);
+  const positionZ = new Float64Array(vertexCount);
+  const normalX = new Float64Array(vertexCount);
+  const normalY = new Float64Array(vertexCount);
+  const normalZ = new Float64Array(vertexCount);
+  const foldPeriod = 20;
+  const halfPeriod = foldPeriod / 2;
+  const horizontalCrease = GRID_SIZE / 2;
+  const verticalCrease = GRID_SIZE / 5;
+  let foldParity = 1;
+  let creaseParity = 1;
+  let accumulatedY = 0;
+
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    const fold = Math.abs((row / 2) % foldPeriod - halfPeriod);
+    accumulatedY += Math.cos(Math.atan(fold / row)) / 5;
+    if (fold >= halfPeriod || fold <= 0) foldParity *= -1;
+
+    for (let column = 0; column < GRID_SIZE; column += 1) {
+      const horizontalBoundary = column % horizontalCrease === 0;
+      const verticalBoundary = row % verticalCrease === 0;
+      if (horizontalBoundary) creaseParity *= -1;
+      const crease = horizontalBoundary || verticalBoundary
+        ? 0.2 * creaseParity
+        : 0;
+      const ripple = (
+        Math.sin(Math.abs((column / GRID_SIZE * 8) % 8) - 4)
+        + Math.sin(
+          Math.abs((row / GRID_SIZE * 16) % 16) - 8 - row / 1.5
+        )
+      ) * 0.07 * foldParity;
+      const vertex = row * GRID_SIZE + column;
+      const foldNormal = fold / halfPeriod * foldParity;
+
+      positionY[vertex] = accumulatedY;
+      positionZ[vertex] = fold + ripple * 4 + crease;
+      normalX[vertex] = foldNormal + ripple + crease;
+      normalY[vertex] = foldNormal * ripple + crease;
+      normalZ[vertex] = foldNormal + ripple + crease;
+    }
+  }
+
+  return { positionY, positionZ, normalX, normalY, normalZ };
+};
+
+/**
+ * Build the film as a persistent product mesh in the catalogue scene. Stripe
+ * uses PlaneGeometry(22, 30, 99, 99), a transparent double-sided basic
+ * material, and the same transition-speed recurrence that returns its books.
+ */
+export const mountCleanRoomFoldoutPoster = (
+  options: CleanRoomFoldoutPosterOptions
+): CleanRoomFoldoutPosterController => {
   const host = document.querySelector<HTMLElement>(".press-film-poster");
   if (!host) {
     return {
-      setProgress: () => undefined,
-      snapshot: () => ({ ready: false, progress: 0, targetProgress: 0, panelCount: 4 })
+      setLayout: () => undefined,
+      stageListReturn: () => undefined,
+      advance: () => 0,
+      snapshot: () => ({
+        ready: false,
+        deformation: MAX_DEFORMATION,
+        position: [0, -200, -200],
+        targetY: -200,
+        vertexCount: 10000,
+        resetGap: FILM_RESET_GAP
+      })
     };
   }
-
-  let renderer: THREE.WebGLRenderer;
-  try {
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  } catch {
-    return {
-      setProgress: () => undefined,
-      snapshot: () => ({ ready: false, progress: 0, targetProgress: 0, panelCount: 4 })
-    };
-  }
-
-  renderer.setClearColor(0x000000, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.domElement.className = "press-foldout-canvas";
-  renderer.domElement.setAttribute("aria-hidden", "true");
-  host.prepend(renderer.domElement);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 120);
-  camera.position.set(0, 0, 51);
-
-  scene.add(new THREE.HemisphereLight(0xf7eed7, 0x080b12, 1.72));
-  const rake = new THREE.DirectionalLight(0xfff0ce, 3.15);
-  rake.position.set(-16, 20, 24);
-  scene.add(rake);
-  const edge = new THREE.DirectionalLight(0x79adbd, 0.64);
-  edge.position.set(17, -14, 18);
-  scene.add(edge);
-
-  const root = new THREE.Group();
-  scene.add(root);
 
   let ready = false;
-  let progress = 0;
-  let targetProgress = 0;
-  let frame = 0;
-  let previousTime = performance.now();
+  let layoutReady = false;
+  let deformation = Number.NaN;
+  let targetY = -200;
+  let smallScreen = false;
+  let pointerX = 0;
+  let pointerY = 0;
 
   const texture = new THREE.TextureLoader().load(posterArtwork, () => {
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    texture.anisotropy = options.renderer.capabilities.getMaxAnisotropy();
     ready = true;
     host.classList.add("is-foldout-ready");
-    schedule();
+    options.renderer.initTexture(texture);
+    const wasVisible = film.visible;
+    film.visible = true;
+    options.renderer.compile(options.scene, options.camera);
+    film.visible = wasVisible;
+    options.onWake();
   });
   texture.colorSpace = THREE.SRGBColorSpace;
 
   const geometry = new THREE.PlaneGeometry(
-    POSTER_WIDTH,
-    POSTER_HEIGHT,
-    32,
-    BAND_COUNT * 16
+    FILM_WIDTH,
+    FILM_HEIGHT,
+    GRID_SIZE - 1,
+    GRID_SIZE - 1
   );
-  const positions = geometry.getAttribute("position") as THREE.BufferAttribute;
-  const basePositions = new Float32Array(positions.array as ArrayLike<number>);
-  const paper = new THREE.MeshStandardMaterial({
+  const material = new THREE.MeshBasicMaterial({
     map: texture,
-    color: 0xffffff,
-    roughness: 0.9,
-    metalness: 0,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0
   });
-  const sheet = new THREE.Mesh(geometry, paper);
-  root.add(sheet);
+  const film = new THREE.Mesh(geometry, material);
+  film.name = "film-poster";
+  film.position.set(0, -200, -200);
+  film.visible = false;
+  options.scene.add(film);
 
-  const applyFold = (value: number): void => {
-    const opened = smooth(clamp(value, 0, 1));
-    const foldDepth = mix(2.85, 0.58, opened);
-    const verticalScale = mix(0.68, 0.94, opened);
-    const edgeCurl = mix(0.42, 0.12, opened);
+  const positions = geometry.getAttribute("position") as THREE.BufferAttribute;
+  const normals = geometry.getAttribute("normal") as THREE.BufferAttribute;
+  const initialPositions = new Float32Array(positions.array as ArrayLike<number>);
+  const initialNormals = new Float32Array(normals.array as ArrayLike<number>);
+  const deltas = createFilmDeltas();
 
-    for (let index = 0; index < positions.count; index += 1) {
-      const offset = index * 3;
-      const baseX = basePositions[offset] ?? 0;
-      const baseY = basePositions[offset + 1] ?? 0;
-      const vertical = clamp(baseY / POSTER_HEIGHT + 0.5, 0, 1);
-      const bandPosition = Math.min(BAND_COUNT - 0.00001, vertical * BAND_COUNT);
-      const band = Math.floor(bandPosition);
-      const local = bandPosition - band;
-      const startDepth = band % 2 === 0 ? -foldDepth : foldDepth;
-      const endDepth = -startDepth;
-      const planarDepth = mix(startDepth, endDepth, local);
-      const xNormal = baseX / (POSTER_WIDTH * 0.5);
-      const softBow = Math.sin(local * Math.PI)
-        * Math.cos(xNormal * Math.PI * 0.5)
-        * foldDepth
-        * 0.08;
-      const curledEdge = Math.pow(Math.abs(xNormal), 7)
-        * edgeCurl
-        * (band % 2 === 0 ? -1 : 1);
-
-      positions.setXYZ(
-        index,
-        baseX * (1 - Math.pow(Math.abs(xNormal), 8) * 0.012),
-        baseY * verticalScale,
-        planarDepth + softBow + curledEdge
-      );
+  const applyDeformation = (value: number): void => {
+    const next = clamp(value, MIN_DEFORMATION, MAX_DEFORMATION);
+    if (Math.abs(next - deformation) < 0.00001) return;
+    deformation = next;
+    const positionArray = positions.array as Float32Array;
+    const normalArray = normals.array as Float32Array;
+    for (let vertex = 0; vertex < GRID_SIZE * GRID_SIZE; vertex += 1) {
+      const offset = vertex * 3;
+      positionArray[offset] = initialPositions[offset]!;
+      positionArray[offset + 1] = initialPositions[offset + 1]!
+        + deltas.positionY[vertex]! * deformation;
+      positionArray[offset + 2] = initialPositions[offset + 2]!
+        + deltas.positionZ[vertex]! * deformation;
+      normalArray[offset] = initialNormals[offset]!
+        + deltas.normalX[vertex]! * deformation;
+      normalArray[offset + 1] = initialNormals[offset + 1]!
+        + deltas.normalY[vertex]! * deformation;
+      normalArray[offset + 2] = initialNormals[offset + 2]!
+        + deltas.normalZ[vertex]! * deformation;
     }
     positions.needsUpdate = true;
-    geometry.computeVertexNormals();
-
-    root.rotation.set(
-      mix(-0.055, -0.018, opened),
-      mix(0.065, 0.022, opened),
-      mix(-0.012, -0.004, opened)
-    );
-    root.position.y = mix(-0.24, 0, opened);
+    normals.needsUpdate = true;
   };
 
-  const resize = (): void => {
-    const bounds = host.getBoundingClientRect();
-    const width = Math.max(1, Math.round(bounds.width));
-    const height = Math.max(1, Math.round(bounds.height));
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    schedule();
+  const rotateWithPointer = (event: MouseEvent): void => {
+    pointerX = event.pageX - window.innerWidth * 0.5;
+    pointerY = event.pageY - window.scrollY - window.innerHeight * 0.5;
   };
+  window.addEventListener("mousemove", rotateWithPointer, { passive: true });
 
-  const render = (now: number): void => {
-    frame = 0;
-    const delta = Math.min(0.05, Math.max(1 / 240, (now - previousTime) / 1000));
-    previousTime = now;
-    const approach = 1 - Math.exp(-9 * delta);
-    progress += (targetProgress - progress) * approach;
-    if (Math.abs(targetProgress - progress) < 0.0005) progress = targetProgress;
-    applyFold(progress);
-    renderer.render(scene, camera);
-    if (Math.abs(targetProgress - progress) >= 0.0005) schedule();
-  };
-
-  function schedule(): void {
-    if (!frame) frame = window.requestAnimationFrame(render);
-  }
-
-  const observer = new ResizeObserver(resize);
-  observer.observe(host);
-  applyFold(0);
-  resize();
+  applyDeformation(MAX_DEFORMATION);
 
   return {
-    setProgress: (value) => {
-      targetProgress = clamp(value, 0, 1);
-      schedule();
+    setLayout: (layout) => {
+      layoutReady = Boolean(layout);
+      if (!layout) {
+        film.visible = false;
+        return;
+      }
+      const firstLayout = targetY === -200;
+      targetY = layout.targetY;
+      smallScreen = layout.smallScreen;
+      if (firstLayout) film.position.y = targetY;
+    },
+    stageListReturn: () => {
+      film.position.y = targetY + FILM_RESET_GAP;
+    },
+    advance: (frame) => {
+      applyDeformation(frame.deformation);
+      const nextY = targetY + frame.terminalTravelWorld;
+      film.position.y = frame.returnApproach === null
+        ? nextY
+        : mix(film.position.y, nextY, frame.returnApproach);
+      film.position.z = (smallScreen ? -60 : -18)
+        - (1 - deformation) * 50;
+      film.rotation.x = pointerY / Math.max(1, window.innerHeight) * FILM_TILT_LIMIT;
+      film.rotation.y = pointerX / Math.max(1, window.innerWidth) * FILM_TILT_LIMIT;
+      film.rotation.z = deformation / 25;
+      film.visible = ready && layoutReady && frame.visible;
+      material.opacity = film.visible ? 1 : 0;
+      return frame.returnApproach === null ? 0 : Math.abs(film.position.y - nextY);
     },
     snapshot: () => ({
       ready,
-      progress: Number(progress.toFixed(4)),
-      targetProgress: Number(targetProgress.toFixed(4)),
-      panelCount: 4
+      deformation: Number((Number.isFinite(deformation) ? deformation : 0).toFixed(4)),
+      position: [
+        Number(film.position.x.toFixed(4)),
+        Number(film.position.y.toFixed(4)),
+        Number(film.position.z.toFixed(4))
+      ],
+      targetY: Number(targetY.toFixed(4)),
+      vertexCount: 10000,
+      resetGap: FILM_RESET_GAP
     })
   };
 };

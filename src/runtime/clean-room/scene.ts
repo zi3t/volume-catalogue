@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
-import { installCleanRoomCatalogueScroll } from "./catalogue-scroll";
+import {
+  cleanRoomCatalogueScrollStep,
+  installCleanRoomCatalogueScroll
+} from "./catalogue-scroll";
 import { mountCleanRoomFoldoutPoster } from "./foldout-poster";
 import { createCleanRoomBook, type CleanRoomBook } from "./geometry";
 import {
@@ -68,6 +71,21 @@ interface CleanRoomFlight {
   progress: number;
 }
 
+interface CleanRoomFigureMetric {
+  readonly documentTop: number;
+  readonly height: number;
+}
+
+interface CleanRoomTerminalCalibration {
+  readonly signatureHeight: number;
+  readonly signatureWidth: number;
+  readonly signatureBaseTop: number;
+  readonly signatureStartTop: number;
+  readonly signatureEndTop: number;
+  readonly signalTop: number;
+  readonly closingTop: number;
+}
+
 interface CleanRoomDebugSnapshot {
   readonly renderer: "clean-room";
   readonly state: {
@@ -129,9 +147,11 @@ interface CleanRoomDebugSnapshot {
   }[];
   readonly poster: {
     readonly ready: boolean;
-    readonly progress: number;
-    readonly targetProgress: number;
-    readonly panelCount: 6;
+    readonly deformation: number;
+    readonly position: readonly [number, number, number];
+    readonly targetY: number;
+    readonly vertexCount: 10000;
+    readonly resetGap: -33;
   };
   readonly render: {
     readonly calls: number;
@@ -201,6 +221,7 @@ const projectedBookBounds = (
   let top = Number.POSITIVE_INFINITY;
   let right = Number.NEGATIVE_INFINITY;
   let bottom = Number.NEGATIVE_INFINITY;
+  const point = new THREE.Vector3();
   book.root.updateWorldMatrix(true, true);
   book.root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
@@ -211,7 +232,7 @@ const projectedBookBounds = (
     for (const x of [bounds.min.x, bounds.max.x]) {
       for (const y of [bounds.min.y, bounds.max.y]) {
         for (const z of [bounds.min.z, bounds.max.z]) {
-          const point = new THREE.Vector3(x, y, z)
+          point.set(x, y, z)
             .applyMatrix4(object.matrixWorld)
             .project(camera);
           const screenX = (point.x + 1) * viewportWidth * 0.5;
@@ -256,12 +277,20 @@ export const mountCleanRoomCatalogue = (): boolean => {
   const compact = window.matchMedia("(max-width: 899px)");
   const narrow = window.matchMedia("(max-width: 599px)");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const preserveDrawingBuffer = !compact.matches;
+  // WebKit pays a particularly high presentation cost for a full-viewport,
+  // Retina preserveDrawingBuffer surface. Let Safari use the normal discard
+  // path and keep its render loop live; Chromium retains the idle snapshot
+  // path used by the desktop regression harness.
+  const webkitCompositor = navigator.vendor === "Apple Computer, Inc.";
+  const preserveDrawingBuffer = !compact.matches && !webkitCompositor;
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
+      // The reference only enables MSAA in Chrome. Safari already rasterizes
+      // this Retina canvas at 2x; adding multisampling on top quadruples its
+      // colour/depth traffic and drops the catalogue to a 15 fps present loop.
+      antialias: !webkitCompositor,
       powerPreference: "high-performance",
       preserveDrawingBuffer
     });
@@ -271,7 +300,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   }
 
   renderer.setClearColor(0x201819, 0);
-  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.domElement.className = "press-scene-canvas press-scene-canvas--clean-room";
@@ -292,7 +321,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
   );
   camera.rotation.x = CLEAN_ROOM_REFERENCE.cameraPitch;
   const lights = createCleanRoomLightRig(scene);
-  const foldoutPoster = mountCleanRoomFoldoutPoster();
+  const foldoutPoster = mountCleanRoomFoldoutPoster({
+    camera,
+    scene,
+    renderer,
+    onWake: () => {
+      renderUntil = Math.max(renderUntil, performance.now() + 300);
+      if (!frameRequest) frameRequest = window.requestAnimationFrame(animate);
+    }
+  });
 
   let frameRequest = 0;
   let layoutFrame = 0;
@@ -305,9 +342,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
     "press-startup-pending"
   );
   let lastEntryResidual = Number.POSITIVE_INFINITY;
+  let lastPosterResidual = Number.POSITIVE_INFINITY;
+  let filmSourceDocumentTop = 0;
   let renderUntil = performance.now() + 1800;
   let viewportWidth = window.innerWidth;
   let viewportHeight = window.innerHeight;
+  let renderedViewportWidth = 0;
+  let renderedViewportHeight = 0;
+  let canvasScale = 1;
+  let laidOutMode: CleanRoomPressMode | null = null;
   let unitsPerPixel = 0.024;
   let returningIndex = -1;
   let releasedAt = 0;
@@ -327,7 +370,13 @@ export const mountCleanRoomCatalogue = (): boolean => {
   let returningRouteIndex = -1;
   let flight: CleanRoomFlight | null = null;
   let requestRelayout = (): void => undefined;
+  let invalidateScrollMeasurements = (): void => undefined;
   let resetVolumeInput = (): void => undefined;
+  let figureMetrics: readonly (CleanRoomFigureMetric | null)[] = [];
+  let terminalCalibration: CleanRoomTerminalCalibration | null = null;
+  let appliedTerminalSignatureShift = "";
+  let appliedTerminalSignalShift = "";
+  let appliedTerminalClosingShift = "";
   let interactionSnapshot: CleanRoomInteractionSnapshot = {
     hoverIndex: -1,
     focusIndex: -1,
@@ -422,8 +471,131 @@ export const mountCleanRoomCatalogue = (): boolean => {
     return entry;
   });
 
+  const applyTerminalTrack = (terminalTravel: number): void => {
+    const calibration = terminalCalibration;
+    if (
+      pressMode !== "catalogue"
+      || !calibration
+      || !signaturePanel
+      || !signatureRow
+      || !signalPanel
+      || !closingPanel
+      || !footerPanel
+    ) {
+      return;
+    }
+    const catalogueMaximum = catalogueScroll.snapshot().currentScrollStep
+      * Math.max(0, entries.length - 1);
+    const catalogueProgress = catalogueMaximum > 0
+      ? clamp(Math.min(window.scrollY, catalogueMaximum) / catalogueMaximum, 0, 1)
+      : 1;
+    const signatureTop = mix(
+      calibration.signatureStartTop,
+      calibration.signatureEndTop,
+      catalogueProgress
+    ) - terminalTravel;
+    const signatureShift = signatureTop - calibration.signatureBaseTop;
+    const signalShift = calibration.signalTop - terminalTravel;
+    const closingShift = calibration.closingTop - terminalTravel;
+    const signatureValue = `${signatureShift.toFixed(2)}px`;
+    const signalValue = `${signalShift.toFixed(2)}px`;
+    const closingValue = `${closingShift.toFixed(2)}px`;
+    if (signatureValue !== appliedTerminalSignatureShift) {
+      appliedTerminalSignatureShift = signatureValue;
+      signatureRow.style.transform = `translate3d(0, ${signatureValue}, 0)`;
+    }
+    if (signalValue !== appliedTerminalSignalShift) {
+      appliedTerminalSignalShift = signalValue;
+      signalPanel.style.transform = `translate3d(0, ${signalValue}, 0)`;
+    }
+    if (closingValue !== appliedTerminalClosingShift) {
+      appliedTerminalClosingShift = closingValue;
+      closingPanel.style.transform = `translate3d(0, ${closingValue}, 0)`;
+      footerPanel.style.transform = `translate3d(0, ${closingValue}, 0)`;
+    }
+  };
+
+  const calibrateTerminalLayout = (
+    startBounds: { left: number; top: number; width: number; height: number } | null,
+    endBounds: { left: number; top: number; width: number; height: number } | null,
+    terminalTravel: number
+  ): void => {
+    if (
+      pressMode !== "catalogue"
+      || !entryComplete
+      || !startBounds
+      || !endBounds
+      || !signaturePanel
+      || !signatureRow
+      || !signalPanel
+      || !closingPanel
+      || !footerPanel
+    ) {
+      terminalCalibration = null;
+      return;
+    }
+    const signatureHeight = Math.min(viewportHeight * 0.86, 760);
+    const signatureWidth = signatureHeight * 3 / 4;
+    const signatureBaseTop = (viewportHeight - signatureHeight) / 2;
+    const signatureToSignalGap = Math.max(180, viewportHeight * 0.26);
+    // The folded mesh is vertically contracted around its centre. Compensate
+    // for that top inset so the visible paper, rather than its uncreased plane,
+    // begins at the authored gap below the final book.
+    const foldedTopInset = signatureHeight * (1 - 0.68) * 0.5;
+    // Add any live terminal travel back to recover both camera-track endpoints.
+    // Once measured, the whole hand-off follows scalar scroll interpolation;
+    // no mesh traversal or DOM geometry read belongs in the scroll hot path.
+    const signatureStartTop = startBounds.top
+      + terminalTravel
+      + startBounds.height
+      + 42
+      - foldedTopInset;
+    const signatureEndTop = endBounds.top
+      + terminalTravel
+      + endBounds.height
+      + 42
+      - foldedTopInset;
+    const signalTop = signatureEndTop + signatureHeight + signatureToSignalGap;
+    terminalCalibration = {
+      signatureHeight,
+      signatureWidth,
+      signatureBaseTop,
+      signatureStartTop,
+      signatureEndTop,
+      signalTop,
+      closingTop: signalTop + viewportHeight
+    };
+    applyTerminalTrack(terminalTravel);
+  };
+
+  const projectedTerminalBookBounds = (): ReturnType<typeof projectedBookBounds> => {
+    const lastBook = entries.at(-1)?.book;
+    if (!lastBook) return null;
+    const scroll = catalogueScroll.snapshot();
+    const catalogueMaximum = scroll.currentScrollStep * Math.max(0, entries.length - 1);
+    const cameraScrollRatio = CLEAN_ROOM_REFERENCE.catalogueCameraScroll
+      / (viewportHeight / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
+      * canvasScale;
+    const terminalCamera = camera.clone();
+    terminalCamera.position.y = CLEAN_ROOM_REFERENCE.cameraY
+      - catalogueMaximum * cameraScrollRatio;
+    terminalCamera.updateMatrixWorld(true);
+    return projectedBookBounds(lastBook, terminalCamera, viewportWidth, viewportHeight);
+  };
+
+  const projectedInitialBookBounds = (): ReturnType<typeof projectedBookBounds> => {
+    const lastBook = entries.at(-1)?.book;
+    if (!lastBook) return null;
+    const initialCamera = camera.clone();
+    initialCamera.position.y = CLEAN_ROOM_REFERENCE.cameraY;
+    initialCamera.updateMatrixWorld(true);
+    return projectedBookBounds(lastBook, initialCamera, viewportWidth, viewportHeight);
+  };
+
   const syncInteractionBounds = (): void => {
-    if (pressMode !== "catalogue") return;
+    if (pressMode !== "catalogue") {
+      return;
+    }
     const itemRects = entries.map((entry) => entry.item.getBoundingClientRect());
     const screenBounds = entries.map((entry) => (
       projectedBookBounds(entry.book, camera, viewportWidth, viewportHeight)
@@ -443,39 +615,11 @@ export const mountCleanRoomCatalogue = (): boolean => {
       entry.link.style.setProperty("--press-hit-width", `${bounds.width.toFixed(2)}px`);
       entry.link.style.setProperty("--press-hit-height", `${bounds.height.toFixed(2)}px`);
     });
-
-    // Keep every terminal surface in the same virtual document as the fifth
-    // book. Their screen positions are derived from the projected book rather
-    // than a viewport percentage, so the handoff survives Safari chrome, short
-    // displays and every responsive shelf calibration.
-    const lastBounds = screenBounds.at(-1);
-    if (
-      lastBounds
-      && signaturePanel
-      && signatureRow
-      && signalPanel
-      && closingPanel
-      && footerPanel
-    ) {
-      const signatureHeight = Math.min(viewportHeight * 0.86, 760);
-      const signatureBaseTop = (viewportHeight - signatureHeight) / 2;
-      const bookToSignatureGap = 42;
-      const signatureToSignalGap = Math.max(180, viewportHeight * 0.26);
-      const signatureTop = lastBounds.top + lastBounds.height + bookToSignatureGap;
-      const signalTop = signatureTop + signatureHeight + signatureToSignalGap;
-      const signatureShift = signatureTop - signatureBaseTop;
-      const closingShift = signalTop + viewportHeight;
-      signaturePanel.style.setProperty(
-        "--press-terminal-signature-shift",
-        `${signatureShift.toFixed(2)}px`
-      );
-      signalPanel.style.setProperty(
-        "--press-terminal-signal-shift",
-        `${signalTop.toFixed(2)}px`
-      );
-      closingPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);
-      footerPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);
-    }
+    calibrateTerminalLayout(
+      projectedInitialBookBounds(),
+      projectedTerminalBookBounds(),
+      catalogueScroll.snapshot().terminalTravel
+    );
   };
 
   const wake = (duration = 720): void => {
@@ -515,9 +659,40 @@ export const mountCleanRoomCatalogue = (): boolean => {
     setBookOpacity(entry, 1);
   };
 
+  const stageReferenceListReturn = (activeIndex: number): void => {
+    const shelfGap = narrow.matches ? -7 : -6;
+    let listY = CLEAN_ROOM_REFERENCE.activeY;
+    entries.forEach((entry, index) => {
+      setShelfEulerOrders(entry.book);
+      // Exact transformResetProductList staging from the live reference: all
+      // persistent book meshes are placed around the product that was active,
+      // then the ordinary .006 -> .15 list recurrence returns those same
+      // objects to their shelf coordinates.
+      entry.book.root.position.y = listY + (activeIndex - index) * 100;
+      listY += shelfGap;
+      entry.hover = 0;
+      entry.hold = 0;
+      entry.sectionWeight = 0;
+      entry.sectionVisible = false;
+      entry.sectionPose = 0;
+      setBookOpacity(entry, 1);
+    });
+    // Stripe stages film meshes by one film gap at the same mode boundary,
+    // then transformFilmPosters uses the books' transition-speed recurrence.
+    foldoutPoster.stageListReturn();
+  };
+
   const routing = installCleanRoomRouting({
     items,
     links: ownedLinks,
+    // Route restoration and the scroll controller must share one coordinate
+    // system. The DOM proxies are spaced for projected hit areas, not route
+    // positions; using offsetTop for book five overshoots the catalogue limit
+    // and activates the poster scene.
+    catalogueScrollTop: (index) => cleanRoomCatalogueScrollStep(
+      window.innerHeight,
+      compact.matches
+    ) * Math.max(0, Math.min(entries.length - 1, index)),
     onBeforeVolume: (index, source) => {
       clearHoldClasses(true);
       returningIndex = -1;
@@ -543,6 +718,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       resetVolumeInput();
       returningRouteIndex = index;
       const animateReturn = !reducedMotion.matches && !compact.matches;
+      if (animateReturn) stageReferenceListReturn(index);
       flight = animateReturn
         ? {
           index,
@@ -553,14 +729,13 @@ export const mountCleanRoomCatalogue = (): boolean => {
         }
         : null;
       // Compact and reduced-motion routes intentionally cut directly to their
-      // destination. Desktop keeps the selected route pose intact so the same
-      // universal recurrence that opened it can carry it home; neighbours stay
-      // absent until the latter half of that return.
+      // destination.
       if (!animateReturn) entries.forEach(snapToShelf);
     },
     onModeChange: (mode) => {
       pressMode = mode;
       routeFrames = 0;
+      invalidateScrollMeasurements();
       if (mode === "volumes") {
         entryComplete = true;
         document.documentElement.classList.add("press-entry-complete");
@@ -571,7 +746,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     onIndexChange: (index) => {
       if (index !== currentRouteIndex) resetVolumeInput();
       currentRouteIndex = index;
-      requestRelayout();
+      if (pressMode === "volumes") requestRelayout();
       wake(900);
     },
     onWake: wake
@@ -587,6 +762,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
     mode: () => pressMode,
     onCurrentIndex: routing.setCatalogueIndex
   });
+  invalidateScrollMeasurements = catalogueScroll.invalidateMeasurements;
 
   const volumeInteraction = installCleanRoomVolumeInteraction({
     figures: routing.figures,
@@ -647,29 +823,34 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   function layout(): void {
     layoutFrame = 0;
-    routing.updateLayout();
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
+    const viewportChanged = viewportWidth !== renderedViewportWidth
+      || viewportHeight !== renderedViewportHeight;
     catalogueScroll.update();
-    renderer.setSize(viewportWidth, viewportHeight, false);
-    camera.aspect = viewportWidth / viewportHeight;
-    camera.fov = narrow.matches ? 15 : 12;
-    const canvasWidth = Math.min(
-      CLEAN_ROOM_REFERENCE.canvasMaxWidth,
-      viewportWidth
-    );
-    const canvasScale = narrow.matches
-      ? 1
-      : Math.max(
-        1,
-        viewportHeight
-          * (CLEAN_ROOM_REFERENCE.canvasMaxWidth
-            / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
-          / canvasWidth
-          * CLEAN_ROOM_REFERENCE.canvasOverscan
+    if (viewportChanged) {
+      renderedViewportWidth = viewportWidth;
+      renderedViewportHeight = viewportHeight;
+      renderer.setSize(viewportWidth, viewportHeight, false);
+      camera.aspect = viewportWidth / viewportHeight;
+      camera.fov = narrow.matches ? 15 : 12;
+      const canvasWidth = Math.min(
+        CLEAN_ROOM_REFERENCE.canvasMaxWidth,
+        viewportWidth
       );
-    camera.position.z = CLEAN_ROOM_REFERENCE.cameraBaseZ * canvasScale;
-    camera.updateProjectionMatrix();
+      canvasScale = narrow.matches
+        ? 1
+        : Math.max(
+          1,
+          viewportHeight
+            * (CLEAN_ROOM_REFERENCE.canvasMaxWidth
+              / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
+            / canvasWidth
+            * CLEAN_ROOM_REFERENCE.canvasOverscan
+        );
+      camera.position.z = CLEAN_ROOM_REFERENCE.cameraBaseZ * canvasScale;
+      camera.updateProjectionMatrix();
+    }
     const catalogueMaximum = catalogueScroll.snapshot().currentScrollStep
       * Math.max(0, entries.length - 1);
     const catalogueScrollY = Math.min(window.scrollY, catalogueMaximum);
@@ -682,15 +863,51 @@ export const mountCleanRoomCatalogue = (): boolean => {
     camera.updateMatrixWorld(true);
     lights.update(camera.position.y, pressMode === "volumes" ? 1 : holdPresentation);
 
+    const modeChanged = laidOutMode !== pressMode;
+    laidOutMode = pressMode;
+    const needsEntryLayout = viewportChanged
+      || modeChanged
+      || pressMode === "volumes"
+      || entries.some((entry) => !entry.initialized);
+    if (!needsEntryLayout) {
+      const layoutScroll = catalogueScroll.snapshot();
+      if (layoutScroll.terminalProgress > 0) {
+        calibrateTerminalLayout(
+          projectedInitialBookBounds(),
+          projectedTerminalBookBounds(),
+          layoutScroll.terminalTravel
+        );
+      } else {
+        syncInteractionBounds();
+      }
+      wake(240);
+      return;
+    }
+
     const sectionTarget = activePosition();
     const sectionUnitsPerPixel = worldUnitsPerPixel(
       camera,
       viewportHeight,
       sectionTarget.z
     );
-    const figureRects = entries.map((entry) => (
-      entry.figure?.getBoundingClientRect() ?? null
-    ));
+    if (
+      pressMode === "volumes"
+      && (viewportChanged || modeChanged || figureMetrics.length !== entries.length)
+    ) {
+      figureMetrics = entries.map((entry) => {
+        const rect = entry.figure?.getBoundingClientRect();
+        return rect
+          ? { documentTop: rect.top + window.scrollY, height: rect.height }
+          : null;
+      });
+    }
+    const figureRects = pressMode === "volumes"
+      ? figureMetrics.map((metric) => {
+          if (!metric) return null;
+          const top = metric.documentTop - window.scrollY;
+          return { top, bottom: top + metric.height, height: metric.height };
+        })
+      : entries.map(() => null);
     if (pressMode === "volumes" && !reducedMotion.matches) {
       const incoming = figureRects.reduce((candidate, rect, index) => (
         rect
@@ -799,8 +1016,32 @@ export const mountCleanRoomCatalogue = (): boolean => {
       }
     });
     unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, shelfCenterDepth);
-    syncInteractionBounds();
-    wake(720);
+    if (pressMode === "catalogue") {
+      const filmSource = items[Math.max(0, entries.length - 2)];
+      const filmSourceRect = filmSource?.getBoundingClientRect();
+      if (filmSourceRect) filmSourceDocumentTop = filmSourceRect.top + window.scrollY;
+    }
+    const filmBookGap = narrow.matches ? -23 : compact.matches ? -34 : -19;
+    const lastHomeY = entries.at(-1)?.homePosition.y;
+    foldoutPoster.setLayout(
+      compact.matches || reducedMotion.matches || lastHomeY === undefined
+        ? null
+        : {
+            targetY: lastHomeY + filmBookGap,
+            smallScreen: compact.matches
+          }
+    );
+    const layoutScroll = catalogueScroll.snapshot();
+    if (pressMode === "catalogue" && layoutScroll.terminalProgress > 0) {
+      calibrateTerminalLayout(
+        projectedInitialBookBounds(),
+        projectedTerminalBookBounds(),
+        layoutScroll.terminalTravel
+      );
+    } else {
+      syncInteractionBounds();
+    }
+    wake(240);
   }
 
   const scheduleLayout = (): void => {
@@ -816,9 +1057,6 @@ export const mountCleanRoomCatalogue = (): boolean => {
     lastFrameAt = now;
     interactionSnapshot = interactionState();
     const catalogueMotion = catalogueScroll.advance(deltaSeconds);
-    const terminalScreens = catalogueMotion.terminalProgress
-      * CLEAN_ROOM_MOTION.terminalScrollViewports;
-    foldoutPoster.setProgress(smooth(clamp((terminalScreens - 0.04) / 0.86, 0, 1)));
     if (pressMode === "volumes") volumeInteraction.advanceTwirl(deltaSeconds);
     const volumePose = volumeInteraction.snapshot();
 
@@ -873,6 +1111,22 @@ export const mountCleanRoomCatalogue = (): boolean => {
     } else if (activeFlight && !flightMatchesMode) {
       flight = null;
     }
+
+    lastPosterResidual = foldoutPoster.advance({
+      // Exact updateFilmPosters scalar from Stripe's current Canvas bundle.
+      deformation: clamp(
+        (filmSourceDocumentTop + viewportHeight * 0.5 - window.scrollY) * 0.0017,
+        0.08,
+        1.4
+      ),
+      terminalTravelWorld: catalogueMotion.terminalTravel * unitsPerPixel,
+      returnApproach: activeFlight?.direction === "to-catalogue"
+        ? activeFlight.approach
+        : null,
+      visible: pressMode === "catalogue"
+        && !compact.matches
+        && !reducedMotion.matches
+    });
 
     const entryFrames = clamp(deltaSeconds * 60, 0.25, 4);
     if (!entryComplete && pressMode === "catalogue") {
@@ -982,82 +1236,44 @@ export const mountCleanRoomCatalogue = (): boolean => {
       if (returnFlight) {
         const shelfY = entry.homePosition.y;
         setShelfEulerOrders(entry.book);
-        if (index === returnFlight.index) {
-          const approach = returnFlight.approach;
-          entry.book.root.position.x = mix(
-            entry.book.root.position.x,
-            entry.homePosition.x,
-            approach
-          );
-          entry.book.root.position.y = mix(entry.book.root.position.y, shelfY, approach);
-          entry.book.root.position.z = mix(
-            entry.book.root.position.z,
-            entry.homePosition.z,
-            approach
-          );
-          const nextScale = mix(entry.book.root.scale.x, entry.homeScale, approach);
-          entry.book.root.scale.setScalar(nextScale);
-          entry.book.root.rotation.x = mix(
-            entry.book.root.rotation.x,
-            CLEAN_ROOM_REFERENCE.shelfRootRotationX,
-            approach
-          );
-          entry.book.root.rotation.y = mix(entry.book.root.rotation.y, 0, approach);
-          entry.book.root.rotation.z = mix(
-            entry.book.root.rotation.z,
-            CLEAN_ROOM_REFERENCE.shelfRootRotationZ,
-            approach
-          );
-          entry.book.cover.position.x = mix(
-            entry.book.cover.position.x,
-            shelfCoverOffset(),
-            approach
-          );
-          entry.book.cover.rotation.x = mix(entry.book.cover.rotation.x, 0, approach);
-          entry.book.cover.rotation.y = mix(
-            entry.book.cover.rotation.y,
-            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
-            approach
-          );
-          entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
-          setBookOpacity(entry, 1);
-        } else {
-          const settled = returnFlight.progress >= CLEAN_ROOM_MOTION.returnFlightSettleProgress;
-          const stackProgress = settled ? 1 : smooth(clamp(
-            (returnFlight.progress - CLEAN_ROOM_MOTION.returnStackStart)
-              / (1 - CLEAN_ROOM_MOTION.returnStackStart),
-            0,
-            1
-          ));
-          const stackOpacity = settled ? 1 : smooth(clamp(
-            (returnFlight.progress - CLEAN_ROOM_MOTION.returnStackFadeStart)
-              / (1 - CLEAN_ROOM_MOTION.returnStackFadeStart),
-            0,
-            1
-          ));
-          const evacuation = (returnFlight.index - index)
-            * viewportHeight
-            * CLEAN_ROOM_MOTION.stackEvictionViewports
-            * unitsPerPixel;
-          entry.book.root.position.set(
-            entry.homePosition.x,
-            mix(shelfY + evacuation, shelfY, stackProgress),
-            entry.homePosition.z
-          );
-          entry.book.root.scale.setScalar(entry.homeScale);
-          entry.book.root.rotation.set(
-            CLEAN_ROOM_REFERENCE.shelfRootRotationX,
-            0,
-            CLEAN_ROOM_REFERENCE.shelfRootRotationZ
-          );
-          entry.book.cover.position.set(shelfCoverOffset(), 0, 0);
-          entry.book.cover.rotation.set(
-            0,
-            CLEAN_ROOM_REFERENCE.coverBaseRotationY,
-            0
-          );
-          setBookOpacity(entry, stackOpacity);
-        }
+        const approach = returnFlight.approach;
+        entry.book.root.position.x = mix(
+          entry.book.root.position.x,
+          entry.homePosition.x,
+          approach
+        );
+        entry.book.root.position.y = mix(entry.book.root.position.y, shelfY, approach);
+        entry.book.root.position.z = mix(
+          entry.book.root.position.z,
+          entry.homePosition.z,
+          approach
+        );
+        const nextScale = mix(entry.book.root.scale.x, entry.homeScale, approach);
+        entry.book.root.scale.setScalar(nextScale);
+        entry.book.root.rotation.x = mix(
+          entry.book.root.rotation.x,
+          CLEAN_ROOM_REFERENCE.shelfRootRotationX,
+          approach
+        );
+        entry.book.root.rotation.y = mix(entry.book.root.rotation.y, 0, approach);
+        entry.book.root.rotation.z = mix(
+          entry.book.root.rotation.z,
+          CLEAN_ROOM_REFERENCE.shelfRootRotationZ,
+          approach
+        );
+        entry.book.cover.position.x = mix(
+          entry.book.cover.position.x,
+          shelfCoverOffset(),
+          approach
+        );
+        entry.book.cover.rotation.x = mix(entry.book.cover.rotation.x, 0, approach);
+        entry.book.cover.rotation.y = mix(
+          entry.book.cover.rotation.y,
+          CLEAN_ROOM_REFERENCE.coverBaseRotationY,
+          approach
+        );
+        entry.book.cover.rotation.z = mix(entry.book.cover.rotation.z, 0, approach);
+        setBookOpacity(entry, 1);
         entryResidual = Math.max(
           entryResidual,
           Math.abs(entry.book.root.position.x - entry.homePosition.x),
@@ -1108,14 +1324,17 @@ export const mountCleanRoomCatalogue = (): boolean => {
       const targetDepth = entry.homePosition.z
         + (CLEAN_ROOM_REFERENCE.shelfHoverZ - entry.homePosition.z)
           * Math.max(entry.hover, entry.hold);
+      const terminalTracking = catalogueMotion.terminalProgress > 0;
 
       const shelfApproach = entryComplete ? null : entryApproach;
       entry.book.root.position.x = shelfApproach === null
         ? damp(entry.book.root.position.x, entry.homePosition.x, 11.5, deltaSeconds)
         : mix(entry.book.root.position.x, entry.homePosition.x, shelfApproach);
-      entry.book.root.position.y = shelfApproach === null
-        ? damp(entry.book.root.position.y, targetY, 11.5, deltaSeconds)
-        : mix(entry.book.root.position.y, targetY, shelfApproach);
+      entry.book.root.position.y = terminalTracking
+        ? targetY
+        : shelfApproach === null
+          ? damp(entry.book.root.position.y, targetY, 11.5, deltaSeconds)
+          : mix(entry.book.root.position.y, targetY, shelfApproach);
       entry.book.root.position.z = shelfApproach === null
         ? frameApproach(
           entry.book.root.position.z,
@@ -1194,14 +1413,21 @@ export const mountCleanRoomCatalogue = (): boolean => {
       );
     });
 
-    syncInteractionBounds();
-
     if (
       activeFlight?.direction === "to-catalogue"
-      && activeFlight.progress >= CLEAN_ROOM_MOTION.returnFlightSettleProgress
       && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
       && flight === activeFlight
-    ) flight = null;
+    ) {
+      // A route layout measures the books while the selected volume is still
+      // flying home. Those projected bounds are intentionally transient and
+      // must never become the catalogue's next hit targets. Stripe keeps one
+      // product mesh list and resets those same objects when list mode resumes;
+      // do the same here, then measure only the settled shelf pose.
+      entries.forEach(snapToShelf);
+      flight = null;
+      returningRouteIndex = -1;
+      requestRelayout();
+    }
 
     if (
       pressMode === "catalogue"
@@ -1216,6 +1442,11 @@ export const mountCleanRoomCatalogue = (): boolean => {
     ) {
       entryComplete = true;
       document.documentElement.classList.add("press-entry-complete");
+      // The terminal track must be anchored to the shelf's final pose. Its
+      // first layout runs while the books are still entering, so measuring
+      // there pins the poster several volumes too high. Recalibrate once after
+      // the last book settles; the cached scalar track remains scroll-cheap.
+      requestRelayout();
     }
 
     renderer.setClearColor(backdropColor, holdBackdrop);
@@ -1261,6 +1492,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       && routing.snapshot().pendingDeepLinkIndex < 0
       && catalogueMotion.scrollVelocity === 0
       && entryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+      && lastPosterResidual <= 0.0005
       && now > renderUntil + CLEAN_ROOM_MOTION.idlePauseAfter;
     if (document.visibilityState !== "hidden" && !idlePaused) {
       renderOnce();
@@ -1279,8 +1511,26 @@ export const mountCleanRoomCatalogue = (): boolean => {
     if (!idlePaused && !frameRequest) frameRequest = window.requestAnimationFrame(animate);
   }
 
+  const handleScroll = (): void => {
+    if (pressMode === "volumes") {
+      scheduleLayout();
+      return;
+    }
+    const scroll = catalogueScroll.update();
+    const catalogueMaximum = scroll.currentScrollStep * Math.max(0, entries.length - 1);
+    const catalogueScrollY = Math.min(window.scrollY, catalogueMaximum);
+    const cameraScrollRatio = CLEAN_ROOM_REFERENCE.catalogueCameraScroll
+      / (viewportHeight / CLEAN_ROOM_REFERENCE.canvasReferenceHeight)
+      * canvasScale;
+    camera.position.y = CLEAN_ROOM_REFERENCE.cameraY - catalogueScrollY * cameraScrollRatio;
+    camera.updateMatrixWorld(true);
+    lights.update(camera.position.y, holdPresentation);
+    applyTerminalTrack(scroll.terminalTravel);
+    wake(240);
+  };
+
   window.addEventListener("resize", scheduleLayout, { passive: true });
-  window.addEventListener("scroll", scheduleLayout, { passive: true });
+  window.addEventListener("scroll", handleScroll, { passive: true });
   compact.addEventListener("change", scheduleLayout);
   narrow.addEventListener("change", scheduleLayout);
   reducedMotion.addEventListener("change", scheduleLayout);
@@ -1311,6 +1561,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         && routing.snapshot().pendingDeepLinkIndex < 0
         && scroll.scrollVelocity === 0
         && lastEntryResidual <= CLEAN_ROOM_MOTION.entrySettleEpsilon
+        && lastPosterResidual <= 0.0005
         && performance.now() > renderUntil + CLEAN_ROOM_MOTION.idlePauseAfter;
       return ({
       renderer: "clean-room",
