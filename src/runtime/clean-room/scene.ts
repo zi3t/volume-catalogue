@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { installCleanRoomCatalogueScroll } from "./catalogue-scroll";
+import { mountCleanRoomFoldoutPoster } from "./foldout-poster";
 import { createCleanRoomBook, type CleanRoomBook } from "./geometry";
 import {
   installCleanRoomInteraction,
@@ -126,6 +127,12 @@ interface CleanRoomDebugSnapshot {
       readonly objectName: "book";
     };
   }[];
+  readonly poster: {
+    readonly ready: boolean;
+    readonly progress: number;
+    readonly targetProgress: number;
+    readonly panelCount: 6;
+  };
   readonly render: {
     readonly calls: number;
     readonly triangles: number;
@@ -285,6 +292,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   );
   camera.rotation.x = CLEAN_ROOM_REFERENCE.cameraPitch;
   const lights = createCleanRoomLightRig(scene);
+  const foldoutPoster = mountCleanRoomFoldoutPoster();
 
   let frameRequest = 0;
   let layoutFrame = 0;
@@ -449,9 +457,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
       && closingPanel
       && footerPanel
     ) {
-      const signatureHeight = Math.min(viewportHeight * 0.72, 660);
+      const signatureHeight = Math.min(viewportHeight * 0.86, 760);
       const signatureBaseTop = (viewportHeight - signatureHeight) / 2;
-      const bookToSignatureGap = 24;
+      const bookToSignatureGap = 42;
       const signatureToSignalGap = Math.max(180, viewportHeight * 0.26);
       const signatureTop = lastBounds.top + lastBounds.height + bookToSignatureGap;
       const signalTop = signatureTop + signatureHeight + signatureToSignalGap;
@@ -808,6 +816,9 @@ export const mountCleanRoomCatalogue = (): boolean => {
     lastFrameAt = now;
     interactionSnapshot = interactionState();
     const catalogueMotion = catalogueScroll.advance(deltaSeconds);
+    const terminalScreens = catalogueMotion.terminalProgress
+      * CLEAN_ROOM_MOTION.terminalScrollViewports;
+    foldoutPoster.setProgress(smooth(clamp((terminalScreens - 0.04) / 0.86, 0, 1)));
     if (pressMode === "volumes") volumeInteraction.advanceTwirl(deltaSeconds);
     const volumePose = volumeInteraction.snapshot();
 
@@ -1397,6 +1408,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
           objectName: book.geometryModel.objectName
         }
       })),
+      poster: foldoutPoster.snapshot(),
       render: {
         calls: renderer.info.render.calls,
         triangles: renderer.info.render.triangles,

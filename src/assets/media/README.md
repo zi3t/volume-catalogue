@@ -1,8 +1,9 @@
 # Terminal media provenance
 
-`observability-poster.jpg` and `signal-landscape.jpg` were generated specifically
-for the ZI3T Press catalogue with OpenAI ImageGen on 12 August 2026. No
-third-party photograph, logo, or Stripe asset is included in either image.
+`observability-poster.jpg`, `shutdown-sequence-poster.webp`, and
+`signal-landscape.jpg` were generated specifically for the ZI3T Press catalogue
+with OpenAI ImageGen on 12 August 2026. No third-party photograph, logo, or
+Stripe asset is included in these images.
 
 They are project-original replacements for the reference site's two terminal
 media beats: a vertical editorial poster and a full-viewport signal scene. The
@@ -31,3 +32,13 @@ and stepped monoliths with a suspended red-orange anodized signal disc and one
 cyan indicator. Landscape 3:2, cinematic miniature photography plus product
 rendering, quiet upper third for HTML type, no people, text, brands, logos,
 watermarks, or resemblance to an existing podcast campaign.
+
+### `shutdown-sequence-poster.webp`
+
+Original portrait systems-engineering field map tracing a bounded robot
+shutdown through operator intent, controller state, the outbound command queue,
+UDP transmission, and final packet evidence. Midnight navy, bone-white,
+safety-amber, and diagnostic-cyan screen-print palette; fold-safe portrait
+composition; no baked folds, mockup, logos, brands, or watermark. The WebGL
+scene deforms one continuous paper mesh into four flexible horizontal bands,
+supplying the creases, relief, lighting, and settling motion.
