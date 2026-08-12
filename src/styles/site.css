@@ -52,6 +52,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+html.press-catalogue-page { scroll-behavior: auto; }
 body {
   margin: 0;
   background:

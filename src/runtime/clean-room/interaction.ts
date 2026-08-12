@@ -115,19 +115,20 @@ export const installCleanRoomInteraction = (
 
   callbacks.items.forEach((item, index) => {
     const link = callbacks.links[index];
-    item.addEventListener("pointerdown", (event) => begin(index, event));
-    item.addEventListener("pointerenter", () => {
+    const interactionTarget = link ?? item;
+    interactionTarget.addEventListener("pointerdown", (event) => begin(index, event));
+    interactionTarget.addEventListener("pointerenter", () => {
       hoverIndex = index;
       callbacks.onHover(index);
       callbacks.onWake();
     });
-    item.addEventListener("pointerleave", () => {
+    interactionTarget.addEventListener("pointerleave", () => {
       if (gesture?.index === index) return;
       if (hoverIndex === index) hoverIndex = -1;
       callbacks.onHover(hoverIndex);
       callbacks.onWake();
     });
-    item.addEventListener("click", (event) => {
+    interactionTarget.addEventListener("click", (event) => {
       const completed = event.detail > 0 && completedGesture?.index === index
         ? completedGesture
         : null;

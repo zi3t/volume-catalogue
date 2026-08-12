@@ -121,12 +121,17 @@ try {
     mainHeight: Math.round(document.querySelector('.home-page main').getBoundingClientRect().height),
     documentMaximum: document.documentElement.scrollHeight - innerHeight,
     expectedMain: Math.round(innerHeight + innerHeight * .213 * 4 + innerHeight * 2.18),
+    scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
+    catalogueItemsInert: Array.from(document.querySelectorAll('.press-volume-item'))
+      .map((item) => item.inert),
     path: location.pathname + location.search
   }))()`);
   check(
     "desktop scroll length contains five shelf stops and the 2.18-viewport terminal only",
     Math.abs(desktopGeometry.mainHeight - desktopGeometry.expectedMain) <= 2
       && Math.abs(desktopGeometry.documentMaximum - (desktopGeometry.expectedMain - 894)) <= 2
+      && desktopGeometry.scrollBehavior === "auto"
+      && desktopGeometry.catalogueItemsInert.every((inert) => !inert)
       && desktopGeometry.path === "/press/?press-renderer=clean-room",
     desktopGeometry
   );
@@ -180,15 +185,44 @@ try {
     const maximum = document.documentElement.scrollHeight - innerHeight;
     const terminalLength = maximum - catalogueMaximum;
     return {
+      handoff: catalogueMaximum + terminalLength * .1,
       signature: catalogueMaximum + terminalLength * .3,
       closing: maximum
     };
   })()`);
+  await cdp.evaluate(`window.scrollTo({ top: ${terminalPositions.handoff}, behavior: 'instant' })`);
+  await cdp.sleep(700);
+  const handoffState = await cdp.evaluate(`(() => {
+    const books = Array.from(document.querySelectorAll('.press-volume'));
+    const lastBook = books.at(-1).getBoundingClientRect();
+    const signature = document.querySelector('.signature-section .signature-row')
+      .getBoundingClientRect();
+    return {
+      lastBookBottom: lastBook.bottom,
+      signatureTop: signature.top,
+      gap: signature.top - lastBook.bottom,
+      canvasClip: getComputedStyle(document.querySelector('.press-scene-canvas')).clipPath,
+      terminalTravel: window.__pressCleanRoomDebug?.().scroll.terminalTravel
+    };
+  })()`);
+  check(
+    "the fifth book and signature advance on one continuous scroll track",
+    handoffState.lastBookBottom < 894
+      && handoffState.signatureTop < 894
+      && handoffState.gap >= 0
+      && handoffState.gap <= 64
+      && handoffState.canvasClip === "none"
+      && handoffState.terminalTravel > 150,
+    handoffState
+  );
+  await cdp.screenshot(`${screenshotDirectory}/desktop-terminal-handoff.png`);
+
   await cdp.evaluate(`window.scrollTo({ top: ${terminalPositions.signature}, behavior: 'instant' })`);
   const signatureReady = await cdp.waitFor(`(
     document.body.classList.contains('press-terminal-active')
     && Number(getComputedStyle(document.querySelector('.signature-section')).opacity) > .92
-    && window.__pressCleanRoomDebug?.().scroll.terminalSceneOpacity < .01
+    && window.__pressCleanRoomDebug?.().scroll.terminalSceneOpacity > .99
+    && document.querySelectorAll('.press-volume')[4].getBoundingClientRect().bottom < 80
   )`, 5_000);
   const signatureState = await cdp.evaluate(`({
     path: location.pathname + location.search,
@@ -197,7 +231,7 @@ try {
     signatureOpacity: Number(getComputedStyle(document.querySelector('.signature-section')).opacity)
   })`);
   check(
-    "the terminal hands the fifth book to the genuine signature without changing address",
+    "the fifth book exits before the genuine signature occupies the viewport",
     signatureReady
       && !signatureState.closing
       && signatureState.itemsInert

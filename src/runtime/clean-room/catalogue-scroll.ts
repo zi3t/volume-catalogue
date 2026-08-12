@@ -7,6 +7,7 @@ export interface CleanRoomCatalogueScrollSnapshot {
   readonly stackShift: number;
   readonly scrollVelocity: number;
   readonly terminalProgress: number;
+  readonly terminalTravel: number;
   readonly terminalSceneOpacity: number;
   readonly mainHeight: number;
 }
@@ -32,6 +33,7 @@ const emptySnapshot = (): CleanRoomCatalogueScrollSnapshot => ({
   stackShift: 0,
   scrollVelocity: 0,
   terminalProgress: 0,
+  terminalTravel: 0,
   terminalSceneOpacity: 1,
   mainHeight: 0
 });
@@ -55,35 +57,22 @@ export const installCleanRoomCatalogueScroll = (
 
   const updateTerminal = (progress: number): void => {
     const terminalProgress = clamp(progress, 0, 1);
-    const sceneSplit = smooth(clamp(terminalProgress / 0.16, 0, 1));
-    const signatureOut = 1 - smooth(clamp((terminalProgress - 0.48) / 0.15, 0, 1));
-    const signatureOpacity = terminalProgress > 0 ? signatureOut : 0;
-    const closingOpacity = smooth(clamp((terminalProgress - 0.58) / 0.2, 0, 1));
-    // Stripe hands its fixed canvas from books to the next scene with two
-    // complementary scissors. Mirror that visible boundary here: the book
-    // canvas retreats upward while the genuine terminal surface is revealed
-    // from below. Opacity cross-fading both full frames made the books print
-    // through the signature artwork during the hand-off.
-    const terminalSceneOpacity = sceneSplit < 1 ? 1 : 0;
+    const terminalTravel = terminalProgress
+      * window.innerHeight
+      * CLEAN_ROOM_MOTION.terminalScrollViewports;
+    const terminalScreens = terminalTravel / Math.max(1, window.innerHeight);
+    // The reference keeps the outgoing object and the next scene on one
+    // continuous vertical track. The signature starts immediately after the
+    // fifth book, and both advance one pixel for every pixel of page scroll.
+    // The light closing surface follows the signature on that same track.
+    const terminalActive = terminalTravel > 0.5;
+    const signatureOpacity = smooth(clamp(terminalScreens / 0.06, 0, 1));
+    const closingOpacity = terminalActive ? 1 : 0;
+    const terminalSceneOpacity = 1;
 
     signaturePanel?.style.setProperty("--press-terminal-opacity", signatureOpacity.toFixed(4));
-    signaturePanel?.style.setProperty(
-      "--press-terminal-signature-clip",
-      `${((1 - sceneSplit) * 100).toFixed(3)}%`
-    );
-    signaturePanel?.style.setProperty(
-      "--press-terminal-scale",
-      mix(0.965, 1, sceneSplit).toFixed(4)
-    );
-    options.stage.style.setProperty(
-      "--press-terminal-book-clip",
-      `${(sceneSplit * 100).toFixed(3)}%`
-    );
+    options.stage.style.setProperty("--press-terminal-book-clip", "0%");
     closingPanel?.style.setProperty("--press-terminal-opacity", closingOpacity.toFixed(4));
-    closingPanel?.style.setProperty(
-      "--press-terminal-shift",
-      `${mix(22, 0, closingOpacity).toFixed(2)}px`
-    );
     footerPanel?.style.setProperty("--press-terminal-opacity", closingOpacity.toFixed(4));
     const controlsOpacity = 1 - smooth(clamp((terminalProgress - 0.5) / 0.24, 0, 1));
     options.stage.style.setProperty(
@@ -95,22 +84,22 @@ export const installCleanRoomCatalogueScroll = (
       controlsOpacity.toFixed(4)
     );
 
-    const active = terminalProgress > 0.012;
-    const closing = closingOpacity > 0.72;
+    const active = terminalActive;
+    // Keep the masthead and controls in their dark-surface colours while the
+    // light page is only entering at the bottom. They switch only when that
+    // surface reaches the fixed header, as on the reference.
+    const closing = terminalScreens > 1.45;
     document.body.classList.toggle("press-terminal-active", active);
     document.body.classList.toggle("press-terminal-closing", closing);
     if (closingPanel) closingPanel.inert = !closing;
     if (footerPanel) footerPanel.inert = !closing;
-    state = { ...state, terminalProgress, terminalSceneOpacity };
+    state = { ...state, terminalProgress, terminalTravel, terminalSceneOpacity };
   };
 
   const updateAccess = (mode: CleanRoomPressMode): void => {
     options.items.forEach((item) => {
-      const bounds = item.getBoundingClientRect();
       item.inert = mode === "volumes"
-        || state.terminalProgress > 0.04
-        || bounds.bottom <= 0
-        || bounds.top >= window.innerHeight;
+        || state.terminalProgress > 0.04;
     });
   };
 

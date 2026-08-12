@@ -51,6 +51,10 @@ try {
   ))`, 4_000);
   const base = await state();
   const baseBounds = base?.books?.[0]?.screenBounds;
+  const baseHitbox = await cdp.evaluate(`(() => {
+    const rect = document.querySelector('.press-volume').getBoundingClientRect();
+    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+  })()`);
   check(
     "all five books settle on the calibrated shelf after entry",
     base?.books?.length === 5 && base.books.every((book) => (

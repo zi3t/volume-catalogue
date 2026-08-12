@@ -144,6 +144,7 @@ interface CleanRoomDebugSnapshot {
     readonly stackShift: number;
     readonly scrollVelocity: number;
     readonly terminalProgress: number;
+    readonly terminalTravel: number;
     readonly terminalSceneOpacity: number;
     readonly mainHeight: number;
     readonly cameraY: number;
@@ -234,6 +235,10 @@ export const mountCleanRoomCatalogue = (): boolean => {
   const volumeFigures = Array.from(
     document.querySelectorAll<HTMLElement>(".press-volume-figure")
   );
+  const signaturePanel = document.querySelector<HTMLElement>(".signature-section");
+  const signatureRow = signaturePanel?.querySelector<HTMLElement>(".signature-row");
+  const closingPanel = document.querySelector<HTMLElement>(".home-closing");
+  const footerPanel = document.querySelector<HTMLElement>(".home-footer");
 
   THREE.ColorManagement.enabled = false;
 
@@ -393,6 +398,50 @@ export const mountCleanRoomCatalogue = (): boolean => {
     setBookOpacity(entry, 1);
     return entry;
   });
+
+  const syncInteractionBounds = (): void => {
+    if (pressMode !== "catalogue") return;
+    const itemRects = entries.map((entry) => entry.item.getBoundingClientRect());
+    const screenBounds = entries.map((entry) => (
+      projectedBookBounds(entry.book, camera, viewportWidth, viewportHeight)
+    ));
+    entries.forEach((entry, index) => {
+      const itemRect = itemRects[index];
+      const bounds = screenBounds[index];
+      if (!itemRect || !bounds) return;
+      entry.link.style.setProperty(
+        "--press-hit-left",
+        `${(bounds.left - itemRect.left).toFixed(2)}px`
+      );
+      entry.link.style.setProperty(
+        "--press-hit-top",
+        `${(bounds.top - itemRect.top).toFixed(2)}px`
+      );
+      entry.link.style.setProperty("--press-hit-width", `${bounds.width.toFixed(2)}px`);
+      entry.link.style.setProperty("--press-hit-height", `${bounds.height.toFixed(2)}px`);
+    });
+
+    // Keep the terminal surfaces in the same virtual document as the fifth
+    // book. Their current screen positions are derived from the projected book
+    // rather than a viewport percentage, so the measured gap survives Safari
+    // chrome, short displays and every responsive shelf calibration.
+    const lastBounds = screenBounds.at(-1);
+    if (lastBounds && signaturePanel && signatureRow && closingPanel && footerPanel) {
+      const signatureHeight = Math.min(viewportHeight * 0.78, 700);
+      const signatureBaseTop = (viewportHeight - signatureHeight) / 2;
+      const bookToSignatureGap = 24;
+      const signatureToClosingGap = Math.max(72, viewportHeight * 0.12);
+      const signatureTop = lastBounds.top + lastBounds.height + bookToSignatureGap;
+      const signatureShift = signatureTop - signatureBaseTop;
+      const closingShift = signatureTop + signatureHeight + signatureToClosingGap;
+      signaturePanel.style.setProperty(
+        "--press-terminal-signature-shift",
+        `${signatureShift.toFixed(2)}px`
+      );
+      closingPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);
+      footerPanel.style.setProperty("--press-terminal-shift", `${closingShift.toFixed(2)}px`);
+    }
+  };
 
   const wake = (duration = 720): void => {
     renderUntil = Math.max(renderUntil, performance.now() + duration);
@@ -679,6 +728,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
       }
     });
     unitsPerPixel = worldUnitsPerPixel(camera, viewportHeight, shelfCenterDepth);
+    syncInteractionBounds();
     wake(720);
   }
 
@@ -976,6 +1026,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         + (
           entry.hold * CLEAN_ROOM_MOTION.heldLiftPixels
         ) * unitsPerPixel
+        + catalogueMotion.terminalTravel * unitsPerPixel
         + evictionPixels * unitsPerPixel;
       const targetDepth = entry.homePosition.z
         + (CLEAN_ROOM_REFERENCE.shelfHoverZ - entry.homePosition.z)
@@ -1065,6 +1116,8 @@ export const mountCleanRoomCatalogue = (): boolean => {
         Math.abs(entry.book.root.scale.x - entry.homeScale)
       );
     });
+
+    syncInteractionBounds();
 
     if (
       activeFlight?.direction === "to-catalogue"
@@ -1291,6 +1344,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
         stackShift: Number(scroll.stackShift.toFixed(4)),
         scrollVelocity: Number(scroll.scrollVelocity.toFixed(4)),
         terminalProgress: Number(scroll.terminalProgress.toFixed(4)),
+        terminalTravel: Number(scroll.terminalTravel.toFixed(4)),
         terminalSceneOpacity: Number(scroll.terminalSceneOpacity.toFixed(4)),
         mainHeight: Number(scroll.mainHeight.toFixed(4)),
         cameraY: Number(camera.position.y.toFixed(4))
