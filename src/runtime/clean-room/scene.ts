@@ -1276,6 +1276,10 @@ export const mountCleanRoomCatalogue = (): boolean => {
 
   layout();
   document.documentElement.dataset.pressRenderer = "clean-room";
+  // The clean-room attribute activates the final authored ink overrides in the
+  // volume stylesheet. Routing is installed before that attribute exists, so
+  // refresh the shared menu token once those selectors can resolve.
+  routing.refreshActiveInk();
   document.documentElement.classList.remove("press-entry-complete");
   document.documentElement.classList.add("press-scene-ready");
   if (entryComplete) document.documentElement.classList.add("press-entry-complete");

@@ -511,10 +511,10 @@
 .press-rail {
   position: absolute;
   top: 37%;
-  left: 27px;
+  left: calc(14px + 1vw);
   z-index: 60;
-  width: 286px;
-  height: 235px;
+  width: 16px;
+  height: 65px;
   color: var(--press-white);
 }
 
@@ -524,21 +524,20 @@
   list-style: none;
 }
 
-.press-rail-list li,
-.press-rail-ghosts {
+.press-rail-list li {
   height: auto;
   margin: 0;
   padding: 0;
 }
 
-.press-rail-item,
-.press-rail-ghosts > .press-rail-fill {
+.press-rail-item {
   position: relative;
   display: block;
-  width: 13px;
-  height: 11px;
+  box-sizing: border-box;
+  width: 16px;
+  height: 13px;
   margin: 0;
-  padding: 4px 0;
+  padding: 5px 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -552,15 +551,13 @@
 
 .press-rail-fill {
   display: block;
-  width: 13px;
-  height: 3px;
+  width: 100%;
+  height: 100%;
   background: currentColor;
-  opacity: 0.34;
+  opacity: 0.3;
   transform: scaleX(var(--rail-scale, 1));
-  transform-origin: left center;
-  transition:
-    opacity 200ms linear,
-    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: 0 0;
+  transition: transform 200ms ease;
   will-change: transform;
 }
 
@@ -576,62 +573,27 @@
 
 .press-rail-label {
   position: absolute;
-  top: -1px;
-  left: 74px;
-  display: block;
-  color: var(--press-white);
-  font: 600 14px/1 var(--home-serif);
+  top: -3px;
+  left: 0;
+  display: none;
+  height: 100%;
+  padding-left: 90px;
+  color: inherit;
+  font: 600 15px/1 var(--home-serif);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-5px);
-  transition:
-    opacity 200ms linear,
-    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
 }
 
 .press-rail-item.is-preview .press-rail-label {
-  opacity: 1;
-  transform: translateX(0);
+  display: block;
+  animation: press-menu-label-reveal 200ms ease forwards;
 }
 
-.press-rail-ghosts > .press-rail-fill {
-  box-sizing: border-box;
-  background: currentColor;
-  background-clip: content-box;
-  opacity: 0.34;
-}
-
-.press-rail-film {
-  position: absolute;
-  top: 204px;
-  left: 0;
-  display: grid;
-  width: 13px;
-  height: 10px;
-  place-items: center;
-  background: color-mix(in srgb, currentColor 38%, transparent);
-  color: var(--press-stage);
-  font-size: 6px;
-  line-height: 1;
-}
-
-.press-rail-signal {
-  position: absolute;
-  top: 224px;
-  left: 2px;
-  width: 9px;
-  height: 9px;
-  border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
-  border-radius: 50%;
-  box-shadow:
-    inset 0 0 0 2px var(--press-stage),
-    inset 0 0 0 3px color-mix(in srgb, currentColor 42%, transparent);
-}
-
-.press-catalog.is-index-preview .press-rail-film,
-.press-catalog.is-index-preview .press-rail-signal {
-  opacity: 0.34;
+@keyframes press-menu-label-reveal {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .press-help {

@@ -803,7 +803,7 @@ try {
     covered.itemsInert.every(Boolean)
     && covered.railVisibility === "visible"
     && covered.railPointer === "auto"
-    && covered.backDisplay === "block"
+    && covered.backDisplay === "flex"
     && covered.helpVisibility === "visible"
     && covered.cataloguePointer === "none"
     && tabTrail.every((stop) => !stop.onShelf)
@@ -830,17 +830,24 @@ try {
     location.pathname === ${JSON.stringify(volumePaths.practice)}
     && Math.abs(scrollY - ${sections[3].top}) < 4
   `, 8000);
-  // Hovering the rail previews the *shelf*: it scrims the stage and dims the
-  // canvas to .28. There is no shelf to preview inside a volume, and the scrim is
-  // `position: fixed`, so an unguarded preview drops 72% black over the section
-  // the reader is on.
+  // The reference keeps its indicator wave and title label inside a product.
+  // The shelf scrim is separate and must remain off over the open volume.
+  await evaluate(`document.querySelectorAll('.press-rail-item')[2]
+    .dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }))`);
+  await wait(240);
   const railPreview = await evaluate(`(() => {
-    document.querySelectorAll('.press-rail-item')[2]
-      .dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }));
+    const buttons = Array.from(document.querySelectorAll('.press-rail-item'));
+    const fills = buttons.map((button) => button.querySelector('.press-rail-fill'));
+    const preview = buttons[2];
+    const label = preview.querySelector('.press-rail-label');
     return {
       scrim: Number(getComputedStyle(document.querySelector('.press-index-scrim')).opacity),
       canvas: Number(getComputedStyle(document.querySelector('.press-scene-canvas')).opacity),
-      preview: document.querySelector('.press-catalog').classList.contains('is-index-preview')
+      stagePreview: document.querySelector('.press-catalog').classList.contains('is-index-preview'),
+      itemPreview: preview.classList.contains('is-preview'),
+      label: label.textContent.trim(),
+      labelOpacity: Number(getComputedStyle(label).opacity),
+      scales: fills.map((fill) => Number(getComputedStyle(fill).transform.split(',')[0].slice(7)))
     };
   })()`);
   check("the rail moves between volumes without leaving the volumes document", (
@@ -849,7 +856,12 @@ try {
     && await evaluate("getComputedStyle(document.querySelector('.press-volumes')).display") === "block"
     && railPreview.scrim === 0
     && railPreview.canvas === 1
-    && !railPreview.preview
+    && !railPreview.stagePreview
+    && railPreview.itemPreview
+    && railPreview.label === "The last command"
+    && railPreview.labelOpacity > .95
+    && railPreview.scales[2] > railPreview.scales[1]
+    && railPreview.scales[1] > railPreview.scales[0]
   ), {
     railInVolumes,
     liveRailPoint,

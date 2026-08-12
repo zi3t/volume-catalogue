@@ -76,6 +76,92 @@ try {
   const gpu = await cdp.requireHardwareGpu();
   check("the routing gate is running on hardware WebGL", !gpu.software, gpu);
 
+  // `press-entry-complete` starts the reference-like indicator stagger; wait
+  // through its final 300ms scale-in before measuring the live hitboxes.
+  await cdp.sleep(750);
+  const railContract = await cdp.evaluate(`(() => {
+    const rail = document.querySelector('.press-rail');
+    const buttons = Array.from(rail.querySelectorAll('.press-rail-item'));
+    const bounds = buttons.map((button) => {
+      const rect = button.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    return {
+      label: rail.getAttribute('aria-label'),
+      count: buttons.length,
+      bounds,
+      positions: buttons.map((button) => ({
+        position: button.getAttribute('aria-posinset'),
+        size: button.getAttribute('aria-setsize')
+      })),
+      current: buttons.findIndex((button) => button.getAttribute('aria-current') === 'true'),
+      fabricatedControls: document.querySelectorAll(
+        '.press-rail-ghosts, .press-rail-film, .press-rail-signal'
+      ).length
+    };
+  })()`);
+  check(
+    "the rail contains one exact reference-sized indicator per genuine book",
+    railContract.label === "Book index"
+      && railContract.count === 5
+      && railContract.bounds.every((rect) => rect.width === 16 && rect.height === 13)
+      && railContract.positions.every((item, index) => (
+        item.position === String(index + 1) && item.size === "5"
+      ))
+      && railContract.current === 0
+      && railContract.fabricatedControls === 0,
+    railContract
+  );
+
+  await cdp.evaluate(`document.querySelectorAll('.press-rail-item')[2]
+    .dispatchEvent(new PointerEvent('pointerenter'))`);
+  await cdp.sleep(240);
+  const railPreview = await cdp.evaluate(`(() => {
+    const buttons = Array.from(document.querySelectorAll('.press-rail-item'));
+    const fills = buttons.map((button) => button.querySelector('.press-rail-fill'));
+    const label = buttons[2].querySelector('.press-rail-label');
+    return {
+      stage: document.querySelector('.press-catalog').classList.contains('is-index-preview'),
+      item: buttons[2].classList.contains('is-preview'),
+      labelDisplay: getComputedStyle(label).display,
+      labelOpacity: Number(getComputedStyle(label).opacity),
+      scales: fills.map((fill) => Number(getComputedStyle(fill).transform.split(',')[0].slice(7)))
+    };
+  })()`);
+  check(
+    "hovering a rail indicator reveals its title and bends the five-line index",
+    railPreview.stage
+      && railPreview.item
+      && railPreview.labelDisplay === "block"
+      && railPreview.labelOpacity > .95
+      && railPreview.scales[2] > railPreview.scales[1]
+      && railPreview.scales[1] > railPreview.scales[0],
+    railPreview
+  );
+  await cdp.screenshot(`${screenshotDirectory}/rail-preview.png`);
+  await cdp.evaluate(`document.querySelector('.press-rail')
+    .dispatchEvent(new PointerEvent('pointerleave'))`);
+  await cdp.evaluate("document.querySelectorAll('.press-rail-item')[3].focus()");
+  await cdp.sleep(240);
+  const railFocusPreview = await cdp.evaluate(`(() => {
+    const preview = document.querySelector('.press-rail-item.is-preview');
+    return {
+      active: document.activeElement?.getAttribute('data-press-index'),
+      preview: preview?.getAttribute('data-press-index'),
+      labelOpacity: preview
+        ? Number(getComputedStyle(preview.querySelector('.press-rail-label')).opacity)
+        : 0
+    };
+  })()`);
+  check(
+    "keyboard focus receives the same title preview as pointer hover",
+    railFocusPreview.active === "3"
+      && railFocusPreview.preview === "3"
+      && railFocusPreview.labelOpacity > .95,
+    railFocusPreview
+  );
+  await cdp.evaluate("document.querySelectorAll('.press-rail-item')[3].blur()");
+
   await cdp.evaluate("window.scrollTo({ top: 180, behavior: 'instant' })");
   await cdp.sleep(120);
   const catalogueAddress = await cdp.evaluate("location.pathname + location.search");
@@ -96,7 +182,21 @@ try {
     mainHeight: Math.round(document.querySelector('.home-page main').getBoundingClientRect().height),
     volumesHeight: Math.round(document.querySelector('.press-volumes').getBoundingClientRect().height),
     inert: Array.from(document.querySelectorAll('.press-volume-item')).every((item) => item.inert),
-    back: getComputedStyle(document.querySelector('.press-back')).display
+    back: getComputedStyle(document.querySelector('.press-back')).display,
+    backRect: (() => {
+      const rect = document.querySelector('.press-back').getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    })(),
+    controls: (() => {
+      const expected = getComputedStyle(document.querySelectorAll('.press-volume-section')[0]).color;
+      return {
+        expected,
+        rail: getComputedStyle(document.querySelector('.press-rail')).color,
+        label: getComputedStyle(document.querySelector('.press-rail-label')).color,
+        back: getComputedStyle(document.querySelector('.press-back')).color,
+        help: getComputedStyle(document.querySelector('.press-help')).color
+      };
+    })()
   }))()`);
   check(
     "a deliberate pick pushes the marked volumes document",
@@ -105,9 +205,82 @@ try {
       && Math.abs(flightDom.sectionTop) <= 1
       && Math.abs(flightDom.mainHeight - flightDom.volumesHeight) <= 2
       && flightDom.inert
-      && flightDom.back === "block",
+      && flightDom.back === "flex"
+      && flightDom.backRect.width === 34
+      && flightDom.backRect.height === 26,
     flightDom
   );
+  await cdp.sleep(300);
+  const settledFlightTheme = await cdp.evaluate(`(() => {
+    const expected = getComputedStyle(document.querySelectorAll('.press-volume-section')[0]).color;
+    return {
+      expected,
+      rail: getComputedStyle(document.querySelector('.press-rail')).color,
+      label: getComputedStyle(document.querySelector('.press-rail-label')).color,
+      back: getComputedStyle(document.querySelector('.press-back')).color,
+      help: getComputedStyle(document.querySelector('.press-help')).color
+    };
+  })()`);
+  check(
+    "the navigation controls settle onto the selected book's contrast ink",
+    settledFlightTheme.rail === settledFlightTheme.expected
+      && settledFlightTheme.label === settledFlightTheme.expected
+      && settledFlightTheme.back === settledFlightTheme.expected
+      && settledFlightTheme.help === settledFlightTheme.expected,
+    settledFlightTheme
+  );
+  await cdp.evaluate(`document.querySelectorAll('.press-rail-item')[2]
+    .dispatchEvent(new PointerEvent('pointerenter'))`);
+  await cdp.sleep(240);
+  const volumeRailPreview = await cdp.evaluate(`(() => {
+    const buttons = Array.from(document.querySelectorAll('.press-rail-item'));
+    const fills = buttons.map((button) => button.querySelector('.press-rail-fill'));
+    const preview = buttons[2];
+    const label = preview.querySelector('.press-rail-label');
+    return {
+      stageDimmed: document.querySelector('.press-catalog').classList.contains('is-index-preview'),
+      item: preview.classList.contains('is-preview'),
+      label: label.textContent.trim(),
+      labelDisplay: getComputedStyle(label).display,
+      labelOpacity: Number(getComputedStyle(label).opacity),
+      scrim: Number(getComputedStyle(document.querySelector('.press-index-scrim')).opacity),
+      canvas: Number(getComputedStyle(document.querySelector('.press-scene-canvas')).opacity),
+      scales: fills.map((fill) => Number(getComputedStyle(fill).transform.split(',')[0].slice(7)))
+    };
+  })()`);
+  check(
+    "an open volume keeps the rail's wave and title selection without shelf dimming",
+    !volumeRailPreview.stageDimmed
+      && volumeRailPreview.item
+      && volumeRailPreview.label === "The last command"
+      && volumeRailPreview.labelDisplay === "block"
+      && volumeRailPreview.labelOpacity > .95
+      && volumeRailPreview.scrim === 0
+      && volumeRailPreview.canvas === 1
+      && volumeRailPreview.scales[2] > volumeRailPreview.scales[1]
+      && volumeRailPreview.scales[1] > volumeRailPreview.scales[0],
+    volumeRailPreview
+  );
+  await cdp.evaluate(`document.querySelector('.press-rail')
+    .dispatchEvent(new PointerEvent('pointerleave'))`);
+  await cdp.evaluate("document.querySelector('.press-back').focus()");
+  await cdp.sleep(240);
+  const backFocusPreview = await cdp.evaluate(`(() => {
+    const label = document.querySelector('.press-back-label');
+    return {
+      focused: document.activeElement?.classList.contains('press-back') ?? false,
+      display: getComputedStyle(label).display,
+      opacity: Number(getComputedStyle(label).opacity)
+    };
+  })()`);
+  check(
+    "the reference-sized back control reveals its shelf label on keyboard focus",
+    backFocusPreview.focused
+      && backFocusPreview.display === "block"
+      && backFocusPreview.opacity > .95,
+    backFocusPreview
+  );
+  await cdp.evaluate("document.querySelector('.press-back').blur()");
   check(
     "the picked book flies from its shelf pose instead of cutting",
     flightState?.state?.mode === "volumes"
@@ -291,12 +464,28 @@ try {
     && window.__pressCleanRoomDebug?.().state.flightIndex === -1
   )`, 5_000);
   const historyAfterRail = await cdp.evaluate("history.length");
+  await cdp.sleep(320);
+  const railTheme = await cdp.evaluate(`(() => {
+    const expected = getComputedStyle(document.querySelectorAll('.press-volume-section')[4]).color;
+    return {
+      expected,
+      rail: getComputedStyle(document.querySelector('.press-rail')).color,
+      label: getComputedStyle(document.querySelector('.press-rail-label')).color,
+      back: getComputedStyle(document.querySelector('.press-back')).color,
+      help: getComputedStyle(document.querySelector('.press-help')).color
+    };
+  })()`);
   check(
     "the rail deliberately pushes another marked volume",
     railArrived
       && historyAfterRail === historyBeforeRail + 1
-      && railTransitionState?.state?.flightIndex === -1,
-    { historyBeforeRail, historyAfterRail, state: railTransitionState?.state }
+      && railTransitionState?.state?.flightIndex === -1
+      && railTheme.rail === railTheme.expected
+      && railTheme.label === railTheme.expected
+      && railTheme.back === railTheme.expected
+      && railTheme.help === railTheme.expected
+      && railTheme.expected !== settledFlightTheme.expected,
+    { historyBeforeRail, historyAfterRail, state: railTransitionState?.state, railTheme }
   );
 
   await cdp.evaluate("history.back()");

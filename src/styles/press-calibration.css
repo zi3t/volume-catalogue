@@ -323,17 +323,16 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
 }
 
 .press-rail {
-  top: calc(50svh - 121px);
-  left: 31px;
-  width: 304px;
-  height: 258px;
+  top: calc(50svh - 121.75px);
+  left: calc(14px + 1vw);
+  width: 16px;
+  height: 65px;
 }
 
-.press-rail-item,
-.press-rail-ghosts > .press-rail-fill {
+.press-rail-item {
   width: 16px;
-  height: 11px;
-  padding-block: 4px;
+  height: 13px;
+  padding-block: 5px;
 }
 
 .press-rail-fill {
@@ -341,22 +340,8 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   opacity: 0.3;
 }
 
-.press-rail-ghosts > .press-rail-fill {
-  opacity: 0.3;
-}
-
 .press-rail-label {
-  left: 90px;
-}
-
-.press-rail-film {
-  top: 209px;
-  width: 16px;
-}
-
-.press-rail-signal {
-  top: 229px;
-  left: 3px;
+  left: 0;
 }
 
 .press-index-scrim {
@@ -479,40 +464,24 @@ html:not(.press-scene-ready) .press-volume:focus-visible .press-volume-book {
   animation: none;
 }
 
-.press-entry-complete .press-rail-list > li > .press-rail-item,
-.press-entry-complete .press-rail-ghosts > .press-rail-fill {
-  animation: press-control-enter 300ms var(--press-spring-smooth) both;
+.press-entry-complete .press-rail-list > li > .press-rail-item {
+  animation: press-rail-indicator-enter 300ms ease both;
 }
 
 .press-entry-complete .press-rail-list > li:nth-child(1) > .press-rail-item { animation-delay: 0ms; }
-.press-entry-complete .press-rail-list > li:nth-child(2) > .press-rail-item { animation-delay: 46ms; }
-.press-entry-complete .press-rail-list > li:nth-child(3) > .press-rail-item { animation-delay: 92ms; }
-.press-entry-complete .press-rail-list > li:nth-child(4) > .press-rail-item { animation-delay: 138ms; }
-.press-entry-complete .press-rail-list > li:nth-child(5) > .press-rail-item { animation-delay: 184ms; }
+.press-entry-complete .press-rail-list > li:nth-child(2) > .press-rail-item { animation-delay: 100ms; }
+.press-entry-complete .press-rail-list > li:nth-child(3) > .press-rail-item { animation-delay: 200ms; }
+.press-entry-complete .press-rail-list > li:nth-child(4) > .press-rail-item { animation-delay: 300ms; }
+.press-entry-complete .press-rail-list > li:nth-child(5) > .press-rail-item { animation-delay: 400ms; }
 
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(1) { animation-delay: 230ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(2) { animation-delay: 256ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(3) { animation-delay: 282ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(4) { animation-delay: 308ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(5) { animation-delay: 334ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(6) { animation-delay: 360ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(7) { animation-delay: 386ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(8) { animation-delay: 412ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(9) { animation-delay: 438ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(10) { animation-delay: 464ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(11) { animation-delay: 490ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(12) { animation-delay: 516ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(13) { animation-delay: 542ms; }
-.press-entry-complete .press-rail-ghosts > .press-rail-fill:nth-child(14) { animation-delay: 568ms; }
-
-.press-entry-complete .press-rail-film,
-.press-entry-complete .press-rail-signal {
-  animation: press-control-enter 300ms 600ms var(--press-spring-smooth) both;
+@keyframes press-rail-indicator-enter {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
 }
 
 /* Last in the sequence, after the rail column has finished arriving. */
 .press-entry-complete .press-help {
-  animation: press-control-enter 300ms 640ms var(--press-spring-smooth) both;
+  animation: press-control-enter 300ms 520ms var(--press-spring-smooth) both;
 }
 
 .press-terminal-active .press-rail,

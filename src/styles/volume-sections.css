@@ -159,10 +159,11 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 .press-back {
   position: absolute;
   z-index: 61;
-  top: calc(37svh - 35px);
-  left: 31px;
+  top: calc(50svh - 147.75px);
+  left: calc(13px + 1vw);
   display: none;
-  padding: 6px 4px;
+  align-items: center;
+  padding: 0 0 8px;
   border: 0;
   background: none;
   /* The button sits in the pinned hero, below the sections, so it cannot inherit
@@ -172,7 +173,7 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 }
 
 .press-volumes-open .press-back {
-  display: block;
+  display: flex;
   position: fixed;
   z-index: 71;
 }
@@ -188,6 +189,22 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
   pointer-events: auto;
 }
 
+/* Stripe's menu is one themed control cluster: every product publishes a
+   foreground color and the indicators, return control, and About marker all
+   consume it together. Keep catalogue mode white, then follow the active
+   volume ink as the marked section changes. */
+.press-volumes-open .press-rail,
+.press-volumes-open .press-back,
+.press-volumes-open .press-help {
+  color: var(--press-active-ink, var(--press-white));
+  transition: color 260ms var(--press-ease-shift, ease);
+}
+
+.press-volumes-open .press-help:hover,
+.press-volumes-open .press-help:focus-visible {
+  color: var(--press-active-ink, var(--press-white));
+}
+
 /* The catalogue lockup owns the landing page. A book route keeps the name and
    mark as its quiet masthead, but drops the landing-only progress tagline. */
 .press-volumes-open .home-masthead .brand-name::after {
@@ -197,27 +214,29 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 
 .press-back svg {
   display: block;
-  width: 21px;
-  height: 13px;
-  opacity: 0.72;
-  transition: opacity 180ms var(--press-ease-shift, ease), transform 180ms var(--press-ease-shift, ease);
-}
-
-.press-back:hover svg,
-.press-back:focus-visible svg {
+  width: 18px;
+  height: 18px;
+  margin-right: 16px;
   opacity: 1;
-  transform: translateX(-2px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .press-back svg {
-    transition: none;
-  }
+.press-back-label {
+  display: none;
+  color: inherit;
+  font: 600 15px/1 var(--home-serif);
+  white-space: nowrap;
+  opacity: 0;
+  user-select: none;
+}
 
-  .press-back:hover svg,
-  .press-back:focus-visible svg {
-    transform: none;
-  }
+.press-back:hover .press-back-label,
+.press-back:focus-visible .press-back-label {
+  display: block;
+  animation: press-menu-label-reveal 200ms ease forwards;
+}
+
+.press-back:focus-visible {
+  outline: none;
 }
 
 .press-volume-section--refly {

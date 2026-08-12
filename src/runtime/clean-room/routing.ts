@@ -38,6 +38,7 @@ export interface CleanRoomRouteController {
   snapshot: () => CleanRoomRouteSnapshot;
   activate: (index: number, event?: MouseEvent) => boolean;
   setCatalogueIndex: (index: number) => void;
+  refreshActiveInk: () => void;
   settlePendingDeepLink: () => boolean;
   updateLayout: () => void;
 }
@@ -78,6 +79,9 @@ export const installCleanRoomRouting = (
   const railButtons = Array.from(
     document.querySelectorAll<HTMLButtonElement>(".press-rail-item")
   );
+  const railFills = railButtons.map((button) => (
+    button.querySelector<HTMLElement>(".press-rail-fill")
+  ));
   const backButton = document.querySelector<HTMLButtonElement>(".press-back");
   const configuredCatalogue = document.body.dataset.pressCatalogue ?? "/press/";
   const cataloguePath = configuredCatalogue === "/"
@@ -132,16 +136,49 @@ export const installCleanRoomRouting = (
     });
   };
 
-  const setCurrentIndex = (next: number, source: CleanRoomRouteSource): void => {
-    const bounded = Math.min(callbacks.items.length - 1, Math.max(0, next));
-    currentIndex = bounded;
-    const section = sections[bounded];
+  const closeRailPreview = (): void => {
+    document.querySelector(".press-catalog")?.classList.remove("is-index-preview");
+    document.body.classList.remove("press-index-preview");
+    railButtons.forEach((button) => button.classList.remove("is-preview"));
+    railFills.forEach((fill) => fill?.style.removeProperty("--rail-scale"));
+  };
+
+  const previewRailIndex = (index: number): void => {
+    // The indicator wave and title are route navigation, so they remain live
+    // both on the shelf and inside a volume. Only the shelf preview owns the
+    // catalogue scrim: applying it in `volumes` would dim the open book page.
+    if (mode === "catalogue") {
+      document.querySelector(".press-catalog")?.classList.add("is-index-preview");
+      document.body.classList.add("press-index-preview");
+    }
+    railButtons.forEach((button, buttonIndex) => {
+      button.classList.toggle("is-preview", buttonIndex === index);
+    });
+    railFills.forEach((fill, fillIndex) => {
+      if (!fill) return;
+      const distance = Math.abs(index - fillIndex);
+      const scale = Math.max(
+        1,
+        Math.cos(distance / Math.max(1, railFills.length) * Math.PI) * 2 + 2.5
+      );
+      fill.style.setProperty("--rail-scale", scale.toFixed(3));
+    });
+  };
+
+  const syncActiveInk = (index: number): void => {
+    const section = sections[index];
     if (section) {
       root.style.setProperty(
         "--press-active-ink",
         getComputedStyle(section).getPropertyValue("--press-volume-ink").trim()
       );
     }
+  };
+
+  const setCurrentIndex = (next: number, source: CleanRoomRouteSource): void => {
+    const bounded = Math.min(callbacks.items.length - 1, Math.max(0, next));
+    currentIndex = bounded;
+    syncActiveInk(bounded);
     railButtons.forEach((button, index) => {
       const current = index === bounded;
       button.classList.toggle("is-current", current);
@@ -158,6 +195,7 @@ export const installCleanRoomRouting = (
     root.classList.toggle("press-in-volumes", next === "volumes");
     updateDocumentHeight();
     updateAccess();
+    if (next === "volumes") closeRailPreview();
     if (previous !== next) callbacks.onModeChange(next, previous, source);
   };
 
@@ -220,11 +258,20 @@ export const installCleanRoomRouting = (
   });
 
   railButtons.forEach((button, index) => {
+    button.addEventListener("pointerenter", () => previewRailIndex(index));
+    button.addEventListener("focus", () => previewRailIndex(index));
     button.addEventListener("click", (event) => {
       if (hasModifiedClick(event)) return;
       event.preventDefault();
+      closeRailPreview();
       goToVolume(index, "rail");
     });
+  });
+  rail?.addEventListener("pointerleave", closeRailPreview);
+  rail?.addEventListener("focusout", (event) => {
+    if (!(event.relatedTarget instanceof Node) || !rail.contains(event.relatedTarget)) {
+      closeRailPreview();
+    }
   });
 
   window.addEventListener("keydown", (event) => {
@@ -341,6 +388,7 @@ export const installCleanRoomRouting = (
     setCatalogueIndex: (index: number) => {
       if (mode === "catalogue") setCurrentIndex(index, "scroll");
     },
+    refreshActiveInk: () => syncActiveInk(currentIndex),
     settlePendingDeepLink,
     updateLayout: updateDocumentHeight
   };
