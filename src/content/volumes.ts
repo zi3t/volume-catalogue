@@ -71,19 +71,19 @@ export const volumes = [
   },
   {
     routeUrl: "/press/practice/",
-    contentPath: "/resume/",
+    contentPath: "/notes/system-path/",
     slug: "practice",
-    title: "Evidence over adjectives",
-    byline: "Systems engineering / security",
+    title: "The reproduction kept the queue",
+    byline: "C++17 / public evidence",
     description:
-      "The boundary, the contract, and the evidence behind every engineering claim.",
-    routeMode: "project",
+      "Reduce an omitted-queue shutdown fault to a deterministic public artifact without turning it into a hardware claim.",
+    routeMode: "reading",
     spine: {
-      eyebrow: "Systems / Security",
+      eyebrow: "C++17 / Evidence",
       serial: "04",
-      ariaLabel: "Open the résumé and engineering practice"
+      ariaLabel: "Open the public shutdown reproduction field note"
     },
-    contentStylesheet: "/assets/resume.css"
+    contentStylesheet: "/assets/notes.css"
   },
   {
     routeUrl: "/press/field-notes/",
