@@ -55,15 +55,15 @@ export interface CleanRoomVolumeProfile {
  * every volume uses the same authored topology and changes thickness through
  * the material uniform, exactly where the mesh's outer-shell vertices allow it.
  */
-export const cleanRoomProfiles = [
+export const demoVolumeProfiles = [
   {
-    slug: "refly",
+    slug: "surfaces",
     cloth: "#b9ad6c",
     ink: "#18185e",
     paper: "#f2f1eb",
     headband: ["#18185e", "#c8bd77"],
     artworkUrl: reflyArtwork,
-    caption: "Re-run browser incidents frame by frame—from captured evidence to deterministic replay, with network, input, and state changes kept inspectable.",
+    caption: "Compare cloth, paper, foil, gloss, and bump responses on the shared book mesh.",
     thickness: 3.4,
     material: {
       shininess: 3,
@@ -84,15 +84,15 @@ export const cleanRoomProfiles = [
     }
   },
   {
-    slug: "arm",
+    slug: "geometry",
     cloth: "#d9d1ae",
     ink: "#29435c",
     paper: "#faf8ee",
     headband: ["#29435c", "#d9d1ae"],
     artworkUrl: armArtwork,
-    caption: "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
+    caption: "Reuse one authored topology while varying thickness, covers, joints, and page blocks.",
     thickness: 3.18,
-    spineNote: "Field guide",
+    spineNote: "Topology",
     material: {
       shininess: 2,
       specular: "#dfe5e4",
@@ -112,15 +112,15 @@ export const cleanRoomProfiles = [
     }
   },
   {
-    slug: "shutdown-drain",
+    slug: "interaction",
     cloth: "#243447",
     ink: "#e7e7df",
     paper: "#faf8ee",
     headband: ["#d6b86b", "#243447"],
     artworkUrl: shutdownDrainArtwork,
-    caption: "Follow a shutdown warning upstream to the queue that still owned the actuator-disable command.",
+    caption: "Exercise picking, holding, dragging, focus, and the transition from shelf to volume.",
     thickness: 3.4,
-    spineNote: "Field report",
+    spineNote: "Input model",
     material: {
       shininess: 1.2,
       specular: "#f2ead0",
@@ -140,15 +140,15 @@ export const cleanRoomProfiles = [
     }
   },
   {
-    slug: "practice",
+    slug: "routing",
     cloth: "#6d2949",
     ink: "#f0dfb4",
     paper: "#faf8ee",
     headband: ["#f0dfb4", "#6d2949"],
     artworkUrl: practiceArtwork,
-    caption: "Show the boundary, the contract, and the evidence behind every engineering claim.",
+    caption: "Keep one scene alive while routes change, volumes scroll, and navigation returns to the shelf.",
     thickness: 2.85,
-    spineNote: "Methods",
+    spineNote: "History",
     material: {
       shininess: 1,
       specular: "#f4e2ae",
@@ -168,15 +168,15 @@ export const cleanRoomProfiles = [
     }
   },
   {
-    slug: "field-notes",
+    slug: "integration",
     cloth: "#ad763b",
     ink: "#26333d",
     paper: "#faf8ee",
     headband: ["#26333d", "#ad763b"],
     artworkUrl: notesArtwork,
-    caption: "Working notes on replayable systems, verification, and engineering decisions that can be inspected.",
+    caption: "Mount the renderer over ordinary links and retain an accessible catalogue without WebGL.",
     thickness: 3.32,
-    spineNote: "Revised",
+    spineNote: "Fallback",
     material: {
       shininess: 1,
       specular: "#e6e2d8",

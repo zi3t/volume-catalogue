@@ -1,114 +1,87 @@
-export type VolumeRouteMode = "project" | "reading";
-
 export interface VolumeDefinition {
   readonly routeUrl: string;
-  readonly contentPath: string;
   readonly slug: string;
   readonly title: string;
   readonly byline: string;
   readonly description: string;
-  readonly routeMode: VolumeRouteMode;
   readonly spine: {
     readonly eyebrow: string;
     readonly serial: string;
     readonly ariaLabel: string;
   };
-  readonly contentStylesheet?: string;
 }
 
 /**
- * Ordered source of truth shared by the browser catalogue and its server-side
- * content adapter. Scene profiles intentionally key by this order.
+ * Self-contained fixtures for the package demo. They describe catalogue
+ * capabilities, not pages or content owned by the host application.
  */
-export const volumes = [
+export const demoVolumes = [
   {
-    routeUrl: "/press/refly/",
-    contentPath: "/refly/",
-    slug: "refly",
-    title: "Re-fly the incident",
-    byline: "Rust / WebAssembly",
+    routeUrl: "/press/surfaces/",
+    slug: "surfaces",
+    title: "Surface studies",
+    byline: "Materials / light / print",
     description:
-      "Re-run browser incidents frame by frame, from captured evidence to deterministic replay.",
-    routeMode: "project",
+      "Compare cloth, paper, foil, gloss, and bump responses on the shared book mesh.",
     spine: {
-      eyebrow: "Rust / WASM",
+      eyebrow: "Materials",
       serial: "01",
-      ariaLabel: "Open Re-fly the incident"
-    },
-    contentStylesheet: "/assets/refly.css"
+      ariaLabel: "Open the surface studies demo"
+    }
   },
   {
-    routeUrl: "/press/arm/",
-    contentPath: "/arm/",
-    slug: "arm",
-    title: "GLUON kinematics",
-    byline: "Rust kinematics / three.js",
+    routeUrl: "/press/geometry/",
+    slug: "geometry",
+    title: "Shared geometry",
+    byline: "Mesh / joints / thickness",
     description:
-      "Inspect robot kinematics as executable geometry, with every transform exposed and testable.",
-    routeMode: "project",
+      "Reuse one authored topology while varying thickness, covers, joints, and page blocks.",
     spine: {
-      eyebrow: "Robotics / Rust",
+      eyebrow: "Geometry",
       serial: "02",
-      ariaLabel: "Open the GLUON kinematics project"
-    },
-    contentStylesheet: "/assets/arm.css"
+      ariaLabel: "Open the shared geometry demo"
+    }
   },
   {
-    routeUrl: "/press/shutdown-drain/",
-    contentPath: "/notes/first-queue/",
-    slug: "shutdown-drain",
-    title: "The last command",
-    byline: "C++17 / UDP / packet evidence",
+    routeUrl: "/press/interaction/",
+    slug: "interaction",
+    title: "Shelf interaction",
+    byline: "Pointer / keyboard / touch",
     description:
-      "Follow a shutdown warning upstream to the queue that still owned the actuator-disable command.",
-    routeMode: "reading",
+      "Exercise picking, holding, dragging, focus, and the transition from shelf to volume.",
     spine: {
-      eyebrow: "C++17 / UDP",
+      eyebrow: "Interaction",
       serial: "03",
-      ariaLabel: "Open the robot-controller shutdown field report"
-    },
-    contentStylesheet: "/assets/notes.css"
+      ariaLabel: "Open the shelf interaction demo"
+    }
   },
   {
-    routeUrl: "/press/practice/",
-    contentPath: "/notes/system-path/",
-    slug: "practice",
-    title: "The reproduction kept the queue",
-    byline: "C++17 / public evidence",
+    routeUrl: "/press/routing/",
+    slug: "routing",
+    title: "Route lifecycle",
+    byline: "History / deep links / return",
     description:
-      "Reduce an omitted-queue shutdown fault to a deterministic public artifact without turning it into a hardware claim.",
-    routeMode: "reading",
+      "Keep one scene alive while routes change, volumes scroll, and navigation returns to the shelf.",
     spine: {
-      eyebrow: "C++17 / Evidence",
+      eyebrow: "Routing",
       serial: "04",
-      ariaLabel: "Open the public shutdown reproduction field note"
-    },
-    contentStylesheet: "/assets/notes.css"
+      ariaLabel: "Open the route lifecycle demo"
+    }
   },
   {
-    routeUrl: "/press/field-notes/",
-    contentPath: "/notes/",
-    slug: "field-notes",
-    title: "Engineering notes",
-    byline: "Replay / verification",
+    routeUrl: "/press/integration/",
+    slug: "integration",
+    title: "Host integration",
+    byline: "Semantic HTML / WebGL enhancement",
     description:
-      "All field reports, public experiments, and technical decisions in one reading index.",
-    routeMode: "reading",
+      "Mount the renderer over ordinary links and retain an accessible catalogue when WebGL is unavailable.",
     spine: {
-      eyebrow: "Replay / Verification",
+      eyebrow: "Integration",
       serial: "05",
-      ariaLabel: "Open all engineering notes"
+      ariaLabel: "Open the host integration demo"
     }
   }
 ] as const satisfies readonly VolumeDefinition[];
-
-export const contentStylesheets = Array.from(
-  new Set(
-    volumes.flatMap((volume) => (
-      "contentStylesheet" in volume ? [volume.contentStylesheet] : []
-    ))
-  )
-);
 
 export const withTrailingSlash = (pathname: string): string => (
   pathname.endsWith("/") ? pathname : `${pathname}/`

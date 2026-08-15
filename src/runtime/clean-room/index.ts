@@ -1,1 +1,4 @@
-export { mountCleanRoomCatalogue } from "./scene";
+export {
+  mountCleanRoomCatalogue,
+  type VolumeCatalogueOptions
+} from "./scene";

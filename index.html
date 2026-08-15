@@ -1,75 +1,43 @@
 <!DOCTYPE html>
-<html lang="en" class="press-catalogue-page">
+<html lang="en" class="press-catalogue-page press-startup-pending">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Press catalogue — William (Viet) Nguyen</title>
-  <meta name="description" content="An interactive WebGL catalogue of William Nguyen's public systems projects and engineering notes.">
+  <title>Volume Catalogue — interactive package demo</title>
+  <meta name="description" content="A self-contained demonstration of the @zi3t/volume-catalogue WebGL package.">
   <link rel="canonical" href="https://zi3t.io/press/">
-  <link rel="alternate" type="application/rss+xml" title="William Nguyen's engineering notes" href="/feed.xml">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zi3t.io/press/">
-  <meta property="og:title" content="Press catalogue — William (Viet) Nguyen">
-  <meta property="og:description" content="An interactive WebGL catalogue of public systems projects and engineering notes.">
-  <meta property="og:image" content="https://zi3t.io/assets/og/portfolio.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Software and systems engineering by William Nguyen">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://zi3t.io/assets/og/portfolio.png">
+  <meta property="og:title" content="Volume Catalogue — interactive package demo">
+  <meta property="og:description" content="Five books demonstrate materials, geometry, interaction, routing, and host integration.">
   <meta name="theme-color" content="#201819">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/src/styles/catalogue.css">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "William Nguyen",
-    "alternateName": "Viet Nguyen",
-    "url": "https://zi3t.io/",
-    "jobTitle": "Software and Systems Engineer",
-    "homeLocation": { "@type": "Place", "name": "Brisbane, Australia" },
-    "knowsAbout": [
-      "Robotics",
-      "Control systems",
-      "Embedded software",
-      "Real-time C++",
-      "Rust",
-      "C# and .NET",
-      "TypeScript",
-      "Mobile development",
-      "Cloud infrastructure",
-      "Offensive security",
-      "Software verification"
-    ],
-    "sameAs": [
-      "https://github.com/zi3t",
-      "https://www.linkedin.com/in/zi3t"
-    ]
-  }
-  </script>
+  <link rel="stylesheet" href="/src/styles/volume-sections.css">
+  <style id="press-startup-gate">
+    html.press-startup-pending{background:#201819}
+    html.press-startup-pending body{visibility:hidden;animation:press-startup-failsafe 0s linear 8s forwards}
+    html.press-startup-pending .press-scene-canvas{opacity:1!important;transition:none!important}
+    html.press-startup-pending .home-brand{animation-play-state:paused!important}
+    @keyframes press-startup-failsafe{to{visibility:visible}}
+  </style>
+  <noscript><style>html.press-startup-pending body{visibility:visible;animation:none}</style></noscript>
 </head>
-<body class="home-page" data-press-catalogue="/">
-  <a class="skip-link" href="#main">Skip to content</a>
+<body class="home-page" data-press-catalogue="/press/">
+  <a class="skip-link" href="#main">Skip to catalogue</a>
 
   <div class="frame home-frame">
     <header class="masthead home-masthead">
-      <a class="brand home-brand" href="/" aria-label="William Nguyen, home">
-        <span class="brand-mark" aria-hidden="true">WN</span>
-        <span class="brand-name">William Nguyen <span>/ zi3t</span></span>
+      <a class="brand home-brand" href="https://github.com/zi3t/volume-catalogue" aria-label="Volume Catalogue source on GitHub">
+        <span class="brand-mark" aria-hidden="true">VC</span>
+        <span class="brand-name">Volume Catalogue <span>/ package demo</span></span>
       </a>
-      <nav class="nav-links home-nav" aria-label="Primary navigation">
-        <a href="#work">Work</a>
-        <a href="#practice">Practice</a>
-        <a href="#notes">Notes</a>
-        <a href="/resume/">Résumé</a>
-      </nav>
     </header>
 
     <main id="main">
       <section class="home-hero" aria-labelledby="hero-heading">
-        <div class="hero-coordinate hero-coordinate--top" aria-hidden="true">00 / CLAIM</div>
-        <div class="hero-coordinate hero-coordinate--side" aria-hidden="true">INSPECTED / REPLAYED / VERIFIED</div>
+        <div class="hero-coordinate hero-coordinate--top" aria-hidden="true">00 / DEMO</div>
+        <div class="hero-coordinate hero-coordinate--side" aria-hidden="true">RENDER / INTERACT / ROUTE</div>
 
         <div class="press-catalog">
           <div class="press-index-scrim" aria-hidden="true"></div>
@@ -82,387 +50,104 @@
             <span class="press-back-label">Return to shelf</span>
           </button>
 
-          <nav class="press-rail" aria-label="Book index">
+          <nav class="press-rail" aria-label="Demo volume index">
             <ol class="press-rail-list">
-              <li>
-                <button class="press-rail-item is-current" type="button" data-press-index="0" aria-label="Open Re-fly the incident" aria-current="true" aria-posinset="1" aria-setsize="5">
-                  <span class="press-rail-fill" aria-hidden="true"></span>
-                  <span class="press-rail-label">Re-fly the incident</span>
-                </button>
-              </li>
-              <li>
-                <button class="press-rail-item" type="button" data-press-index="1" aria-label="Open GLUON kinematics" aria-posinset="2" aria-setsize="5">
-                  <span class="press-rail-fill" aria-hidden="true"></span>
-                  <span class="press-rail-label">GLUON kinematics</span>
-                </button>
-              </li>
-              <li>
-                <button class="press-rail-item" type="button" data-press-index="2" aria-label="Open Telemetry replay" aria-posinset="3" aria-setsize="5">
-                  <span class="press-rail-fill" aria-hidden="true"></span>
-                  <span class="press-rail-label">Telemetry replay</span>
-                </button>
-              </li>
-              <li>
-                <button class="press-rail-item" type="button" data-press-index="3" aria-label="Open Evidence over adjectives" aria-posinset="4" aria-setsize="5">
-                  <span class="press-rail-fill" aria-hidden="true"></span>
-                  <span class="press-rail-label">Evidence over adjectives</span>
-                </button>
-              </li>
-              <li>
-                <button class="press-rail-item" type="button" data-press-index="4" aria-label="Open Engineering notes" aria-posinset="5" aria-setsize="5">
-                  <span class="press-rail-fill" aria-hidden="true"></span>
-                  <span class="press-rail-label">Engineering notes</span>
-                </button>
-              </li>
+              <li><button class="press-rail-item is-current" type="button" data-press-index="0" aria-label="Open Surface studies" aria-current="true" aria-posinset="1" aria-setsize="5"><span class="press-rail-fill" aria-hidden="true"></span><span class="press-rail-label">Surface studies</span></button></li>
+              <li><button class="press-rail-item" type="button" data-press-index="1" aria-label="Open Shared geometry" aria-posinset="2" aria-setsize="5"><span class="press-rail-fill" aria-hidden="true"></span><span class="press-rail-label">Shared geometry</span></button></li>
+              <li><button class="press-rail-item" type="button" data-press-index="2" aria-label="Open Shelf interaction" aria-posinset="3" aria-setsize="5"><span class="press-rail-fill" aria-hidden="true"></span><span class="press-rail-label">Shelf interaction</span></button></li>
+              <li><button class="press-rail-item" type="button" data-press-index="3" aria-label="Open Route lifecycle" aria-posinset="4" aria-setsize="5"><span class="press-rail-fill" aria-hidden="true"></span><span class="press-rail-label">Route lifecycle</span></button></li>
+              <li><button class="press-rail-item" type="button" data-press-index="4" aria-label="Open Host integration" aria-posinset="5" aria-setsize="5"><span class="press-rail-fill" aria-hidden="true"></span><span class="press-rail-label">Host integration</span></button></li>
             </ol>
           </nav>
 
           <ol class="press-volume-list">
-            <li class="press-volume-item press-volume-item--refly">
-              <a class="press-volume" href="/refly/" data-press-route="/press/refly/" aria-label="Open Re-fly the incident">
-                <span class="press-volume-book" aria-hidden="true">
-                  <span class="press-volume-top"></span>
-                  <span class="press-volume-spine">
-                    <small>Rust / WASM</small>
-                    <strong>Re-fly the incident</strong>
-                    <b>01</b>
-                  </span>
-                </span>
+            <li class="press-volume-item press-volume-item--surfaces">
+              <a class="press-volume" href="/press/surfaces/" data-press-route="/press/surfaces/" aria-label="Open the surface studies demo">
+                <span class="press-volume-book" aria-hidden="true"><span class="press-volume-top"></span><span class="press-volume-spine"><small>Materials</small><strong>Surface studies</strong><b>01</b></span></span>
               </a>
             </li>
-            <li class="press-volume-item press-volume-item--arm">
-              <a class="press-volume" href="/arm/" data-press-route="/press/arm/" aria-label="Open the GLUON kinematics project">
-                <span class="press-volume-book" aria-hidden="true">
-                  <span class="press-volume-top"></span>
-                  <span class="press-volume-spine">
-                    <small>Robotics / Rust</small>
-                    <strong>GLUON kinematics</strong>
-                    <b>02</b>
-                  </span>
-                </span>
+            <li class="press-volume-item press-volume-item--geometry">
+              <a class="press-volume" href="/press/geometry/" data-press-route="/press/geometry/" aria-label="Open the shared geometry demo">
+                <span class="press-volume-book" aria-hidden="true"><span class="press-volume-top"></span><span class="press-volume-spine"><small>Geometry</small><strong>Shared geometry</strong><b>02</b></span></span>
               </a>
             </li>
-            <li class="press-volume-item press-volume-item--telemetry">
-              <a class="press-volume" href="/telemetry/" data-press-route="/press/telemetry/" aria-label="Open the telemetry replay project">
-                <span class="press-volume-book" aria-hidden="true">
-                  <span class="press-volume-top"></span>
-                  <span class="press-volume-spine">
-                    <small>C# / RabbitMQ</small>
-                    <strong>Telemetry replay</strong>
-                    <b>03</b>
-                  </span>
-                </span>
+            <li class="press-volume-item press-volume-item--interaction">
+              <a class="press-volume" href="/press/interaction/" data-press-route="/press/interaction/" aria-label="Open the shelf interaction demo">
+                <span class="press-volume-book" aria-hidden="true"><span class="press-volume-top"></span><span class="press-volume-spine"><small>Interaction</small><strong>Shelf interaction</strong><b>03</b></span></span>
               </a>
             </li>
-            <li class="press-volume-item press-volume-item--practice" inert>
-              <a class="press-volume" href="/resume/" data-press-route="/press/practice/" aria-label="Open the résumé and engineering practice">
-                <span class="press-volume-book" aria-hidden="true">
-                  <span class="press-volume-top"></span>
-                  <span class="press-volume-spine">
-                    <small>Systems / Security</small>
-                    <strong>Evidence over adjectives</strong>
-                    <b>04</b>
-                  </span>
-                </span>
+            <li class="press-volume-item press-volume-item--routing" inert>
+              <a class="press-volume" href="/press/routing/" data-press-route="/press/routing/" aria-label="Open the route lifecycle demo">
+                <span class="press-volume-book" aria-hidden="true"><span class="press-volume-top"></span><span class="press-volume-spine"><small>Routing</small><strong>Route lifecycle</strong><b>04</b></span></span>
               </a>
             </li>
-            <li class="press-volume-item press-volume-item--notes" inert>
-              <a class="press-volume" href="/notes/counterfactual-replay/" data-press-route="/press/field-notes/" aria-label="Open the latest engineering note">
-                <span class="press-volume-book" aria-hidden="true">
-                  <span class="press-volume-top"></span>
-                  <span class="press-volume-spine">
-                    <small>Replay / Verification</small>
-                    <strong>Engineering notes</strong>
-                    <b>05</b>
-                  </span>
-                </span>
+            <li class="press-volume-item press-volume-item--integration" inert>
+              <a class="press-volume" href="/press/integration/" data-press-route="/press/integration/" aria-label="Open the host integration demo">
+                <span class="press-volume-book" aria-hidden="true"><span class="press-volume-top"></span><span class="press-volume-spine"><small>Integration</small><strong>Host integration</strong><b>05</b></span></span>
               </a>
             </li>
           </ol>
 
-          <a class="press-help" href="/resume/" aria-label="About William Nguyen">?</a>
+          <a class="press-help" href="https://github.com/zi3t/volume-catalogue" aria-label="Read the package source">?</a>
         </div>
 
-        <p class="hero-kicker home-enter home-enter--kicker">
-          <span>Software / systems engineer</span>
-          <span>Brisbane / Australia</span>
-        </p>
-
+        <p class="hero-kicker home-enter home-enter--kicker"><span>Three.js package</span><span>Five-volume fixture</span></p>
         <h1 class="home-display" id="hero-heading">
-          <span class="display-mask"><span class="display-line display-line--one">I build systems</span></span>
-          <span class="display-mask"><span class="display-line display-line--two">you can <em>inspect,</em></span></span>
-          <span class="display-mask"><span class="display-line display-line--three">replay, and verify.</span></span>
+          <span class="display-mask"><span class="display-line display-line--one">One book mesh.</span></span>
+          <span class="display-mask"><span class="display-line display-line--two">Five <em>material</em></span></span>
+          <span class="display-mask"><span class="display-line display-line--three">and route states.</span></span>
         </h1>
-
         <div class="hero-lower home-enter home-enter--lower">
-          <p>Where physical devices, real-time behaviour, distributed systems, and security meet. The work is public: run the instruments, replay the incidents, read the reasoning.</p>
-          <a class="primary-text-link" href="#work">Inspect the work <span aria-hidden="true">↘</span></a>
-        </div>
-
-        <div class="system-path home-enter home-enter--path" role="group" aria-label="Engineering scope from intent to evidence">
-          <span class="path-line" aria-hidden="true"></span>
-          <span class="path-node"><i aria-hidden="true"></i><b>Intent</b><small>operator</small></span>
-          <span class="path-node"><i aria-hidden="true"></i><b>Control</b><small>state</small></span>
-          <span class="path-node"><i aria-hidden="true"></i><b>Transport</b><small>boundary</small></span>
-          <span class="path-node"><i aria-hidden="true"></i><b>Device</b><small>effect</small></span>
-          <span class="path-node"><i aria-hidden="true"></i><b>Evidence</b><small>verification</small></span>
+          <p>This page is package-owned fixture content. It demonstrates the renderer and interaction lifecycle without reading from the host website.</p>
+          <a class="primary-text-link" href="https://github.com/zi3t/volume-catalogue">Inspect the package <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
-      <!-- The worker assembles each volume's genuine page into this anchor, so
-           the catalogue and all five volumes are one scrolling document. Empty
-           when served as a plain asset; the pages remain the single source. -->
-      <div class="press-volumes" data-press-volumes></div>
+      <div class="press-volumes" data-press-volumes>
+        <section class="press-volume-section press-volume-section--surfaces" id="volume-surfaces" data-press-volume="/press/surfaces/" data-press-slug="surfaces" aria-labelledby="volume-surfaces-title">
+          <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
+            <div class="press-volume-detail"><p class="press-volume-kicker">Materials</p><h2 class="press-volume-title" id="volume-surfaces-title">Surface studies</h2><p class="press-volume-summary">Materials / light / print</p><p class="press-volume-excerpt">Compare cloth, paper, foil, gloss, and bump responses on the shared book mesh.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>01</dd></div><div><dt>Feature</dt><dd>Surfaces</dd></div></dl></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>One shader, independently authored surfaces.</h2><p>Every cover uses the same material architecture. Colour, bump, foil, gloss, glitter, paper, and headband inputs create the visible differences.</p><p>The DOM book remains underneath as an accessible fallback and as the renderer’s live interaction target.</p></section></div>
+          </div></div>
+        </section>
 
-      <section class="home-section work-section" id="work" aria-labelledby="work-heading" data-reveal>
-        <header class="home-section-head">
-          <p class="section-label">01 / Selected work</p>
-          <div>
-            <h2 id="work-heading">Proof lives in the boundary.</h2>
-            <p>Three public instruments. Each crosses a real boundary, exposes the mechanism, and leaves evidence another engineer can inspect.</p>
-          </div>
-        </header>
+        <section class="press-volume-section press-volume-section--geometry" id="volume-geometry" data-press-volume="/press/geometry/" data-press-slug="geometry" aria-labelledby="volume-geometry-title">
+          <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
+            <div class="press-volume-detail"><p class="press-volume-kicker">Geometry</p><h2 class="press-volume-title" id="volume-geometry-title">Shared geometry</h2><p class="press-volume-summary">Mesh / joints / thickness</p><p class="press-volume-excerpt">Reuse one authored topology while varying thickness, covers, joints, and page blocks.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>02</dd></div><div><dt>Feature</dt><dd>Geometry</dd></div></dl></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>A single mesh carries all five books.</h2><p>Cover, spine, boards, page block, joints, and headbands share one UV atlas. A thickness uniform moves only the permitted outer-shell vertices.</p><p>The scene keeps these meshes alive across every internal route change.</p></section></div>
+          </div></div>
+        </section>
 
-        <div class="project-list">
-          <article class="project-row" data-reveal>
-            <div class="project-copy">
-              <p class="project-meta"><span>01.1</span><span>Rust / WASM / deterministic replay</span></p>
-              <h3><a href="/refly/">Re-fly the incident. Then re-fly it with the fix.</a></h3>
-              <p class="project-summary">Record one incident tape, replay the same joint-state history bit-exactly, then change one policy and run it again. The browser calls the Rust model through WebAssembly; the page does not invent the result.</p>
-              <dl class="project-evidence">
-                <div><dt>Record</dt><dd>Preserve inputs and decisions</dd></div>
-                <div><dt>Replay</dt><dd>Refuse any state divergence</dd></div>
-                <div><dt>Counterfactual</dt><dd>Isolate one policy change</dd></div>
-              </dl>
-              <div class="project-links">
-                <a href="/refly/">Run the browser demo</a>
-                <a href="/notes/counterfactual-replay/">Read the note</a>
-                <a href="https://github.com/zi3t/refly" target="_blank" rel="noopener noreferrer">Source ↗</a>
-              </div>
-            </div>
+        <section class="press-volume-section press-volume-section--interaction" id="volume-interaction" data-press-volume="/press/interaction/" data-press-slug="interaction" aria-labelledby="volume-interaction-title">
+          <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
+            <div class="press-volume-detail"><p class="press-volume-kicker">Interaction</p><h2 class="press-volume-title" id="volume-interaction-title">Shelf interaction</h2><p class="press-volume-summary">Pointer / keyboard / touch</p><p class="press-volume-excerpt">Exercise picking, holding, dragging, focus, and the transition from shelf to volume.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>03</dd></div><div><dt>Feature</dt><dd>Input</dd></div></dl></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>The rendered book and semantic link share one target.</h2><p>Projected WebGL bounds update the DOM hit area after the shelf settles. Pointer, touch, focus, keyboard, and modified clicks retain their expected browser behaviour.</p><p>Inside a volume, the cover can be dragged without remounting the scene.</p></section></div>
+          </div></div>
+        </section>
 
-            <div class="project-visual tape-visual" role="img" aria-label="A recorded incident tape compared with bit-exact replay and a counterfactual run">
-              <div class="visual-bar" aria-hidden="true"><span>INCIDENT.TAPE</span><span>TICK / 1 MS</span></div>
-              <div class="tape-body" aria-hidden="true">
-                <div class="tape-scale"><span>00</span><span>04</span><span>08</span><span>12</span><span>16</span></div>
-                <div class="tape-row">
-                  <span class="tape-label">REC</span>
-                  <span class="tape-track"><i></i><i></i><i class="is-fault"></i><i></i><i></i><i></i><i class="is-stop"></i></span>
-                  <span class="tape-result">INCIDENT</span>
-                </div>
-                <div class="tape-row">
-                  <span class="tape-label">RPL</span>
-                  <span class="tape-track"><i></i><i></i><i class="is-fault"></i><i></i><i></i><i></i><i class="is-stop"></i></span>
-                  <span class="tape-result">BIT-EXACT</span>
-                </div>
-                <div class="tape-row">
-                  <span class="tape-label">CFX</span>
-                  <span class="tape-track"><i></i><i></i><i class="is-fault"></i><i></i><i></i><i></i><i class="is-pass"></i></span>
-                  <span class="tape-result">AVOIDED</span>
-                </div>
-              </div>
-              <div class="visual-footer" aria-hidden="true"><span>INPUT Δ / 0</span><span>POLICY Δ / 1</span></div>
-            </div>
-          </article>
+        <section class="press-volume-section press-volume-section--routing" id="volume-routing" data-press-volume="/press/routing/" data-press-slug="routing" aria-labelledby="volume-routing-title">
+          <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
+            <div class="press-volume-detail"><p class="press-volume-kicker">Routing</p><h2 class="press-volume-title" id="volume-routing-title">Route lifecycle</h2><p class="press-volume-summary">History / deep links / return</p><p class="press-volume-excerpt">Keep one scene alive while routes change, volumes scroll, and navigation returns to the shelf.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>04</dd></div><div><dt>Feature</dt><dd>History</dd></div></dl></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>Routes change; catalogue objects do not.</h2><p>Opening a book adds one history entry. Scrolling through later volumes replaces that entry, so browser Back still has one clear step to the shelf.</p><p>The return transition centres the last active book instead of restoring an obsolete page offset.</p></section></div>
+          </div></div>
+        </section>
 
-          <article class="project-row project-row--reverse" data-reveal>
-            <div class="project-copy">
-              <p class="project-meta"><span>01.2</span><span>Robotics / Rust / forward + inverse kinematics</span></p>
-              <h3><a href="/arm/">The kinematics belong in a library, not the viewer.</a></h3>
-              <p class="project-summary">Forward kinematics, a 6×6 geometric Jacobian, and damped-least-squares inverse kinematics live in a clean-room <code>no_std</code> Rust library. The viewer renders; targeted consistency checks test the maths.</p>
-              <dl class="project-evidence">
-                <div><dt>FK</dt><dd>&lt; 1e-6 m vs separate Python goldens</dd></div>
-                <div><dt>Jacobian</dt><dd>Linear rows, all 6 columns vs finite differences</dd></div>
-                <div><dt>IK</dt><dd>Successful generated solves &lt; 1e-4 m</dd></div>
-              </dl>
-              <div class="project-links">
-                <a href="/arm/">Drive the GLUON arm</a>
-                <a href="/notes/gluon-kinematics/">Read the verification note</a>
-                <a href="https://github.com/zi3t/gluon-kinematics" target="_blank" rel="noopener noreferrer">Source ↗</a>
-              </div>
-            </div>
+        <section class="press-volume-section press-volume-section--integration" id="volume-integration" data-press-volume="/press/integration/" data-press-slug="integration" aria-labelledby="volume-integration-title">
+          <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
+            <div class="press-volume-detail"><p class="press-volume-kicker">Integration</p><h2 class="press-volume-title" id="volume-integration-title">Host integration</h2><p class="press-volume-summary">Semantic HTML / WebGL enhancement</p><p class="press-volume-excerpt">Mount the renderer over ordinary links and retain an accessible catalogue when WebGL is unavailable.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>05</dd></div><div><dt>Feature</dt><dd>Host API</dd></div></dl></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>The host supplies structure; the package supplies behaviour.</h2><p>Ordered anchors provide titles, routes, focus targets, and fallback navigation. The package owns rendering, materials, motion, route state, and geometry.</p><p>No blog, CMS, Astro collection, or host page is required by this demo.</p></section></div>
+          </div></div>
+        </section>
+      </div>
 
-            <div class="project-visual arm-visual" role="img" aria-label="Technical line drawing of a six-axis robot arm and its tool centre frame">
-              <div class="visual-bar" aria-hidden="true"><span>GLUON / FK(q)</span><span>WASM / 12 KB</span></div>
-              <svg viewBox="0 0 560 360" aria-hidden="true" focusable="false">
-                <g class="arm-grid">
-                  <path d="M40 40H520M40 100H520M40 160H520M40 220H520M40 280H520M40 340H520"/>
-                  <path d="M40 40V340M120 40V340M200 40V340M280 40V340M360 40V340M440 40V340M520 40V340"/>
-                </g>
-                <g class="arm-machine">
-                  <path class="arm-base" d="M74 308H168L151 282H91Z"/>
-                  <path class="arm-link arm-link--one" d="M121 282L145 225"/>
-                  <path class="arm-link arm-link--two" d="M145 225L229 210"/>
-                  <path class="arm-link arm-link--three" d="M229 210L291 132"/>
-                  <path class="arm-link arm-link--four" d="M291 132L385 105"/>
-                  <path class="arm-link arm-link--five" d="M385 105L430 73"/>
-                  <circle cx="121" cy="282" r="12"/>
-                  <circle cx="145" cy="225" r="12"/>
-                  <circle cx="229" cy="210" r="12"/>
-                  <circle cx="291" cy="132" r="11"/>
-                  <circle cx="385" cy="105" r="10"/>
-                  <circle cx="430" cy="73" r="8"/>
-                </g>
-                <g class="arm-axis">
-                  <path d="M430 73H486"/><path d="M430 73V28"/><path d="M430 73L458 101"/>
-                  <text x="491" y="77">X</text><text x="426" y="21">Z</text><text x="463" y="111">Y</text>
-                </g>
-                <g class="arm-labels">
-                  <text x="51" y="327">BASE / q0</text>
-                  <text x="163" y="198">q2</text>
-                  <text x="305" y="122">q4</text>
-                  <text x="447" y="57">TCP</text>
-                  <text x="356" y="325">T₀⁶ = FK(q₀…q₅)</text>
-                </g>
-              </svg>
-              <div class="visual-footer" aria-hidden="true"><span>CORE / NO_STD</span><span>ORACLES / 3</span></div>
-            </div>
-          </article>
-
-          <article class="project-row" data-reveal>
-            <div class="project-copy">
-              <p class="project-meta"><span>01.3</span><span>C# / .NET 10 / RabbitMQ / SQLite</span></p>
-              <h3><a href="/telemetry/">A replay is only useful when it leaves evidence.</a></h3>
-              <p class="project-summary">Deterministic duplicates, reordering, and delay cross a real RabbitMQ boundary. SQLite owns the answer, so the report describes what persisted instead of what the publisher hoped would persist.</p>
-              <dl class="project-evidence">
-                <div><dt>Schedule</dt><dd>Exact release order before AMQP</dd></div>
-                <div><dt>Boundary</dt><dd>Broker-backed integration test</dd></div>
-                <div><dt>Report</dt><dd>Transactional SQL counters</dd></div>
-              </dl>
-              <div class="project-links">
-                <a href="/telemetry/">Open the replay lab</a>
-                <a href="/notes/replay-evidence/">Read the test strategy</a>
-                <a href="https://github.com/zi3t/telemetry-replay" target="_blank" rel="noopener noreferrer">Source ↗</a>
-              </div>
-            </div>
-
-            <div class="project-visual telemetry-visual" role="img" aria-label="Operational event log showing inserted, duplicate and late telemetry deliveries">
-              <div class="visual-bar" aria-hidden="true"><span>REPLAY / RUN-04</span><span>STORE / SQLITE</span></div>
-              <ol class="telemetry-log" aria-hidden="true">
-                <li><span>0001</span><b>evt-021</b><em>INSERTED</em><small>seq 21</small></li>
-                <li><span>0002</span><b>evt-024</b><em>INSERTED</em><small>seq 24</small></li>
-                <li class="is-late"><span>0003</span><b>evt-022</b><em>LATE</em><small>seq 22</small></li>
-                <li class="is-duplicate"><span>0004</span><b>evt-024</b><em>DUPLICATE</em><small>same id</small></li>
-                <li><span>0005</span><b>evt-023</b><em>INSERTED</em><small>seq 23</small></li>
-              </ol>
-              <div class="telemetry-summary" aria-hidden="true">
-                <span><b>28</b><small>deliveries</small></span>
-                <span><b>24</b><small>inserted</small></span>
-                <span><b>04</b><small>duplicates</small></span>
-                <span><b>18</b><small>out of order</small></span>
-              </div>
-              <div class="visual-footer" aria-hidden="true"><span>FAULT PLAN / FIXED</span><span>RESULT / OWNED BY SQL</span></div>
-            </div>
-          </article>
-        </div>
+      <section class="home-section signature-section press-film-section" id="signature" aria-label="Fold-out media plane demonstration" data-reveal>
+        <div class="signature-row press-film-row"><figure class="press-film-poster" role="img" aria-label="A folded poster demonstrating terminal media in the product scene"><figcaption>Package-owned terminal media fixture.</figcaption></figure></div>
       </section>
-
-      <section class="home-section practice-section" id="practice" aria-labelledby="practice-heading" data-reveal>
-        <header class="home-section-head">
-          <p class="section-label">02 / Practice</p>
-          <div>
-            <h2 id="practice-heading">Evidence over adjectives.</h2>
-            <p>Three working areas, grouped the way the work actually arrives. The technologies are supporting evidence for the claims above, not the claim.</p>
-          </div>
-        </header>
-
-        <div class="practice-layout">
-          <aside class="practice-aside" data-reveal>
-            <p class="practice-quote">“If a boundary can change behaviour, it needs both a contract and a way to inspect the contract.”</p>
-            <p class="practice-aside-meta">Working rule / 01</p>
-          </aside>
-
-          <dl class="capability-ledger" data-reveal>
-            <div>
-              <dt><span>01</span> Physical + real-time systems</dt>
-              <dd>Robotics, control systems, embedded software, device integration, real-time C++, Rust, and verification</dd>
-            </div>
-            <div>
-              <dt><span>02</span> Platforms + product engineering</dt>
-              <dd>C#, .NET 10, TypeScript, React Native, Swift, Android/Kotlin, AWS, and GCP</dd>
-            </div>
-            <div>
-              <dt><span>03</span> Offensive security</dt>
-              <dd>Web penetration testing, red teaming, adversary-minded design, OSCP, and OSEP</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-
-      <section class="home-section notes-section" id="notes" aria-labelledby="notes-heading" data-reveal>
-        <header class="home-section-head">
-          <p class="section-label">03 / Engineering notes</p>
-          <div>
-            <h2 id="notes-heading">Write the claim down.</h2>
-            <p>Short notes about control paths, replay, storage, simulation, and verification. One mechanism at a time.</p>
-          </div>
-        </header>
-
-        <div class="notes-ledger">
-          <article class="note-row" data-reveal>
-            <p class="note-date"><time datetime="2026-07-18">18.07.26</time></p>
-            <h3><a href="/notes/counterfactual-replay/">A fix should face the incident that demanded it.</a></h3>
-            <p class="note-topic">Rust / WASM / Replay</p>
-          </article>
-          <article class="note-row" data-reveal>
-            <p class="note-date"><time datetime="2026-07-17">17.07.26</time></p>
-            <h3><a href="/notes/gluon-kinematics/">The kinematics belong in a library, not the viewer.</a></h3>
-            <p class="note-topic">Robotics / Verification</p>
-          </article>
-          <article class="note-row" data-reveal>
-            <p class="note-date"><time datetime="2026-07-14">14.07.26</time></p>
-            <h3><a href="/notes/at-least-once/">At-least-once is a storage problem.</a></h3>
-            <p class="note-topic">C# / SQL / Messaging</p>
-          </article>
-          <article class="note-row" data-reveal>
-            <p class="note-date"><time datetime="2026-07-14">14.07.26</time></p>
-            <h3><a href="/notes/replay-evidence/">A replay is only useful when it leaves evidence.</a></h3>
-            <p class="note-topic">xUnit / CI / RabbitMQ</p>
-          </article>
-          <article class="note-row" data-reveal>
-            <p class="note-date"><time datetime="2026-07-11">11.07.26</time></p>
-            <h3><a href="/notes/system-path/">The system is the path, not the executable.</a></h3>
-            <p class="note-topic">RabbitMQ / SQLite / Boundaries</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="home-section signature-section press-film-section" id="signature" aria-label="Shutdown sequence fold-out field map" data-reveal>
-        <div class="signature-row press-film-row">
-          <figure
-            class="press-film-poster"
-            role="img"
-            aria-label="A horizontally folded field map of a robot shutdown command from operator intent to packet evidence"
-          >
-            <figcaption>Original artwork created for this catalogue.</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="press-signal-section" aria-labelledby="signal-heading" data-reveal>
-        <div class="press-signal-copy">
-          <p class="section-label">07 / Field signal</p>
-          <h2 id="signal-heading"><span>Beneath</span><span>the</span><span>signal</span></h2>
-          <p>Notes from the boundary between command, device, and evidence.</p>
-        </div>
-      </section>
-
-      <section class="home-closing" aria-labelledby="closing-heading" data-reveal>
-        <p class="section-label">08 / Next boundary</p>
-        <h2 id="closing-heading">Make the path observable.</h2>
-        <p>I am interested in robotics, systems software, verification, and the security questions hiding between them.</p>
-        <nav class="closing-links" aria-label="Profile and contact links">
-          <a href="/resume/">Read the résumé</a>
-          <a href="https://github.com/zi3t">GitHub ↗</a>
-          <a href="https://www.linkedin.com/in/zi3t">LinkedIn ↗</a>
-        </nav>
-      </section>
+      <section class="press-signal-section" aria-labelledby="signal-heading" data-reveal><div class="press-signal-copy"><p class="section-label">06 / Terminal scene</p><h2 id="signal-heading"><span>One</span><span>persistent</span><span>renderer</span></h2><p>The book meshes and fold-out plane share one product scene.</p></div></section>
+      <section class="home-closing" aria-labelledby="closing-heading" data-reveal><p class="section-label">07 / Package boundary</p><h2 id="closing-heading">Bring your own content.</h2><p>The catalogue requires semantic volume markup and visual profiles—not a particular framework, CMS, or publishing model.</p><nav class="closing-links" aria-label="Package links"><a href="https://github.com/zi3t/volume-catalogue">Source code ↗</a><a href="#main">Return to demo</a></nav></section>
     </main>
 
-    <footer class="site-footer home-footer" data-reveal>
-      <span>William Nguyen · Brisbane · UTC+10</span>
-      <span><a href="/feed.xml">RSS</a> · <a href="#main">Back to top</a></span>
-    </footer>
+    <footer class="site-footer home-footer" data-reveal><span>@zi3t/volume-catalogue</span><span><a href="https://github.com/zi3t/volume-catalogue">GitHub ↗</a></span></footer>
   </div>
 
   <script type="module" src="/src/site-entry.ts"></script>

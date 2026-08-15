@@ -1,8 +1,8 @@
 {
   "name": "@zi3t/volume-catalogue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Portable Three.js volume catalogue extracted from zi3t.io/press.",
+  "description": "Portable Three.js volume catalogue with a self-contained interactive demo.",
   "type": "module",
   "license": "UNLICENSED",
   "repository": {

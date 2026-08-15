@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
   <g fill="none" stroke="#292a74" stroke-linecap="round">
-    <!-- Recorder field. -->
+    <!-- Surface-sample field. -->
     <g>
       <path d="M718 0H800V1000H718Z" fill="#292a74" stroke="none"/>
       <path d="M82 0V1000M97 0V1000M112 0V1000M127 0V1000M142 0V1000M157 0V1000M172 0V1000M187 0V1000M202 0V1000M217 0V1000M232 0V1000M247 0V1000M262 0V1000M277 0V1000M292 0V1000M307 0V1000M322 0V1000M337 0V1000M352 0V1000M367 0V1000M382 0V1000M397 0V1000M412 0V1000M427 0V1000M442 0V1000M457 0V1000M472 0V1000M487 0V1000M502 0V1000M517 0V1000M532 0V1000M547 0V1000M562 0V1000M577 0V1000M592 0V1000M607 0V1000M622 0V1000M637 0V1000M652 0V1000M667 0V1000M682 0V1000M697 0V1000M712 0V1000" opacity=".92" stroke-width="6.2"/>
@@ -14,13 +14,13 @@
       <path d="M96 402H704M96 502H704M96 602H704M96 702H704"/>
       <path d="M200 372V732M320 372V732M440 372V732M560 372V732"/>
     </g>
-    <!-- the recorded tape -->
+    <!-- primary print layer -->
     <path d="M96 606C158 606 158 470 220 470S282 640 344 640 406 486 468 486 530 596 592 596 654 512 704 512" stroke-width="6" opacity=".95"/>
-    <!-- the bit-exact replay, riding the same path -->
+    <!-- gloss layer riding the same path -->
     <path d="M96 606C158 606 158 470 220 470S282 640 344 640 406 486 468 486 530 596 592 596 654 512 704 512" stroke-width="2" opacity=".5" stroke-dasharray="9 11"/>
-    <!-- the counterfactual: identical until the checkpoint, then it separates -->
+    <!-- foil layer separating from the primary print -->
     <path d="M344 640C406 640 406 528 468 528S530 656 592 656 654 574 704 574" stroke-width="2.6" opacity=".6" stroke-dasharray="3 9"/>
-    <!-- checkpoints -->
+    <!-- material samples -->
     <g stroke-width="3" opacity=".72">
       <path d="M220 388V716M344 388V716M468 388V716"/>
     </g>
@@ -30,17 +30,17 @@
       <circle cx="468" cy="486" r="9"/>
       <circle cx="592" cy="596" r="9"/>
     </g>
-    <!-- where the counterfactual leaves the record -->
+    <!-- where the foil leaves the print -->
     <g stroke-width="2" opacity=".55">
       <path d="M468 486V524M462 518l6 8 6-8"/>
     </g>
     <path d="M96 786H704" opacity=".34" stroke-width="1.4"/>
   </g>
   <g fill="#292a74" opacity=".52" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
-    <text x="96" y="352">TAPE / 20 S</text>
-    <text x="704" y="352" text-anchor="end">1 KHZ FIXED STEP</text>
-    <text x="96" y="768">RECORD</text>
-    <text x="292" y="768">REPLAY</text>
-    <text x="488" y="768">COUNTERFACTUAL</text>
+    <text x="96" y="352">DIFFUSE / BUMP</text>
+    <text x="704" y="352" text-anchor="end">FOIL / GLOSS</text>
+    <text x="96" y="768">CLOTH</text>
+    <text x="292" y="768">PAPER</text>
+    <text x="488" y="768">PRINT</text>
   </g>
 </svg>

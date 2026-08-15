@@ -1,9 +1,9 @@
 # ZI3T Volume Catalogue
 
-The WebGL book catalogue behind `zi3t.io/press`, extracted as a portable
-browser package. It owns the Three.js scene, book geometry and materials,
-artwork, interaction model, route composition, and an optional Cloudflare
-Worker adapter.
+A portable Three.js book catalogue with a self-contained five-volume demo.
+The package owns the renderer, geometry, materials, interactions, route
+lifecycle, styles, and demo fixtures. It does not fetch or embed content from
+the host application.
 
 The package is public for inspection but remains `private` and `UNLICENSED`.
 
@@ -17,65 +17,71 @@ npm run build
 npm run build:site
 ```
 
-- `build` creates the browser package in `dist/`.
-- `build:site` builds and replaces `public/press-assets/` in a sibling `zi3t`
-  checkout. Set `ZI3T_SITE_ROOT=/absolute/path/to/zi3t` when the repositories
-  are not siblings.
-- `check` remains a convenience alias for typecheck plus production build. It
-  is not a visual-parity verdict.
+- `dev` serves the package demo. Open `/press/`.
+- `build` creates the reusable browser package in `dist/`.
+- `build:site` builds the package, copies its browser assets into a sibling
+  `zi3t` checkout, and replaces that site's `/press/` shell from this demo.
+- `check` runs type checking and the production build.
 
-The old synthetic screenshot and interaction gates are not authoritative and
-are not exposed as package commands. Pixel parity is judged from explicit
-frames captured in a hardware-backed browser against the current live
-reference. Files retained under `tests/` are archival probes, are not shipped,
-and must not be treated as release gates.
+Set `ZI3T_SITE_ROOT=/absolute/path/to/zi3t` when the repositories are not
+siblings.
 
-## Site integration
+## Package boundary
 
-The repositories are siblings and the site keeps a stable symlink to this
-package:
+The shipping renderer reads ordinary semantic catalogue markup:
 
-```text
-workspace/
-├── volume-catalogue/
-└── zi3t/
-    └── packages/
-        └── volume-catalogue -> ../../volume-catalogue
+```html
+<li class="press-volume-item">
+  <a class="press-volume"
+     href="/catalogue/example/"
+     data-press-route="/catalogue/example/">
+    <span class="press-volume-book">
+      <small>Category</small>
+      <strong>Example volume</strong>
+      <b>01</b>
+    </span>
+  </a>
+</li>
 ```
 
-The site commits generated browser output under `public/press-assets/`. Its
-Worker imports the package adapter and content manifest through the symlink, so
-remote builds restore both repositories before running Wrangler.
+The host supplies ordered anchors and optional detail sections. The package
+supplies the WebGL scene and enhances those anchors without replacing their
+fallback navigation or accessibility semantics.
+
+```ts
+import {
+  mountVolumeCatalogue,
+  type CleanRoomVolumeProfile
+} from "@zi3t/volume-catalogue";
+
+const profiles: readonly CleanRoomVolumeProfile[] = [/* host visuals */];
+mountVolumeCatalogue({ profiles });
+```
+
+`demoVolumes` and `demoVolumeProfiles` are package-owned fixtures. They show
+materials, shared geometry, shelf interaction, route lifecycle, and host
+integration without referring to zi3t.io projects or engineering notes.
 
 ## Architecture
 
-- `src/content/volumes.ts` owns ordered routes, copy, and visual identities.
-- `src/runtime/clean-room/` owns the only shipping renderer and interaction
-  state machine. The directory name records its origin, not an alternative
-  runtime or a constraint on reference parity.
-- `src/runtime/fallback.ts` keeps the semantic catalogue usable when WebGL
-  cannot boot.
-- `src/adapters/cloudflare-worker.ts` composes the real project pages into the
-  book-detail document.
-- `src/styles/` and `src/assets/` are package-owned and travel with the build.
+- `src/runtime/clean-room/` owns the shipping renderer and interaction state.
+- `src/content/volumes.ts` owns only the self-contained demo route metadata.
+- `src/runtime/clean-room/profiles.ts` owns the demo's visual profiles.
+- `src/adapters/cloudflare-worker.ts` optionally serves the same static shell
+  for catalogue deep links; it never fetches or parses host pages.
+- `index.html` is the semantic, no-WebGL-capable demo shell.
+- `src/styles/` and `src/assets/` travel with the package build.
 
-The renderer uses a single authored book mesh and a single seven-map material
-per volume. Cover, spine, page block, joints, and headbands are regions of that
-shared UV atlas; thickness is a material uniform that moves only the outer
-shell vertices, preserving the authored hinge and spine curves.
+One authored book mesh and one seven-map material are reused for every volume.
+Cover, spine, page block, joints, and headbands occupy regions of the shared UV
+atlas. Thickness changes through a material uniform instead of separate meshes.
 
-## Browser contract
+## Site integration
 
-The scene enhances semantic anchors rather than replacing them. A host shell
-provides `.press-catalog`, ordered `.press-volume-item` elements, matching
-`.press-rail-item` buttons, and optional assembled `.press-volume-section`
-content. Each anchor retains a normal `href` and exposes its catalogue route
-through `data-press-route`.
-
-DOM order must match `volumes`; that order selects both route content and the
-book's authored material profile. Section-content CSS is emitted separately as
-`volume-catalogue-volumes.css` and loaded after embedded page styles so the
-catalogue composition owns its geometry.
+The zi3t site keeps a stable symlink to this sibling package and commits the
+generated `/press/` shell and browser assets. Its Worker only provides deep-link
+fallback and metadata rewriting. The site's notes and project pages have no
+catalogue markup or transition hooks.
 
 ## Licensing
 

@@ -1,7 +1,7 @@
 /* Volume sections — phase 1 of the continuous-scroll rebuild.
 
    Each of the five volumes is a full section of the one shell document: a hero
-   that holds the volume open for a viewport, the volume's genuine page content
+   that holds the volume open for a viewport, the package-owned fixture content
    below it, and a run-out of quiet space before the next volume's ground
    begins. The background belongs to the section, so crossing a boundary changes
    the page colour the way the reference does — by scrolling into it, not by
@@ -239,34 +239,34 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
   outline: none;
 }
 
-.press-volume-section--refly {
-  --press-volume-bg: var(--press-refly);
-  --press-volume-ink: var(--press-refly-ink);
+.press-volume-section--surfaces {
+  --press-volume-bg: var(--press-surfaces);
+  --press-volume-ink: var(--press-surfaces-ink);
 }
 
-.press-volume-section--arm {
-  --press-volume-bg: var(--press-arm);
-  --press-volume-ink: var(--press-arm-ink);
+.press-volume-section--geometry {
+  --press-volume-bg: var(--press-geometry);
+  --press-volume-ink: var(--press-geometry-ink);
 }
 
-.press-volume-section--shutdown-drain {
-  --press-volume-bg: var(--press-shutdown-drain);
-  --press-volume-ink: var(--press-shutdown-drain-ink);
+.press-volume-section--interaction {
+  --press-volume-bg: var(--press-interaction);
+  --press-volume-ink: var(--press-interaction-ink);
 }
 
-.press-volume-section--practice {
-  --press-volume-bg: var(--press-practice);
-  --press-volume-ink: var(--press-practice-ink);
+.press-volume-section--routing {
+  --press-volume-bg: var(--press-routing);
+  --press-volume-ink: var(--press-routing-ink);
 }
 
-.press-volume-section--field-notes {
-  --press-volume-bg: var(--press-notes);
-  --press-volume-ink: var(--press-notes-ink);
+.press-volume-section--integration {
+  --press-volume-bg: var(--press-integration);
+  --press-volume-ink: var(--press-integration-ink);
 }
 
 /* A volume is one continuous two-column section. The left grid track persists
-   for the complete height of the imported page so its sticky figure can carry
-   the canvas book beside every paragraph. Keeping the genuine page inside the
+   for the complete height of the fixture so its sticky figure can carry the
+   canvas book beside every paragraph. Keeping the fixture inside the
    right track is the important part: a sibling content block would expand back
    across the book as soon as the one-viewport introduction had scrolled away. */
 .press-volume-stage {
@@ -343,27 +343,27 @@ html[data-press-renderer="clean-room"].press-volumes-open .press-volumes {
 }
 
 /* The selected cover's authored cloth continues behind its route content. */
-html[data-press-renderer="clean-room"] .press-volume-section--refly {
+html[data-press-renderer="clean-room"] .press-volume-section--surfaces {
   --press-volume-bg: #b9ad6c;
   --press-volume-ink: #18185e;
 }
 
-html[data-press-renderer="clean-room"] .press-volume-section--arm {
+html[data-press-renderer="clean-room"] .press-volume-section--geometry {
   --press-volume-bg: #d9d1ae;
   --press-volume-ink: #29435c;
 }
 
-html[data-press-renderer="clean-room"] .press-volume-section--shutdown-drain {
+html[data-press-renderer="clean-room"] .press-volume-section--interaction {
   --press-volume-bg: #243447;
   --press-volume-ink: #e7e7df;
 }
 
-html[data-press-renderer="clean-room"] .press-volume-section--practice {
+html[data-press-renderer="clean-room"] .press-volume-section--routing {
   --press-volume-bg: #6d2949;
   --press-volume-ink: #f0dfb4;
 }
 
-html[data-press-renderer="clean-room"] .press-volume-section--field-notes {
+html[data-press-renderer="clean-room"] .press-volume-section--integration {
   --press-volume-bg: #ad763b;
   --press-volume-ink: #26333d;
 }
@@ -481,7 +481,7 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
   }
 }
 
-/* The genuine page's own content, given the section's colours. */
+/* Package-owned fixture content, given the section's colours. */
 .press-volume-content {
   width: 100%;
   max-width: 34rem;
@@ -489,10 +489,8 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
   padding: 0;
 }
 
-/* The static summary a demo page carries for the assembled document — the
-   live demo does not run here, so the brief says what it does and links out
-   to it. It is the section's reading copy, set in the same measure and ink as
-   the rest of the volume rather than dressed as page chrome. */
+/* A fixture's supporting copy, set in the same measure and ink as the rest of
+   the volume rather than dressed as page chrome. */
 .press-brief {
   max-width: 56ch;
   margin: 0 0 clamp(3rem, 6vh, 5rem);
@@ -525,14 +523,14 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 }
 
 /* A volume section is one ground and one ink, the way the reference's book
-   pages are. The five genuine pages were written for their own themes, so their
-   colours arrive wrong here — measured against the section grounds at ratios as
+   pages are. The five fixtures use different themes, so their colours can
+   arrive wrong here — measured against the section grounds at ratios as
    low as 1.11:1, which is body copy you cannot read. Patching five stylesheets
-   would leave the next page to be added broken again, so the section republishes
+   would leave the next fixture broken again, so the section republishes
    the palette and the content inherits it in tiers.
 
-   `!important` deliberately: these override five foreign stylesheets whose own
-   selectors are frequently more specific than anything scoped here can be, and
+   `!important` deliberately keeps fixture internals subordinate to the selected
+   cover palette, and
    the scope is narrow — `.press-volume-content` exists only in the assembled
    document. `.project-visual` is exempt throughout: those are authored diagrams
    with their own palettes, not page chrome.
@@ -548,7 +546,7 @@ html[data-press-renderer="clean-room"] .press-volume-meta :is(dt, dd) {
 }
 
 /* The reference's book pages carry no panels: one ground, thin rules, ink type.
-   The genuine pages bring dark cards that punch holes in the volume's colour. */
+   Fixture cards must not punch holes in the volume's colour. */
 .press-volume-content *:not(.project-visual):not(.project-visual *) {
   background-color: transparent !important;
   background-image: none !important;

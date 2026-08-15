@@ -22,7 +22,7 @@ import {
   smooth,
   wrapRotation
 } from "./motion";
-import { cleanRoomProfiles, type CleanRoomVolumeProfile } from "./profiles";
+import { type CleanRoomVolumeProfile } from "./profiles";
 import {
   installCleanRoomRouting,
   type CleanRoomPressMode
@@ -254,10 +254,17 @@ const projectedBookBounds = (
   };
 };
 
-export const mountCleanRoomCatalogue = (): boolean => {
+export interface VolumeCatalogueOptions {
+  readonly profiles: readonly CleanRoomVolumeProfile[];
+}
+
+export const mountCleanRoomCatalogue = (
+  options: VolumeCatalogueOptions
+): boolean => {
   const stage = document.querySelector<HTMLElement>(".press-catalog");
   const items = Array.from(document.querySelectorAll<HTMLElement>(".press-volume-item"));
-  if (!stage || items.length !== cleanRoomProfiles.length) return false;
+  const profiles = options.profiles;
+  if (!stage || items.length !== profiles.length) return false;
   const catalogueStage = stage;
 
   const links = items.map((item) => item.querySelector<HTMLAnchorElement>(".press-volume"));
@@ -359,12 +366,15 @@ export const mountCleanRoomCatalogue = (): boolean => {
   let holdPresentation = 0;
   let holdBackdrop = 0;
   let holdClassTimer = 0;
-  let pressMode: CleanRoomPressMode = cleanRoomProfiles.some(
-    (profile) => window.location.pathname.endsWith(`/press/${profile.slug}/`)
-  ) ? "volumes" : "catalogue";
-  let currentRouteIndex = Math.max(0, cleanRoomProfiles.findIndex(
-    (profile) => window.location.pathname.endsWith(`/press/${profile.slug}/`)
-  ));
+  const configuredRoutes = ownedLinks.map((link) => new URL(
+    link.dataset.pressRoute ?? link.href,
+    window.location.href
+  ).pathname);
+  const initialRouteIndex = configuredRoutes.indexOf(window.location.pathname);
+  let pressMode: CleanRoomPressMode = initialRouteIndex >= 0
+    ? "volumes"
+    : "catalogue";
+  let currentRouteIndex = Math.max(0, initialRouteIndex);
   let presentedRouteIndex = currentRouteIndex;
   let routeFrames = 0;
   let returningRouteIndex = -1;
@@ -435,7 +445,7 @@ export const mountCleanRoomCatalogue = (): boolean => {
   });
 
   const entries = items.map((item, index): CleanRoomEntry => {
-    const profile = cleanRoomProfiles[index];
+    const profile = profiles[index];
     const link = ownedLinks[index];
     if (!profile || !link) throw new Error(`Missing clean-room volume ${index}`);
     const target = link.querySelector<HTMLElement>(".press-volume-book") ?? link;

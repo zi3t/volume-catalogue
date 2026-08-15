@@ -1,4 +1,5 @@
 import { initializeRevealMotion } from "./runtime/reveal";
+import { demoVolumeProfiles } from "./runtime/clean-room/profiles";
 
 const releaseStartupGate = (fallback = false): void => {
   const root = document.documentElement;
@@ -10,7 +11,9 @@ const start = async (): Promise<void> => {
   try {
     initializeRevealMotion();
     const { mountCleanRoomCatalogue } = await import("./runtime/clean-room");
-    if (!mountCleanRoomCatalogue()) releaseStartupGate(true);
+    if (!mountCleanRoomCatalogue({ profiles: demoVolumeProfiles })) {
+      releaseStartupGate(true);
+    }
   } catch (error) {
     releaseStartupGate(true);
     console.warn("Press scene failed to initialise; showing the DOM fallback.", error);

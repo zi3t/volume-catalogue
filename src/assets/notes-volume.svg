@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
-  <!-- Engineering notes. A working page: ruled grid, a margin rule, a traced
-       measurement across it, and the corrections written under the trace where
-       the reasoning changed. Portrait; no background rect. -->
+  <!-- Host integration. Semantic markup remains underneath an enhanced visual
+       trace so fallback and rendered states share one source. -->
   <g fill="none" stroke="#161d23" stroke-linecap="round">
     <g opacity=".26" stroke-width="1.3">
       <path d="M150 330H690M150 386H690M150 442H690M150 498H690M150 554H690M150 610H690M150 666H690M150 722H690M150 778H690"/>
@@ -10,7 +9,7 @@
     <g opacity=".5" stroke-width="1.8">
       <path d="M196 300V808"/>
     </g>
-    <!-- the measurement, taken across the page -->
+    <!-- enhanced visual trace -->
     <path d="M214 700L282 604 356 640 424 486 502 540 578 414 664 470" stroke-width="6" opacity=".9"/>
     <g stroke-width="2.6" fill="#b37c3f" opacity=".95">
       <circle cx="282" cy="604" r="8"/>
@@ -19,20 +18,20 @@
       <circle cx="502" cy="540" r="8"/>
       <circle cx="578" cy="414" r="8"/>
     </g>
-    <!-- the correction: what the second pass measured -->
+    <!-- fallback trace -->
     <path d="M356 640L424 528 502 566 578 466" stroke-width="2.2" opacity=".55" stroke-dasharray="5 8"/>
-    <!-- margin ticks against the ruled lines -->
+    <!-- semantic anchors -->
     <g stroke-width="2" opacity=".45">
       <path d="M164 442h20M164 554h20M164 666h20"/>
     </g>
-    <!-- struck-through line: a note that did not survive -->
+    <!-- host boundary -->
     <g stroke-width="1.8" opacity=".42">
       <path d="M214 806H520M214 802H498"/>
     </g>
   </g>
   <g fill="#161d23" opacity=".55" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" letter-spacing="2.4">
-    <text x="150" y="286">WORKING NOTES</text>
-    <text x="690" y="286" text-anchor="end">REVISED</text>
-    <text x="214" y="852">SUPERSEDED</text>
+    <text x="150" y="286">HOST MARKUP</text>
+    <text x="690" y="286" text-anchor="end">ENHANCED</text>
+    <text x="214" y="852">FALLBACK</text>
   </g>
 </svg>
