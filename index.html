@@ -3,15 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Volume Catalogue — interactive package demo</title>
-  <meta name="description" content="A self-contained demonstration of the @zi3t/volume-catalogue WebGL package.">
+  <title>ZI3T Volume Catalogue — Stripe Press–inspired WebGL study</title>
+  <meta name="description" content="An independent Stripe Press–inspired Three.js study of a persistent 3D book catalogue, semantic fallback navigation, and route lifecycle.">
+  <meta name="creator" content="William (Viet) Nguyen">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://zi3t.io/press/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zi3t.io/press/">
-  <meta property="og:title" content="Volume Catalogue — interactive package demo">
-  <meta property="og:description" content="Five books demonstrate materials, geometry, interaction, routing, and host integration.">
+  <meta property="og:title" content="ZI3T Volume Catalogue — Stripe Press–inspired WebGL study">
+  <meta property="og:description" content="An independent, non-affiliated Three.js study of 3D book rendering, interaction, deep links, and return-to-shelf state.">
+  <meta property="og:site_name" content="ZI3T">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ZI3T Volume Catalogue — Stripe Press–inspired WebGL study">
+  <meta name="twitter:description" content="Independent Three.js study of a persistent 3D book catalogue and route lifecycle.">
   <meta name="theme-color" content="#201819">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      "name": "ZI3T Volume Catalogue",
+      "description": "An independent Stripe Press-inspired Three.js study of a persistent 3D book catalogue, semantic navigation, and route lifecycle.",
+      "url": "https://zi3t.io/press/",
+      "codeRepository": "https://github.com/zi3t/volume-catalogue",
+      "programmingLanguage": ["TypeScript", "GLSL", "HTML", "CSS"],
+      "runtimePlatform": "Web browser",
+      "author": {
+        "@type": "Person",
+        "name": "William (Viet) Nguyen",
+        "url": "https://zi3t.io/"
+      },
+      "isBasedOn": {
+        "@type": "WebSite",
+        "name": "Stripe Press",
+        "url": "https://press.stripe.com/"
+      }
+    }
+  </script>
   <link rel="stylesheet" href="/src/styles/catalogue.css">
   <link rel="stylesheet" href="/src/styles/volume-sections.css">
   <style id="press-startup-gate">
@@ -30,8 +58,11 @@
     <header class="masthead home-masthead">
       <a class="brand home-brand" href="https://github.com/zi3t/volume-catalogue" aria-label="Volume Catalogue source on GitHub">
         <span class="brand-mark" aria-hidden="true">VC</span>
-        <span class="brand-name">Volume Catalogue <span>/ package demo</span></span>
+        <span class="brand-name">ZI3T Volume Catalogue <span>/ Stripe Press–inspired independent study</span></span>
       </a>
+      <nav class="home-nav" aria-label="Project information">
+        <a href="https://github.com/zi3t/volume-catalogue#reference-credit-and-non-affiliation">Credits &amp; rights ↗</a>
+      </nav>
     </header>
 
     <main id="main">
@@ -92,11 +123,7 @@
         </div>
 
         <p class="hero-kicker home-enter home-enter--kicker"><span>Three.js package</span><span>Five-volume fixture</span></p>
-        <h1 class="home-display" id="hero-heading">
-          <span class="display-mask"><span class="display-line display-line--one">One book mesh.</span></span>
-          <span class="display-mask"><span class="display-line display-line--two">Five <em>material</em></span></span>
-          <span class="display-mask"><span class="display-line display-line--three">and route states.</span></span>
-        </h1>
+        <h1 class="home-display" id="hero-heading">Stripe Press–inspired WebGL book catalogue study</h1>
         <div class="hero-lower home-enter home-enter--lower">
           <p>This page is package-owned fixture content. It demonstrates the renderer and interaction lifecycle without reading from the host website.</p>
           <a class="primary-text-link" href="https://github.com/zi3t/volume-catalogue">Inspect the package <span aria-hidden="true">↗</span></a>
@@ -135,7 +162,7 @@
         <section class="press-volume-section press-volume-section--integration" id="volume-integration" data-press-volume="/press/integration/" data-press-slug="integration" aria-labelledby="volume-integration-title">
           <div class="press-volume-stage"><div class="press-volume-figure-track" aria-hidden="true"><div class="press-volume-figure"></div></div><div class="press-volume-copy">
             <div class="press-volume-detail"><p class="press-volume-kicker">Integration</p><h2 class="press-volume-title" id="volume-integration-title">Host integration</h2><p class="press-volume-summary">Semantic HTML / WebGL enhancement</p><p class="press-volume-excerpt">Mount the renderer over ordinary links and retain an accessible catalogue when WebGL is unavailable.</p><dl class="press-volume-meta"><div><dt>Volume</dt><dd>05</dd></div><div><dt>Feature</dt><dd>Host API</dd></div></dl></div>
-            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>The host supplies structure; the package supplies behaviour.</h2><p>Ordered anchors provide titles, routes, focus targets, and fallback navigation. The package owns rendering, materials, motion, route state, and geometry.</p><p>No blog, CMS, Astro collection, or host page is required by this demo.</p></section></div>
+            <div class="press-volume-content"><section class="press-brief"><p class="section-label">Package fixture</p><h2>The host supplies structure; the package supplies behaviour.</h2><p>Ordered anchors provide titles, routes, focus targets, and fallback navigation. The package owns rendering, materials, motion, route state, and geometry.</p></section></div>
           </div></div>
         </section>
       </div>

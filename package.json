@@ -2,9 +2,17 @@
   "name": "@zi3t/volume-catalogue",
   "version": "0.2.0",
   "private": true,
-  "description": "Portable Three.js volume catalogue with a self-contained interactive demo.",
+  "description": "Independent Three.js WebGL book catalogue with a persistent scene, semantic fallback, and route lifecycle.",
   "type": "module",
   "license": "UNLICENSED",
+  "keywords": [
+    "three.js",
+    "webgl",
+    "3d-book",
+    "catalogue",
+    "interaction",
+    "history-api"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zi3t/volume-catalogue.git"
